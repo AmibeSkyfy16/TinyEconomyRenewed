@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "tinyeconomyrenewed",
+  "version": "${version}",
+  "name": "Tiny Economy Renewed",
+  "description": "A tiny economy system, players can sell/buy items between them by creating shop. Players can also earn money from actions like destroying blocks, killing entities and realising advancements",
+  "authors": [
+    "Skyfy16"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/tinyeconomyrenewed/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      {
+        "adapter": "kotlin",
+        "value": "ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod"
+      }
+    ],
+    "main": [
+      
+    ]
+  },
+  "mixins": [
+    "tinyeconomyrenewed.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.8",
+    "fabric": "*",
+    "minecraft": "1.19",
+    "player_events_api": ">=2.3.1",
+    "fabric-language-kotlin": ">=1.8.0+kotlin.1.7.0"
+  }
+}
