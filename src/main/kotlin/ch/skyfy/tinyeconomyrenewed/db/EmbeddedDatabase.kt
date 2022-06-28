@@ -15,12 +15,17 @@ import kotlin.io.path.exists
 
 class EmbeddedDatabase {
 
+    private val databaseFolderName: String = "database"
+    private val databaseFolder: Path = TinyEconomyRenewedMod.CONFIG_DIRECTORY.resolve(databaseFolderName)
+
     private val mariadbFolderName: String = "mariadb-10.8.3-winx64"
-    private val mariadbFolder: Path = TinyEconomyRenewedMod.CONFIG_DIRECTORY.resolve(mariadbFolderName)
+    private val mariadbFolder: Path = databaseFolder.resolve(mariadbFolderName)
 
     val db: DB
 
     init {
+
+        if(!databaseFolder.exists())databaseFolder.toFile().mkdir()
 
         installMariaDB()
 
@@ -30,7 +35,7 @@ class EmbeddedDatabase {
         builder.baseDir = mariadbFolder.toAbsolutePath().toString()
 
         builder.port = 3307
-        builder.dataDir = mariadbFolder.resolve("data").toAbsolutePath().toString()
+        builder.dataDir = databaseFolder.resolve("data").toAbsolutePath().toString()
 
         db = DB.newEmbeddedDB(builder.build())
     }
@@ -41,8 +46,7 @@ class EmbeddedDatabase {
     private fun installMariaDB() {
         val dest: Path = TinyEconomyRenewedMod.CONFIG_DIRECTORY.resolve("$mariadbFolderName.zip")
 
-        val t3 = FabricLoader.getInstance().getModContainer(MOD_ID).get()
-            .findPath("assets/tinyeconomyrenewed/$mariadbFolderName.zip")
+        val t3 = FabricLoader.getInstance().getModContainer(MOD_ID).get().findPath("assets/tinyeconomyrenewed/$mariadbFolderName.zip")
         if (!dest.exists() && !mariadbFolder.exists())
             Files.copy(t3.get(), dest, StandardCopyOption.REPLACE_EXISTING)
 
