@@ -1,6 +1,7 @@
 package ch.skyfy.tinyeconomyrenewed.db
 
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
+import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod.Companion.LOGGER
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod.Companion.MOD_ID
 import ch.vorburger.exec.ManagedProcessException
 import ch.vorburger.mariadb4j.DB
@@ -10,6 +11,7 @@ import net.lingala.zip4j.ZipFile
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 
@@ -47,21 +49,25 @@ class EmbeddedDatabase {
         val dest: Path = TinyEconomyRenewedMod.CONFIG_DIRECTORY.resolve("$mariadbFolderName.zip")
 
         val t3 = FabricLoader.getInstance().getModContainer(MOD_ID).get().findPath("assets/tinyeconomyrenewed/$mariadbFolderName.zip")
-        if (!dest.exists() && !mariadbFolder.exists())
+        if (!dest.exists() && !mariadbFolder.exists()) {
             Files.copy(t3.get(), dest, StandardCopyOption.REPLACE_EXISTING)
+            LOGGER.info("Copying files for MariaDB server in ${dest.parent.absolutePathString()}")
+        }
 
         if (dest.exists() && !mariadbFolder.exists()) {
+            LOGGER.info("Extracting files for MariaDB server in ${dest.parent.absolutePathString()}")
             ZipFile(dest.toFile()).extractAll(mariadbFolder.toAbsolutePath().toString())
             dest.deleteIfExists()
         }
     }
 
     fun startMariaDBServer() {
+        LOGGER.info("Starting MariaDB server")
         try {
             db.start()
         } catch (e: ManagedProcessException) {
             e.printStackTrace()
-            println("already started")
+            LOGGER.info("MariaDB Server is already started")
         }
     }
 

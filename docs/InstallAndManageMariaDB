@@ -22,3 +22,8 @@ this file will contain some information about installing and managing a mariadb 
 
      8. Pour stopper le server, voici la commande: .\mysqladmin.exe -u root -p shutdown
         8.1 Avec un port custom: .\mysqladmin.exe -u root -p shutdown --port 3307
+
+
+
+
+https://zetcode.com/mysql/firststeps/

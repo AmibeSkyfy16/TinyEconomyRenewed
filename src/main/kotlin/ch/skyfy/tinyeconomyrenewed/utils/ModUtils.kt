@@ -1,5 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.utils
 
+import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import net.minecraft.block.Block
 import net.minecraft.block.Blocks
 import net.minecraft.entity.EntityType
@@ -12,6 +13,8 @@ class ModUtils {
 
     companion object{
         fun populateDatabase(database: Database){
+
+            TinyEconomyRenewedMod.LOGGER.info("Populating database")
 
             val blocks= ReflectionUtils.getListOfTranslationKey(Blocks::class.java, Block::class.java)
             val items = ReflectionUtils.getListOfTranslationKey(Items::class.java, Item::class.java)
