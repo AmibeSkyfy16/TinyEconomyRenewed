@@ -23,7 +23,6 @@ class TinyEconomyRenewedMod : DedicatedServerModInitializer {
 
     init {
         createConfigDir()
-
         val databaseManager = DatabaseManager()
     }
 

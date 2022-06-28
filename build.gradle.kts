@@ -2,6 +2,11 @@
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+val transitiveInclude: Configuration by configurations.creating {
+    exclude(group = "org.jetbrains.kotlin")
+    exclude(group = "com.mojang")
+}
+
 plugins {
     id("fabric-loom") version "0.12-SNAPSHOT"
     id("org.jetbrains.kotlin.jvm") version "1.7.0"
@@ -10,11 +15,6 @@ plugins {
 val archivesBaseName = property("archives_base_name")
 group = property("maven_group")!!
 version = property("mod_version")!!
-
-val transitiveInclude: Configuration by configurations.creating {
-    exclude(group = "org.jetbrains.kotlin")
-    exclude(group = "com.mojang")
-}
 
 repositories {
     mavenCentral()
@@ -85,4 +85,22 @@ tasks {
         useJUnitPlatform()
     }
 
+    val copyJarToTestServer = register("copyJarToTestServer"){
+        println("copy to server")
+        copyFile("build/libs/TinyEconomyRenewed-1.0-SNAPSHOT.jar", project.property("testServerModsFolder") as String)
+    }
+
+    named<DefaultTask>("remapJar"){
+        doLast{
+            copyJarToTestServer.get()
+        }
+    }
+
+}
+
+fun copyFile(src: String, dest: String) {
+    copy {
+        from(src)
+        into(dest)
+    }
 }

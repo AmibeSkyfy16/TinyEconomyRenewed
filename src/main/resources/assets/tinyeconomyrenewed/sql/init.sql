@@ -1,31 +1,27 @@
-create table if not exists address
+create table if not exists advancement
 (
     id int auto_increment primary key,
-    postal_code smallint not null,
-    city varchar(255) null,
-    street_address varchar(255) not null
+    translation_key varchar(512) not null,
+    constraint advancement_translation_key_uindex unique (translation_key)
 );
 
-create table if not exists location
+create table if not exists entity
 (
     id int auto_increment primary key,
-    address_id int not null,
-    room_name varchar(255) not null,
-    exposure enum ('SHADE', 'SEMI-SHADE', 'FULL_SUN') default 'SEMI-SHADE' not null,
-    side enum ('NORTH', 'SOUTH', 'EST', 'WEST') default 'SOUTH' not null,
-    description text null,
-    constraint location_ibfk_1 foreign key (address_id) references address (id)
+    translation_key varchar(512) not null
 );
 
-create index if not exists address_id on location (address_id);
-
-create table if not exists plant
+create table if not exists item
 (
     id int auto_increment primary key,
-    location_id int not null,
-    common_name varchar(255) not null,
-    constraint plant_ibfk_1 foreign key (location_id) references location (id)
+    translation_key varchar(512) not null,
+    constraint item_translation_key_uindex unique (translation_key)
 );
 
-create index if not exists location_id on plant (location_id);
-
+create table if not exists player
+(
+    id int auto_increment primary key,
+    name  varchar(255) not null,
+    money float default 0 not null,
+    constraint player_name_uindex unique (name)
+);

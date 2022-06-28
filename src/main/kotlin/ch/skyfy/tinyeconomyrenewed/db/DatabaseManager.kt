@@ -1,6 +1,7 @@
 package ch.skyfy.tinyeconomyrenewed.db
 
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
+import ch.skyfy.tinyeconomyrenewed.utils.ModUtils
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import kotlin.io.path.inputStream
@@ -25,11 +26,14 @@ class DatabaseManager {
 
         initDb()
 
+        ModUtils.populateDatabase(database)
+
         registerEvents()
     }
 
     private fun initDb() {
-        val stream = FabricLoader.getInstance().getModContainer(TinyEconomyRenewedMod.MOD_ID).get().findPath("assets/tinyeconomyrenewed/sql/init.sql").get().inputStream()
+        val stream = FabricLoader.getInstance().getModContainer(TinyEconomyRenewedMod.MOD_ID).get()
+            .findPath("assets/tinyeconomyrenewed/sql/init.sql").get().inputStream()
         database.useConnection { connection ->
             connection.createStatement().use { statement ->
                 stream.bufferedReader().use { reader ->
