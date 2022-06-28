@@ -43,7 +43,7 @@ class EmbeddedDatabase {
     }
 
     /**
-     * If this is the first time the minecraft server is started with the mod. Then you have to install the files for the mariadb server
+     * If this is the first time the minecraft server is started with the mod. Then we have to install (copy and extract) the files for the mariadb server
      */
     private fun installMariaDB() {
         val dest: Path = TinyEconomyRenewedMod.CONFIG_DIRECTORY.resolve("$mariadbFolderName.zip")
@@ -62,7 +62,7 @@ class EmbeddedDatabase {
     }
 
     fun startMariaDBServer() {
-        LOGGER.info("Starting MariaDB server")
+        LOGGER.info("Starting MariaDB server \uD83D\uDE80 🚀")
         try {
             db.start()
         } catch (e: ManagedProcessException) {

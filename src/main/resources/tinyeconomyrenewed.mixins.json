@@ -4,6 +4,9 @@
   "package": "ch.skyfy.tinyeconomyrenewed.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "AdvancementMixin",
+    "AdvancementTabC2SPacketMixin",
+    "PlayerAdvancementTrackerMixin"
   ],
   "server": [
   ],

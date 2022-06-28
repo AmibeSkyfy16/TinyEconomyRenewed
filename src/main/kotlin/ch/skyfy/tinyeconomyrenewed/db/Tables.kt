@@ -23,5 +23,8 @@ object Entity : Table<Nothing>("entity"){
 
 object Advancement : Table<Nothing>("advancement"){
     val id = int("id").primaryKey()
-    val translationKey = varchar("translation_key")
+    val identifier = varchar("identifier")
+    val frame = varchar("frame")
+    val title = varchar("title")
+    val description = varchar("description")
 }
