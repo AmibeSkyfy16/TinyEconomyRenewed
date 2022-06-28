@@ -45,7 +45,7 @@ public class PlayerAdvancementTrackerMixin {
                 hashset.add(idStr);
         }
 
-        System.out.println("printing advancememnts");
+        System.out.println("printing advancements");
         List<String> list = new ArrayList<>(hashset);
         Collections.sort(list);
         for (String s : list) {

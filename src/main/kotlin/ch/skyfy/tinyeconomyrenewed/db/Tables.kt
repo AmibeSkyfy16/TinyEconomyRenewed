@@ -11,10 +11,10 @@ object Player : Table<Nothing>("player"){
     val money = float("money")
 }
 
-object Item : Table<Nothing>("item"){
-    val id = int("id").primaryKey()
-    val translationKey = varchar("translation_key")
-}
+//object Item : Table<Nothing>("item"){
+//    val id = int("id").primaryKey()
+//    val translationKey = varchar("translation_key")
+//}
 
 object Entity : Table<Nothing>("entity"){
     val id = int("id").primaryKey()
@@ -27,4 +27,26 @@ object Advancement : Table<Nothing>("advancement"){
     val frame = varchar("frame")
     val title = varchar("title")
     val description = varchar("description")
+}
+
+interface Item : org.ktorm.entity.Entity<Item>{
+    val id: Int
+    val translationKey: String
+}
+
+interface MinedBlockReward : org.ktorm.entity.Entity<MinedBlockReward>{
+    val id: Int
+    val amount: Float
+    val item: Item
+}
+
+object Items : Table<Item>("item"){
+    val id = int("id").primaryKey().bindTo { it.id }
+    val translationKey = varchar("translation_key").bindTo { it.translationKey }
+}
+
+object MinedBlockRewards : Table<MinedBlockReward>("mined_block_reward"){
+    val id = int("id").primaryKey().bindTo { it.id }
+    val amount = float("amount").bindTo { it.amount }
+    val itemId = int("item_id").references(Items){it.item}
 }

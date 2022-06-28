@@ -5,6 +5,7 @@ import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import org.ktorm.database.Database
+import org.ktorm.dsl.*
 import org.ktorm.support.mysql.insertOrUpdate
 import kotlin.io.path.inputStream
 
@@ -60,20 +61,45 @@ class DatabaseManager(private val dataRetriever: DataRetriever) : Runnable {
         populateDatabase()
     }
 
-    private fun populateDatabase(){
+    private fun populateDatabase() {
         TinyEconomyRenewedMod.LOGGER.info("Populating database \uD83D\uDE8C")
 
-        for (item in dataRetriever.items) {
-            database.insertOrUpdate(Item){
-                set(it.translationKey, item)
+        for (itemTranslationKey in dataRetriever.items) {
+
+            try {
+
+                // NOT WORK
+                val idd = database.from(Items).selectDistinct(Items.id, Items.translationKey).where { Items.translationKey like itemTranslationKey }.rowSet.getInt(0)
+                println("ID: {$idd}")
+
+            }catch (e: java.lang.Exception){
+                e.printStackTrace()
+            }
+
+            database.insertOrUpdate(Items) {
+                set(it.translationKey, itemTranslationKey)
                 onDuplicateKey {
-                    set(it.translationKey, item)
+                    set(it.translationKey, itemTranslationKey)
+                }
+            }
+
+            val itemId = database.from(Items).select().where { Items.translationKey like itemTranslationKey }.limit(0,1).rowSet[Items.id]
+            println("item id: $itemId")
+
+            if(dataRetriever.blocks.contains(itemTranslationKey)){
+                database.insertOrUpdate(MinedBlockRewards){
+                    set(it.amount, 0f)
+                    set(it.itemId, itemId)
+                    onDuplicateKey {
+                        set(it.itemId, itemId)
+                    }
                 }
             }
         }
 
+
         for (entity in dataRetriever.entities) {
-            database.insertOrUpdate(Entity){
+            database.insertOrUpdate(Entity) {
                 set(it.translationKey, entity)
                 onDuplicateKey {
                     set(it.translationKey, entity)
@@ -82,7 +108,7 @@ class DatabaseManager(private val dataRetriever: DataRetriever) : Runnable {
         }
 
         for (advancement in dataRetriever.advancements) {
-            database.insertOrUpdate(Advancement){
+            database.insertOrUpdate(Advancement) {
                 set(it.identifier, advancement.advancementId)
                 set(it.frame, advancement.advancementFrame)
                 set(it.title, advancement.advancementTitle)
@@ -92,6 +118,8 @@ class DatabaseManager(private val dataRetriever: DataRetriever) : Runnable {
                 }
             }
         }
+
+
     }
 
     private fun registerEvents() {
