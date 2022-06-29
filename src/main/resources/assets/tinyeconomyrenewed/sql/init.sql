@@ -25,9 +25,10 @@ create table if not exists item
 create table if not exists player
 (
     id int auto_increment primary key,
+    uuid  varchar(255) not null,
     name  varchar(255) not null,
     money float default 0 not null,
-    constraint player_name_uindex unique (name)
+    constraint player_uuid_key_uindex unique (uuid)
 );
 
 create table if not exists mined_block_reward

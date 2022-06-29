@@ -53,6 +53,7 @@ repositories {
     mavenLocal()
     maven("https://maven.bymartrixx.me") {}
     maven("https://jitpack.io") {}
+    maven("https://maven.nucleoid.xyz"){}
 }
 
 dependencies {
@@ -64,6 +65,8 @@ dependencies {
     modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
 
     modImplementation("me.bymartrixx.player-events:api:${properties["player_events_api_version"]}")
+    include("eu.pb4:sidebar-api:${properties["sidebar-api_version"]}")?.let { modImplementation(it) }
+
 
     transitiveInclude(implementation("com.github.saibotk:JMAW:0.3.1")!!)
     transitiveInclude(implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.5.3")!!)

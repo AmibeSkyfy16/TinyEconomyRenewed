@@ -7,12 +7,14 @@ import org.ktorm.schema.float
 import org.ktorm.schema.int
 import org.ktorm.schema.varchar
 
-object Player : Table<Nothing>("player") {
-    val id = int("id").primaryKey()
-    val name = varchar("name")
-    val money = float("money")
-}
+interface Player : org.ktorm.entity.Entity<Player> {
+    companion object : org.ktorm.entity.Entity.Factory<Player>()
 
+    val id: Int
+    var uuid: String
+    var name: String
+    var money: Float
+}
 
 interface Item : org.ktorm.entity.Entity<Item> {
     companion object : org.ktorm.entity.Entity.Factory<Item>()
@@ -62,6 +64,15 @@ interface AdvancementReward : org.ktorm.entity.Entity<AdvancementReward> {
     var advancement: Advancement
 }
 
+open class Players(alias: String?) : Table<Player>("player", alias) {
+    companion object : Players(null)
+    override fun aliased(alias: String) = Players(alias)
+
+    val id = int("id").primaryKey().bindTo { it.id }
+    val uuid = varchar("uuid").bindTo { it.uuid }
+    val name = varchar("name").bindTo { it.name }
+    val money = float("money").bindTo { it.money }
+}
 open class Items(alias: String?) : Table<Item>("item", alias) {
     companion object : Items(null)
 
