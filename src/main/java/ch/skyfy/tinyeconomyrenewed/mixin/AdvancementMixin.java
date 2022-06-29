@@ -1,6 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.mixin;
 
-import ch.skyfy.tinyeconomyrenewed.callbacks.AdvancementCallback;
+import ch.skyfy.tinyeconomyrenewed.callbacks.AdvancementCreatedCallback;
 import net.minecraft.advancement.Advancement;
 import net.minecraft.advancement.AdvancementCriterion;
 import net.minecraft.advancement.AdvancementDisplay;
@@ -21,7 +21,7 @@ public class AdvancementMixin {
     private void test(Identifier id, @Nullable Advancement parent, @Nullable AdvancementDisplay display, AdvancementRewards rewards, Map<String, AdvancementCriterion> criteria, String[][] requirements, CallbackInfo callbackInfo) {
         if (id.toString().contains("recipes")) return;
         if (display != null)
-            AdvancementCallback.EVENT.invoker().init(id, display);
+            AdvancementCreatedCallback.EVENT.invoker().init(id, display);
     }
 
 }

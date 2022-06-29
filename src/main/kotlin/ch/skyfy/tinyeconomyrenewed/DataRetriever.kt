@@ -1,6 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed
 
-import ch.skyfy.tinyeconomyrenewed.callbacks.AdvancementCallback
+import ch.skyfy.tinyeconomyrenewed.callbacks.AdvancementCreatedCallback
 import ch.skyfy.tinyeconomyrenewed.utils.ReflectionUtils
 import net.minecraft.block.Block
 import net.minecraft.block.Blocks
@@ -17,7 +17,7 @@ class DataRetriever {
     val entities: ArrayList<String> = ReflectionUtils.getListOfTranslationKey(EntityType::class.java, EntityType::class.java)
 
     init {
-        AdvancementCallback.EVENT.register { id, display ->
+        AdvancementCreatedCallback.EVENT.register { id, display ->
             advancements.add(Advancement(
                     id.toString(),
                     display.frame.toString(),
