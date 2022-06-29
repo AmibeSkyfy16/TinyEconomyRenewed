@@ -1,5 +1,8 @@
 package ch.skyfy.tinyeconomyrenewed.db
 
+import org.ktorm.database.Database
+import org.ktorm.entity.EntitySequence
+import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.Table
 import org.ktorm.schema.float
 import org.ktorm.schema.int
@@ -30,14 +33,17 @@ object Advancement : Table<Nothing>("advancement"){
 }
 
 interface Item : org.ktorm.entity.Entity<Item>{
+    companion object : org.ktorm.entity.Entity.Factory<Item>()
     val id: Int
-    val translationKey: String
+    var translationKey: String
+
 }
 
 interface MinedBlockReward : org.ktorm.entity.Entity<MinedBlockReward>{
+    companion object : org.ktorm.entity.Entity.Factory<MinedBlockReward>()
     val id: Int
-    val amount: Float
-    val item: Item
+    var amount: Float
+    var item: Item
 }
 
 object Items : Table<Item>("item"){
@@ -50,3 +56,6 @@ object MinedBlockRewards : Table<MinedBlockReward>("mined_block_reward"){
     val amount = float("amount").bindTo { it.amount }
     val itemId = int("item_id").references(Items){it.item}
 }
+
+
+

@@ -33,8 +33,8 @@ class EmbeddedDatabase {
 
         val builder = DBConfigurationBuilder.newBuilder()
 
-        builder.isUnpackingFromClasspath = false
-        builder.baseDir = mariadbFolder.toAbsolutePath().toString()
+//        builder.isUnpackingFromClasspath = false
+//        builder.baseDir = mariadbFolder.toAbsolutePath().toString()
 
         builder.port = 3307
         builder.dataDir = databaseFolder.resolve("data").toAbsolutePath().toString()

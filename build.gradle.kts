@@ -3,8 +3,39 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val transitiveInclude: Configuration by configurations.creating {
-    exclude(group = "org.jetbrains.kotlin")
-    exclude(group = "com.mojang")
+//    exclude(group = "org.jetbrains.kotlin")
+//    exclude(group = "com.mojang")
+}
+
+fun DependencyHandlerScope.includeTransitive(
+    root: ResolvedDependency?,
+    dependencies: Set<ResolvedDependency>,
+    fabricLanguageKotlinDependency: ResolvedDependency,
+    checkedDependencies: MutableSet<ResolvedDependency> = HashSet()
+) {
+    dependencies.forEach {
+        if (checkedDependencies.contains(it) || (it.moduleGroup == "org.jetbrains.kotlin" && it.moduleName.startsWith("kotlin-stdlib")) || (it.moduleGroup == "org.slf4j" && it.moduleName == "slf4j-api"))
+            return@forEach
+
+        if (fabricLanguageKotlinDependency.children.any { kotlinDep -> kotlinDep.name == it.name }) {
+            println("Skipping -> ${it.name} (already in fabric-language-kotlin)")
+        } else {
+            include(it.name)
+            println("Including -> ${it.name} from ${root?.name}")
+        }
+        checkedDependencies += it
+
+        includeTransitive(root ?: it, it.children, fabricLanguageKotlinDependency, checkedDependencies)
+    }
+}
+
+fun DependencyHandlerScope.handleIncludes(project: Project, configuration: Configuration) {
+    includeTransitive(
+        null,
+        configuration.resolvedConfiguration.firstLevelModuleDependencies,
+        project.configurations.getByName("modImplementation").resolvedConfiguration.firstLevelModuleDependencies
+            .first { it.moduleGroup == "net.fabricmc" && it.moduleName == "fabric-language-kotlin" }
+    )
 }
 
 plugins {
@@ -41,9 +72,11 @@ dependencies {
     transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.1")!!)
     transitiveInclude(implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")!!)
 
-    transitiveInclude.resolvedConfiguration.resolvedArtifacts.forEach {
-        include(it.moduleVersion.id.toString())
-    }
+//    transitiveInclude.resolvedConfiguration.resolvedArtifacts.forEach {
+//        include(it.moduleVersion.id.toString())
+//    }
+
+    handleIncludes(project, transitiveInclude)
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
@@ -86,16 +119,16 @@ tasks {
         useJUnitPlatform()
     }
 
-    val copyJarToTestServer = register("copyJarToTestServer"){
-        println("copy to server")
-        copyFile("build/libs/TinyEconomyRenewed-1.0-SNAPSHOT.jar", project.property("testServerModsFolder") as String)
-    }
-
-    named<DefaultTask>("remapJar"){
-        doLast{
-            copyJarToTestServer.get()
-        }
-    }
+//    val copyJarToTestServer = register("copyJarToTestServer"){
+//        println("copy to server")
+//        copyFile("build/libs/TinyEconomyRenewed-1.0-SNAPSHOT.jar", project.property("testServerModsFolder") as String)
+//    }
+//
+//    named<DefaultTask>("remapJar"){
+//        doLast{
+//            copyJarToTestServer.get()
+//        }
+//    }
 
 }
 
