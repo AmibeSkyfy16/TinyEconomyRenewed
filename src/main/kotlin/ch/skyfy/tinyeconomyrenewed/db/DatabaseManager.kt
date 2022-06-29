@@ -10,8 +10,6 @@ import org.ktorm.dsl.like
 import org.ktorm.entity.add
 import org.ktorm.entity.find
 import org.ktorm.entity.sequenceOf
-import org.ktorm.entity.update
-import org.ktorm.support.mysql.insertOrUpdate
 import kotlin.io.path.inputStream
 
 /**
@@ -68,107 +66,69 @@ class DatabaseManager(private val dataRetriever: DataRetriever) : Runnable {
     }
 
     private val Database.items get() = this.sequenceOf(Items)
+    private val Database.entities get() = this.sequenceOf(Entities)
+    private val Database.advancements get() = this.sequenceOf(Advancements)
     private val Database.minedBlockRewards get() = this.sequenceOf(MinedBlockRewards)
+    private val Database.entityKilledRewards get() = this.sequenceOf(EntityKilledRewards)
+    private val Database.advancementRewards get() = this.sequenceOf(AdvancementRewards)
 
     private fun populateDatabase() {
         TinyEconomyRenewedMod.LOGGER.info("Populating database \uD83D\uDE8C")
 
         // Iterate through all minecraft item identifier
         for (itemTranslationKey in dataRetriever.items) {
-
             var item = database.items.find { it.translationKey like itemTranslationKey }
             if (item == null) { // If item is not already in database, we create a new one and add it to the database
                 item = Item { translationKey = itemTranslationKey }
                 database.items.add(item)
             }
             if (dataRetriever.blocks.contains(itemTranslationKey)) { // Now, if the current itemTranslationKey is also a block, we repeat the same process, but for minedBlockReward table
-                val minedBlockReward =  database.minedBlockRewards.find{it.itemId eq item.id}
-                if(minedBlockReward == null) {
+                val minedBlockReward = database.minedBlockRewards.find { it.itemId eq item.id }
+                if (minedBlockReward == null) {
                     database.minedBlockRewards.add(MinedBlockReward {
                         amount = 0f
                         this.item = item
                     })
                 }
             }
-
-
-//            database.deleteAll(Items)
-//            val itemId = database.insertAndGenerateKey(Items) {
-//                set(it.translationKey, itemTranslationKey)
-//            } as Int
-//
-//            if (dataRetriever.blocks.contains(itemTranslationKey)) {
-//                val query = database.from(MinedBlockRewards)
-//                    .leftJoin(Items, on =  MinedBlockRewards.itemId eq Items.id)
-//                    .selectDistinct(Items.translationKey)
-//                    .where{Items.translationKey eq itemTranslationKey}
-//                query.map { Items.createEntity(it) }
-//
-//                database.bulkInsertOrUpdate(MinedBlockRewards) {
-//                    item {
-//                        set(it.amount, 0f)
-//                        set(it.itemId, itemId)
-//                    }
-//                    onDuplicateKey {
-//                        set(it.itemId, itemId)
-//                    }
-//                }
-//            }
-
-//            try {
-//
-//                // NOT WORK
-//                val idd = database.from(Items).selectDistinct(Items.id, Items.translationKey).where { Items.translationKey like itemTranslationKey }.rowSet.getInt(0)
-//                println("ID: {$idd}")
-//
-//            }catch (e: java.lang.Exception){
-//                e.printStackTrace()
-//            }
-
-//            database.insertOrUpdate(Items) {
-//                set(it.translationKey, itemTranslationKey)
-//                onDuplicateKey {
-//                    set(it.translationKey, itemTranslationKey)
-//                }
-//            }
-
-//            val itemId = database.from(Items).select().where { Items.translationKey like itemTranslationKey }.limit(0,1).rowSet[Items.id]
-//            println("item id: $itemId")
-
-//            if(dataRetriever.blocks.contains(itemTranslationKey)){
-//                database.insertOrUpdate(MinedBlockRewards){
-//                    set(it.amount, 0f)
-//                    set(it.itemId, itemId)
-//                    onDuplicateKey {
-//                        set(it.itemId, itemId)
-//                    }
-//                }
-//            }
         }
 
-
-        for (entity in dataRetriever.entities) {
-            database.insertOrUpdate(Entity) {
-                set(it.translationKey, entity)
-                onDuplicateKey {
-                    set(it.translationKey, entity)
-                }
+        // Iterate through all minecraft entity identifier
+        for (entityTranslationKey in dataRetriever.entities) {
+            var entity = database.entities.find { it.translationKey like entityTranslationKey }
+            if (entity == null) { // If Entity is not already in database, we create a new one and add it to the database
+                entity = Entity { translationKey = entityTranslationKey }
+                database.entities.add(entity)
+            }
+            val entityKilledReward = database.entityKilledRewards.find { it.EntityId eq entity.id }
+            if (entityKilledReward == null) {
+                database.entityKilledRewards.add(EntityKilledReward {
+                    amount = 0f
+                    this.entity = entity
+                })
             }
         }
 
-        for (advancement in dataRetriever.advancements) {
-            database.insertOrUpdate(Advancement) {
-                set(it.identifier, advancement.advancementId)
-                set(it.frame, advancement.advancementFrame)
-                set(it.title, advancement.advancementTitle)
-                set(it.description, advancement.advancementDescription)
-                onDuplicateKey {
-                    set(it.identifier, advancement.advancementId)
+        // Iterate through all minecraft advancement
+        for (advancementObj in dataRetriever.advancements) {
+            var advancement = database.advancements.find { it.identifier like advancementObj.advancementId }
+            if (advancement == null) { // If Advancement is not already in database, we create a new one and add it to the database
+                advancement = Advancement {
+                    identifier = advancementObj.advancementId
+                    frame = advancementObj.advancementFrame
+                    title = advancementObj.advancementTitle
+                    description = advancementObj.advancementDescription
                 }
+                database.advancements.add(advancement)
+            }
+            val advancementReward = database.advancementRewards.find { it.AdvancementId eq advancement.id }
+            if (advancementReward == null) {
+                database.advancementRewards.add(AdvancementReward {
+                    amount = 0f
+                    this.advancement = advancement
+                })
             }
         }
-
-
     }
 
     private fun registerEvents() {
