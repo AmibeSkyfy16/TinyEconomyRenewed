@@ -28,7 +28,14 @@ class DatabaseManager(private val dataRetriever: DataRetriever) : Runnable {
 
     private val embeddedDatabase: EmbeddedDatabase = EmbeddedDatabase()
 
-    private val database: Database
+    val database: Database
+
+    private val Database.items get() = this.sequenceOf(Items)
+    private val Database.entities get() = this.sequenceOf(Entities)
+    private val Database.advancements get() = this.sequenceOf(Advancements)
+    private val Database.minedBlockRewards get() = this.sequenceOf(MinedBlockRewards)
+    private val Database.entityKilledRewards get() = this.sequenceOf(EntityKilledRewards)
+    private val Database.advancementRewards get() = this.sequenceOf(AdvancementRewards)
 
     init {
 
@@ -50,8 +57,7 @@ class DatabaseManager(private val dataRetriever: DataRetriever) : Runnable {
     private fun initDatabase() {
         TinyEconomyRenewedMod.LOGGER.info("Initializing database with init.sql script")
 
-        val stream = FabricLoader.getInstance().getModContainer(TinyEconomyRenewedMod.MOD_ID).get()
-            .findPath("assets/tinyeconomyrenewed/sql/init.sql").get().inputStream()
+        val stream = FabricLoader.getInstance().getModContainer(TinyEconomyRenewedMod.MOD_ID).get().findPath("assets/tinyeconomyrenewed/sql/init.sql").get().inputStream()
         database.useConnection { connection ->
             connection.createStatement().use { statement ->
                 stream.bufferedReader().use { reader ->
@@ -64,13 +70,6 @@ class DatabaseManager(private val dataRetriever: DataRetriever) : Runnable {
 
         populateDatabase()
     }
-
-    private val Database.items get() = this.sequenceOf(Items)
-    private val Database.entities get() = this.sequenceOf(Entities)
-    private val Database.advancements get() = this.sequenceOf(Advancements)
-    private val Database.minedBlockRewards get() = this.sequenceOf(MinedBlockRewards)
-    private val Database.entityKilledRewards get() = this.sequenceOf(EntityKilledRewards)
-    private val Database.advancementRewards get() = this.sequenceOf(AdvancementRewards)
 
     private fun populateDatabase() {
         TinyEconomyRenewedMod.LOGGER.info("Populating database \uD83D\uDE8C")
@@ -100,7 +99,7 @@ class DatabaseManager(private val dataRetriever: DataRetriever) : Runnable {
                 entity = Entity { translationKey = entityTranslationKey }
                 database.entities.add(entity)
             }
-            val entityKilledReward = database.entityKilledRewards.find { it.EntityId eq entity.id }
+            val entityKilledReward = database.entityKilledRewards.find { it.entity.id eq entity.id }
             if (entityKilledReward == null) {
                 database.entityKilledRewards.add(EntityKilledReward {
                     amount = 0f
@@ -121,7 +120,7 @@ class DatabaseManager(private val dataRetriever: DataRetriever) : Runnable {
                 }
                 database.advancements.add(advancement)
             }
-            val advancementReward = database.advancementRewards.find { it.AdvancementId eq advancement.id }
+            val advancementReward = database.advancementRewards.find { it.advancement.id eq advancement.id }
             if (advancementReward == null) {
                 database.advancementRewards.add(AdvancementReward {
                     amount = 0f

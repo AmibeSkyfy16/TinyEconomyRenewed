@@ -29,6 +29,7 @@ fun DependencyHandlerScope.includeTransitive(
     }
 }
 
+// from : https://github.com/StckOverflw/TwitchControlsMinecraft/blob/4bf406893544c3edf52371fa6e7a6cc7ae80dc05/build.gradle.kts
 fun DependencyHandlerScope.handleIncludes(project: Project, configuration: Configuration) {
     includeTransitive(
         null,

@@ -16,7 +16,6 @@ class DataRetriever {
     val blocks: ArrayList<String> = ReflectionUtils.getListOfTranslationKey(Blocks::class.java, Block::class.java)
     val entities: ArrayList<String> = ReflectionUtils.getListOfTranslationKey(EntityType::class.java, EntityType::class.java)
 
-
     init {
         AdvancementCallback.EVENT.register { id, display ->
             advancements.add(Advancement(
