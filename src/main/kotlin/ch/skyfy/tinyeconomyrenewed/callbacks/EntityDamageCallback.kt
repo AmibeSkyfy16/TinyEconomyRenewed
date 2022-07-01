@@ -6,7 +6,6 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
 
 fun interface EntityDamageCallback {
-
     companion object {
         @JvmField
         val EVENT: Event<EntityDamageCallback> = EventFactory.createArrayBacked(EntityDamageCallback::class.java){ listeners ->

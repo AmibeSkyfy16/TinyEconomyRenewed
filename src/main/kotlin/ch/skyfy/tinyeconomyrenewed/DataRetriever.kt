@@ -9,7 +9,7 @@ import net.minecraft.item.Item
 import net.minecraft.item.Items
 import org.apache.commons.lang3.StringUtils
 
-class DataRetriever {
+object DataRetriever {
 
     val advancements: HashSet<Advancement> = HashSet()
     val items: ArrayList<String> = ReflectionUtils.getListOfTranslationKey(Items::class.java, Item::class.java)
@@ -18,7 +18,8 @@ class DataRetriever {
 
     init {
         AdvancementCreatedCallback.EVENT.register { id, display ->
-            advancements.add(Advancement(
+            advancements.add(
+                Advancement(
                     id.toString(),
                     display.frame.toString(),
                     StringUtils.substringBetween(display.title.toString(), "'", "'"),

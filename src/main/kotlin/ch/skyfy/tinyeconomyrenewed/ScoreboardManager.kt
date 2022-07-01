@@ -21,9 +21,7 @@ object ScoreboardManager {
 
     private val Database.players get() = this.sequenceOf(Players)
 
-    fun initialize(databaseManager: DatabaseManager){
-        this.databaseManager = databaseManager
-
+    fun initialize(){
         ServerPlayConnectionEvents.DISCONNECT.register{handler, _ -> sidebarMap.remove(handler.player.uuidAsString) }
 
         PlayerJoinCallback.EVENT.register{ player, _ ->
@@ -46,7 +44,7 @@ object ScoreboardManager {
         val list = ArrayList<Text>()
 
         list.add(Text.literal("").setStyle(Style.EMPTY))
-        list.add(Text.literal("Money: ${databaseManager.database.players.find { it.uuid like serverPlayerEntity.uuidAsString}?.money}").setStyle(Style.EMPTY))
+        list.add(Text.literal("Money: ${DatabaseManager.db.players.find { it.uuid like serverPlayerEntity.uuidAsString}?.money}").setStyle(Style.EMPTY))
 
         for (i in list.indices.reversed()) sb.setLine(i, list[list.size - 1 - i])
     }

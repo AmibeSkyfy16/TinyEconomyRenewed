@@ -16,14 +16,13 @@ import org.ktorm.entity.sequenceOf
 import org.ktorm.entity.update
 
 
-class Game(private val databaseManager: DatabaseManager, minecraftServer: MinecraftServer) {
+class Game(minecraftServer: MinecraftServer) {
 
     private val Database.players get() = this.sequenceOf(Players)
-
     init {
-        RewardFeature(databaseManager, minecraftServer)
+        RewardFeature()
         registerEvents()
-        ScoreboardManager.initialize(databaseManager)
+        ScoreboardManager.initialize()
     }
 
     private fun registerEvents() {
@@ -31,15 +30,15 @@ class Game(private val databaseManager: DatabaseManager, minecraftServer: Minecr
     }
 
     private fun onPlayerJoin(serverPlayerEntity: ServerPlayerEntity, @Suppress("UNUSED_PARAMETER") server: MinecraftServer) {
-        val p = databaseManager.database.players.find { it.uuid like serverPlayerEntity.uuidAsString }
+        val p = DatabaseManager.db.players.find { it.uuid like serverPlayerEntity.uuidAsString }
         if (p == null) {
-            databaseManager.database.players.add(Player {
+            DatabaseManager.db.players.add(Player {
                 uuid = serverPlayerEntity.uuidAsString
                 name = serverPlayerEntity.name.string
             })
         } else { // Update name (maybe some players can change their name)
             p.name = serverPlayerEntity.name.string
-            databaseManager.database.players.update(p)
+            DatabaseManager.db.players.update(p)
         }
     }
 }
