@@ -6,7 +6,8 @@
   "mixins": [
     "AdvancementMixin",
     "LivingEntityMixin",
-    "PlayerAdvancementTrackerMixin"
+    "PlayerAdvancementTrackerMixin",
+    "ServerAdvancementLoaderMixin"
   ],
   "server": [
   ],

@@ -2,6 +2,7 @@ package ch.skyfy.tinyeconomyrenewed
 
 
 import ch.skyfy.tinyeconomyrenewed.exceptions.TinyEconomyModException
+import kotlinx.coroutines.Dispatchers
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import org.apache.logging.log4j.LogManager
@@ -23,7 +24,7 @@ class TinyEconomyRenewedMod : DedicatedServerModInitializer {
     }
 
     override fun onInitializeServer() {
-        TinyEconomyRenewedInitializer()
+        TinyEconomyRenewedInitializer(Dispatchers.Default)
     }
 
     private fun createConfigDir() {

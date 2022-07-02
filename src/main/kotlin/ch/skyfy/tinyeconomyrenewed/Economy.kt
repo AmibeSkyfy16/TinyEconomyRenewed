@@ -9,7 +9,7 @@ import org.ktorm.entity.find
 import org.ktorm.entity.sequenceOf
 import org.ktorm.entity.update
 
-object Economy {
+class Economy(private val databaseManager: DatabaseManager) {
 
     private val Database.players get() = this.sequenceOf(Players)
     private val Database.minedBlockRewards get() = this.sequenceOf(MinedBlockRewards)
@@ -25,11 +25,11 @@ object Economy {
     }
 
     fun deposit(uuid: String, amount: Float?){
-        val player = DatabaseManager.db.players.find { it.uuid like uuid }
+        val player = databaseManager.db.players.find { it.uuid like uuid }
 
         if(player != null && amount != null){
             player.money += amount
-            DatabaseManager.db.players.update(player)
+            databaseManager.db.players.update(player)
         }
 
     }

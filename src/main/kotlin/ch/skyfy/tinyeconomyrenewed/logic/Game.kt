@@ -1,5 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.logic
 
+import ch.skyfy.tinyeconomyrenewed.Economy
 import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.Player
@@ -16,13 +17,16 @@ import org.ktorm.entity.sequenceOf
 import org.ktorm.entity.update
 
 
-class Game(minecraftServer: MinecraftServer) {
+class Game(private val databaseManager: DatabaseManager) {
 
     private val Database.players get() = this.sequenceOf(Players)
+
+    private val economy: Economy = Economy(databaseManager)
+    private val scoreboardManager: ScoreboardManager = ScoreboardManager(databaseManager)
+
     init {
-        RewardFeature()
+        RewardFeature(databaseManager, economy, scoreboardManager)
         registerEvents()
-        ScoreboardManager.initialize()
     }
 
     private fun registerEvents() {
@@ -30,15 +34,15 @@ class Game(minecraftServer: MinecraftServer) {
     }
 
     private fun onPlayerJoin(serverPlayerEntity: ServerPlayerEntity, @Suppress("UNUSED_PARAMETER") server: MinecraftServer) {
-        val p = DatabaseManager.db.players.find { it.uuid like serverPlayerEntity.uuidAsString }
+        val p = databaseManager.db.players.find { it.uuid like serverPlayerEntity.uuidAsString }
         if (p == null) {
-            DatabaseManager.db.players.add(Player {
+            databaseManager.db.players.add(Player {
                 uuid = serverPlayerEntity.uuidAsString
                 name = serverPlayerEntity.name.string
             })
         } else { // Update name (maybe some players can change their name)
             p.name = serverPlayerEntity.name.string
-            DatabaseManager.db.players.update(p)
+            databaseManager.db.players.update(p)
         }
     }
 }

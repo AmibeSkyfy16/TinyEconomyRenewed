@@ -1,5 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.db
 
+import ch.skyfy.mariadbserverfabricmc.api.EmbeddedDatabaseAPI
 import ch.skyfy.tinyeconomyrenewed.DataRetriever
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedInitializer
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
@@ -28,7 +29,7 @@ import kotlin.io.path.inputStream
  * In order for the server administrator to be able to follow what is going on in the console correctly,
  * this object is called a very first time in a thread right after the server is started @see TinyEconomyRenewedInitializer
  */
-object DatabaseManager : Runnable {
+class DatabaseManager {
 
     val db: Database
 
@@ -41,15 +42,9 @@ object DatabaseManager : Runnable {
 
     init {
 
-        println("current thread name: ${Thread.currentThread().name}")
+        TinyEconomyRenewedMod.LOGGER.debug("[Database Manager init block] > current thread name ${Thread.currentThread().name}")
 
-        // In order to make sure that the DatabaseManager object is not used somewhere else in the code before it is first created in the TinyEconomyRenewedInitializer class
-//        if(!Thread.currentThread().name.contains(TinyEconomyRenewedInitializer.initializerThreadName)){
-//            throw TinyEconomyModException("DatabaseManager was used before it was supposed to be used for the first time")
-//        }
-
-        // TODO create maven repo for project MariaDVServerFabricMC
-//        EmbeddedDatabaseAPI.db.createDB("TinyEconomyRenewed")
+        EmbeddedDatabaseAPI.db.createDB("TinyEconomyRenewed")
 
         db = Database.connect(
             "jdbc:mariadb://localhost:3308/TinyEconomyRenewed",
@@ -59,12 +54,10 @@ object DatabaseManager : Runnable {
         )
 
         initDatabase()
-
-        TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed >> done ! Players can now connect")
     }
 
     private fun initDatabase() {
-        TinyEconomyRenewedMod.LOGGER.info("Initializing database with init.sql script")
+        TinyEconomyRenewedMod.LOGGER.info("Initializing database with init.sql script \uD83D\uDCC3")
 
         val stream = FabricLoader.getInstance().getModContainer(TinyEconomyRenewedMod.MOD_ID).get().findPath("assets/tinyeconomyrenewed/sql/init.sql").get().inputStream()
         db.useConnection { connection ->
@@ -138,7 +131,5 @@ object DatabaseManager : Runnable {
             }
         }
     }
-
-    override fun run() {}
 
 }
