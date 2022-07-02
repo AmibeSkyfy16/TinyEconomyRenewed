@@ -2,13 +2,10 @@
 
 package ch.skyfy.tinyeconomyrenewed
 
-import ch.skyfy.tinyeconomyrenewed.callbacks.TinyEconomyRenewedInitializedCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
-import ch.skyfy.tinyeconomyrenewed.exceptions.TinyEconomyModException
 import ch.skyfy.tinyeconomyrenewed.logic.Game
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.text.Style
@@ -30,26 +27,15 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
     init {
 
         ServerLifecycleEvents.SERVER_STARTED.register { minecraftServer ->
-            TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed is being initialized \uD83D\uDE9A \uD83D\uDE9A \uD83D\uDE9A")
+            launch {
+                TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed is being initialized \uD83D\uDE9A \uD83D\uDE9A \uD83D\uDE9A")
 
-            val deferred : Deferred<DatabaseManager> = async {
                 val db = DatabaseManager()
-                TinyEconomyRenewedMod.LOGGER.info("[async block] > The database has been successfully initialized and populated with data \uD83D\uDC4C ✅")
-                db
-            }
+                optGameRef.set(Optional.of(Game(db, minecraftServer)))
+                isInitializationComplete = true
 
-            deferred.invokeOnCompletion {
-                if(it == null){
-                    TinyEconomyRenewedMod.LOGGER.info("[invokeOnCompletion block] [it is null] > The database has been successfully initialized and populated with data \uD83D\uDC4C ✅")
-                    TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed >> done ! Players can now connect")
-                    isInitializationComplete = true
-                    val databaseManager = deferred.getCompleted()
-                    optGameRef.set(Optional.of(Game(databaseManager, minecraftServer)))
-                    TinyEconomyRenewedInitializedCallback.EVENT.invoker().onInitialized(databaseManager)
-                }else
-                    throw it.cause?.let { it1 -> TinyEconomyModException(it1) }!!
+                TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed >> done ! Players can now connect \uD83D\uDC4C ✅")
             }
-
         }
 
         ServerPlayConnectionEvents.INIT.register { serverPlayNetworkHandler, _ ->
