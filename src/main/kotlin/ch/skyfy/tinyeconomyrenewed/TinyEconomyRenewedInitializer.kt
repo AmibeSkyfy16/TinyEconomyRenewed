@@ -29,7 +29,7 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
 
     init {
 
-        ServerLifecycleEvents.SERVER_STARTED.register {
+        ServerLifecycleEvents.SERVER_STARTED.register { minecraftServer ->
             TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed is being initialized \uD83D\uDE9A \uD83D\uDE9A \uD83D\uDE9A")
 
             val deferred : Deferred<DatabaseManager> = async {
@@ -44,7 +44,7 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
                     TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed >> done ! Players can now connect")
                     isInitializationComplete = true
                     val databaseManager = deferred.getCompleted()
-                    optGameRef.set(Optional.of(Game(databaseManager)))
+                    optGameRef.set(Optional.of(Game(databaseManager, minecraftServer)))
                     TinyEconomyRenewedInitializedCallback.EVENT.invoker().onInitialized(databaseManager)
                 }else
                     throw it.cause?.let { it1 -> TinyEconomyModException(it1) }!!

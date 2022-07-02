@@ -6,6 +6,8 @@ import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.Player
 import ch.skyfy.tinyeconomyrenewed.db.Players
 import ch.skyfy.tinyeconomyrenewed.features.RewardFeature
+import ch.skyfy.tinyeconomyrenewed.features.ShopFeature
+import ch.skyfy.tinyeconomyrenewed.features.ShopFeature2
 import me.bymartrixx.playerevents.api.event.PlayerJoinCallback
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
@@ -17,7 +19,7 @@ import org.ktorm.entity.sequenceOf
 import org.ktorm.entity.update
 
 
-class Game(private val databaseManager: DatabaseManager) {
+class Game(private val databaseManager: DatabaseManager, private val minecraftServer: MinecraftServer) {
 
     private val Database.players get() = this.sequenceOf(Players)
 
@@ -26,6 +28,7 @@ class Game(private val databaseManager: DatabaseManager) {
 
     init {
         RewardFeature(databaseManager, economy, scoreboardManager)
+        ShopFeature2(databaseManager, economy, minecraftServer)
         registerEvents()
     }
 
