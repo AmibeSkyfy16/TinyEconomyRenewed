@@ -63,10 +63,4 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
         scoreboardManager.updateSidebar(serverPlayerEntity)
     }
 
-//    private fun updatePlayerMoney(serverPlayerEntity: ServerPlayerEntity, player: Player, amount: Float) {
-//        player.money += amount
-//        databaseManager.database.players.update(player)
-//        ScoreboardManager.updateSidebar(serverPlayerEntity)
-//    }
-
 }

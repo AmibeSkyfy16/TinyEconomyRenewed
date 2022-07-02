@@ -2,12 +2,7 @@ package ch.skyfy.tinyeconomyrenewed.db
 
 import ch.skyfy.mariadbserverfabricmc.api.EmbeddedDatabaseAPI
 import ch.skyfy.tinyeconomyrenewed.DataRetriever
-import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedInitializer
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
-import ch.skyfy.tinyeconomyrenewed.exceptions.TinyEconomyModException
-import io.netty.util.concurrent.CompleteFuture
-import kotlinx.coroutines.GlobalScope.coroutineContext
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import org.ktorm.database.Database
 import org.ktorm.dsl.eq
@@ -18,16 +13,13 @@ import org.ktorm.entity.sequenceOf
 import kotlin.io.path.inputStream
 
 /**
- * This object first handles the installation of the database.
- * It will copy the required files for the database server as a zip file,
- * and then it will extract the data.
- * After that it starts the database server (MariaDB), connects to it and creates the required tables and peoples with default data.
+ * This class connects to the database and creates the required tables and populate it with default data.
  *
  * All this takes time and until it is finished, players will not be able to connect.
  *
  * Also, during the installation, the console will display messages about the progress of the installation.
  * In order for the server administrator to be able to follow what is going on in the console correctly,
- * this object is called a very first time in a thread right after the server is started @see TinyEconomyRenewedInitializer
+ * this class is instantiated in a coroutine right after the server is started @see TinyEconomyRenewedInitializer
  */
 class DatabaseManager {
 
@@ -42,7 +34,7 @@ class DatabaseManager {
 
     init {
 
-        TinyEconomyRenewedMod.LOGGER.debug("[Database Manager init block] > current thread name ${Thread.currentThread().name}")
+        TinyEconomyRenewedMod.LOGGER.info("[Database Manager init block] > current thread name ${Thread.currentThread().name}")
 
         EmbeddedDatabaseAPI.db.createDB("TinyEconomyRenewed")
 

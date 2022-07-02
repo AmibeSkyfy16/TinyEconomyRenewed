@@ -16,10 +16,6 @@ class Economy(private val databaseManager: DatabaseManager) {
     private val Database.entityKilledRewards get() = this.sequenceOf(EntityKilledRewards)
     private val Database.advancementRewards get() = this.sequenceOf(AdvancementRewards)
 
-    init {
-
-    }
-
     fun deposit(uuid: String, am: () -> Float?){
         deposit(uuid, am.invoke())
     }

@@ -1,5 +1,8 @@
+@file:Suppress("OPT_IN_USAGE")
+
 package ch.skyfy.tinyeconomyrenewed
 
+import ch.skyfy.tinyeconomyrenewed.callbacks.TinyEconomyRenewedInitializedCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.exceptions.TinyEconomyModException
 import ch.skyfy.tinyeconomyrenewed.logic.Game
@@ -31,16 +34,18 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
 
             val deferred : Deferred<DatabaseManager> = async {
                 val db = DatabaseManager()
-                TinyEconomyRenewedMod.LOGGER.debug("[async block] > The database has been successfully initialized and populated with data \uD83D\uDC4C ✅")
+                TinyEconomyRenewedMod.LOGGER.info("[async block] > The database has been successfully initialized and populated with data \uD83D\uDC4C ✅")
                 db
             }
 
             deferred.invokeOnCompletion {
                 if(it == null){
-                    TinyEconomyRenewedMod.LOGGER.debug("[invokeOnCompletion block] [it is null] > The database has been successfully initialized and populated with data \uD83D\uDC4C ✅")
+                    TinyEconomyRenewedMod.LOGGER.info("[invokeOnCompletion block] [it is null] > The database has been successfully initialized and populated with data \uD83D\uDC4C ✅")
                     TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed >> done ! Players can now connect")
                     isInitializationComplete = true
-                    @Suppress("OPT_IN_USAGE") optGameRef.set(Optional.of(Game(deferred.getCompleted())))
+                    val databaseManager = deferred.getCompleted()
+                    optGameRef.set(Optional.of(Game(databaseManager)))
+                    TinyEconomyRenewedInitializedCallback.EVENT.invoker().onInitialized(databaseManager)
                 }else
                     throw it.cause?.let { it1 -> TinyEconomyModException(it1) }!!
             }
