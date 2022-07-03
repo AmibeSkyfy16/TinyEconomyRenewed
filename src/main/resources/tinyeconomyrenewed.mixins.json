@@ -8,6 +8,8 @@
     "LivingEntityMixin",
     "PlayerAdvancementTrackerMixin",
     "ServerAdvancementLoaderMixin",
+    "ServerPlayerInteractionManagerMixin",
+    "SignBlockEntityMixin",
     "SlotMixin"
   ],
   "server": [

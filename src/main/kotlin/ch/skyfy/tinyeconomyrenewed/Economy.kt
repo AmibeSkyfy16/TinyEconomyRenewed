@@ -21,21 +21,21 @@ class Economy(private val databaseManager: DatabaseManager) {
     }
 
     fun deposit(uuid: String, amount: Float?){
-        val player = databaseManager.db.players.find { it.uuid like uuid }
+        databaseManager.db.players.find { it.uuid like uuid }.let { if (it != null && amount != null)deposit(it, amount) }
+    }
 
-        if(player != null && amount != null){
-            player.money += amount
-            databaseManager.db.players.update(player)
-        }
-
+    fun deposit(player: Player, amount: Float){
+        player.money += amount
+        databaseManager.db.players.update(player)
     }
 
     fun withdraw(uuid: String, amount: Float){
-        val player = databaseManager.db.players.find { it.uuid like uuid }
-        if(player != null) {
-            player.money -= amount
-            databaseManager.db.players.update(player)
-        }
+        databaseManager.db.players.find { it.uuid like uuid }.let { if(it != null)withdraw(it, amount) }
+    }
+
+    fun withdraw(player: Player, amount: Float){
+        player.money -= amount
+        databaseManager.db.players.update(player)
     }
 
 }

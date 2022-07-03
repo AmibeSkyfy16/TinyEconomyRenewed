@@ -2,6 +2,7 @@ package ch.skyfy.tinyeconomyrenewed.logic
 
 import ch.skyfy.tinyeconomyrenewed.Economy
 import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
+import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.Player
 import ch.skyfy.tinyeconomyrenewed.db.Players
@@ -44,8 +45,11 @@ class Game(private val databaseManager: DatabaseManager, private val minecraftSe
                 name = serverPlayerEntity.name.string
             })
         } else { // Update name (maybe some players can change their name)
-            p.name = serverPlayerEntity.name.string
-            databaseManager.db.players.update(p)
+            if(p.name != serverPlayerEntity.name.string) {
+                TinyEconomyRenewedMod.LOGGER.info("Player ${p.name} has changed his name to ${serverPlayerEntity.name.string}")
+                p.name = serverPlayerEntity.name.string
+                databaseManager.db.players.update(p)
+            }
         }
     }
 }

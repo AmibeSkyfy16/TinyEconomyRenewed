@@ -5,9 +5,11 @@ import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerTakeItemsCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.Players
-import net.fabricmc.fabric.api.event.player.AttackBlockCallback
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
+import net.fabricmc.fabric.api.event.player.UseItemCallback
 import net.minecraft.block.BarrelBlock
+import net.minecraft.block.BlockState
 import net.minecraft.block.WallSignBlock
 import net.minecraft.block.WallSignBlock.FACING
 import net.minecraft.block.entity.BarrelBlockEntity
@@ -20,6 +22,7 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
+import net.minecraft.util.TypedActionResult
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
@@ -30,12 +33,6 @@ import org.ktorm.entity.find
 import org.ktorm.entity.sequenceOf
 
 class ShopFeature2(private val databaseManager: DatabaseManager, private val economy: Economy, private val minecraftServer: MinecraftServer) {
-
-    data class ShopResult(val isShop: Boolean, val cancel: Boolean, val vendorName: String) {
-        companion object {
-            fun notAShop(): ShopResult = ShopResult(isShop = false, cancel = false, vendorName = "")
-        }
-    }
 
     data class Shop(val barrelBlockEntity: BarrelBlockEntity, val signBlockEntities: MutableList<SignBlockEntity>, val signData: SignData)
 
@@ -51,8 +48,14 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
     init {
 
         UseBlockCallback.EVENT.register(this::useBlockCallback)
+        UseItemCallback.EVENT.register{player, world, hand ->
+            println("Item used")
+            TypedActionResult.pass(ItemStack.EMPTY)
+        }
 
-        AttackBlockCallback.EVENT.register(this::attackBlockCallback)
+//        AttackBlockCallback.EVENT.register(this::attackBlockCallback)
+
+        PlayerBlockBreakEvents.BEFORE.register(this::beforeBlockBreak)
 
         PlayerTakeItemsCallback.EVENT.register { playerEntity, inventory ->
             if (inventory is BarrelBlockEntity) {
@@ -81,6 +84,18 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
         }
 
         return ActionResult.PASS
+    }
+
+    private fun beforeBlockBreak(world: World, player: PlayerEntity, pos: BlockPos, state: BlockState, blockEntity: BlockEntity?): Boolean{
+        val block = world.getBlockState(pos).block
+        val shop = isAShop(pos, world)
+
+        if (shop != null) {
+            if (block is BarrelBlock || block is WallSignBlock) {
+                if (shop.signData.vendorName != player.name.string) return false
+            }
+        }
+        return true
     }
 
     private fun useBlockCallback(player: PlayerEntity, world: World, hand: Hand, hitResult: BlockHitResult): ActionResult {
@@ -206,8 +221,8 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
         }
 
         if (remainingPiece <= 0) {
-            economy.withdraw(buyer.uuid, shop.signData.price)
-            economy.deposit(vendor.uuid, shop.signData.price)
+            economy.withdraw(buyer, shop.signData.price)
+            economy.deposit(vendor, shop.signData.price)
 
             val args = transfer[0].item.translationKey.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             val itemName = args[args.size - 1]
