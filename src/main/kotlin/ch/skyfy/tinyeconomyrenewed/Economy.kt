@@ -31,7 +31,11 @@ class Economy(private val databaseManager: DatabaseManager) {
     }
 
     fun withdraw(uuid: String, amount: Float){
-
+        val player = databaseManager.db.players.find { it.uuid like uuid }
+        if(player != null) {
+            player.money -= amount
+            databaseManager.db.players.update(player)
+        }
     }
 
 }

@@ -1,9 +1,11 @@
 package ch.skyfy.tinyeconomyrenewed.features
 
 import ch.skyfy.tinyeconomyrenewed.Economy
+import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerTakeItemsCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.Players
+import net.fabricmc.fabric.api.event.player.AttackBlockCallback
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
 import net.minecraft.block.BarrelBlock
 import net.minecraft.block.WallSignBlock
@@ -12,7 +14,10 @@ import net.minecraft.block.entity.BarrelBlockEntity
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.SignBlockEntity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.ItemStack
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
@@ -32,7 +37,7 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
         }
     }
 
-    data class Shop(val barrelBlockEntity: BarrelBlockEntity, val signBlockEntities: MutableList<SignBlockEntity>, val playerOwnerName: String)
+    data class Shop(val barrelBlockEntity: BarrelBlockEntity, val signBlockEntities: MutableList<SignBlockEntity>, val signData: SignData)
 
     enum class PlayerState {
         ONLINE,
@@ -47,16 +52,35 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
 
         UseBlockCallback.EVENT.register(this::useBlockCallback)
 
+        AttackBlockCallback.EVENT.register(this::attackBlockCallback)
+
         PlayerTakeItemsCallback.EVENT.register { playerEntity, inventory ->
             if (inventory is BarrelBlockEntity) {
                 val shop = isAShop(inventory.pos, playerEntity.getWorld())
-                if (shop != null && shop.playerOwnerName != playerEntity.name.string) {
+                if (shop != null && shop.signData.vendorName != playerEntity.name.string) {
                     return@register ActionResult.FAIL
                 }
             }
             ActionResult.PASS
         }
 
+    }
+
+    private fun attackBlockCallback(player: PlayerEntity, world: World, hand: Hand, pos: BlockPos, direction: Direction): ActionResult {
+
+        val block = world.getBlockState(pos).block
+        val shop = isAShop(pos, world)
+
+        if (shop != null) {
+            if (block is BarrelBlock || block is WallSignBlock) {
+                if (shop.signData.vendorName != player.name.string) {
+//                    world.server?.submit { world.breakBlock(pos, false, player) }
+                    return ActionResult.FAIL
+                }
+            }
+        }
+
+        return ActionResult.PASS
     }
 
     private fun useBlockCallback(player: PlayerEntity, world: World, hand: Hand, hitResult: BlockHitResult): ActionResult {
@@ -66,10 +90,25 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
         for (itemStack in player.itemsHand) {
             if (itemStack.item.translationKey == "block.minecraft.hopper") {
                 val shop = isAShop(BlockPos(hitResult.pos.x, hitResult.pos.y + 1, hitResult.pos.z), world)
-                if (shop != null && shop.playerOwnerName != player.name.string) return ActionResult.FAIL
+                if (shop != null && shop.signData.vendorName != player.name.string) return ActionResult.FAIL
             }
         }
 
+        val block = world.getBlockState(hitResult.blockPos).block
+        val shop = isAShop(hitResult.blockPos, world)
+
+        if (shop != null) {
+            if (block is WallSignBlock) {
+                if (shop.signData.vendorName == player.name.string) {
+                    player.sendMessage(Text.of("You cannot buy from your own shop"))
+                    return ActionResult.PASS
+                }
+                println("Process transaction")
+                processTransaction(player as ServerPlayerEntity, shop)
+            } else if (block is BarrelBlock) {
+                println("its a shop, first block clicked = barrelBlock. Nothing to do")
+            }
+        }
         return ActionResult.PASS
     }
 
@@ -99,7 +138,84 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
             if (anotherSignData == null || anotherSignData != firstSignData) return null
         }
 
-        return Shop(barrelBlockEntity, signBlockEntities, firstSignData.vendorName)
+        // Check if it's all the same items in the shop
+        var firstTranslationKey = ""
+        var once = false
+        for (i in 0 until barrelBlockEntity.size()) {
+            if(!barrelBlockEntity.getStack(i).isEmpty){
+                if(!once){
+                    once = true
+                    firstTranslationKey = barrelBlockEntity.getStack(i).translationKey
+                }
+                if(barrelBlockEntity.getStack(i).translationKey != firstTranslationKey)
+                    return null
+            }
+
+        }
+
+        return Shop(barrelBlockEntity, signBlockEntities, firstSignData)
+    }
+
+    private fun processTransaction(buyerPlayer: ServerPlayerEntity, shop: Shop) {
+
+        val vendorPlayer: ServerPlayerEntity? = minecraftServer.playerManager.getPlayer(shop.signData.vendorName)
+
+        val vendor = databaseManager.db.players.find { it.name like if (vendorPlayer != null) vendorPlayer.name.string else shop.signData.vendorName }
+        val buyer = databaseManager.db.players.find { it.uuid like buyerPlayer.uuidAsString }
+
+        if (vendor == null || buyer == null) {
+            TinyEconomyRenewedMod.LOGGER.info("vendor or buyer was not found in database (null)")
+            return
+        }
+        if (buyer.money - shop.signData.price < 0) {
+            buyerPlayer.sendMessage(Text.of("You don't have enough money"), false)
+            return
+        }
+
+        val barrelBlockEntity = shop.barrelBlockEntity
+
+        // Count the numbers of item in the barrel
+        var availableItemStack = 0
+        for (i in 0 until barrelBlockEntity.size()) {
+            val it = barrelBlockEntity.getStack(i)
+            if (!it.isEmpty) availableItemStack += it.count
+        }
+
+        if (availableItemStack < shop.signData.itemAmount) {
+            buyerPlayer.sendMessage(Text.of("There are not enough items in stock!"), false)
+            return
+        }
+
+        val transfer = ArrayList<ItemStack>()
+        var remainingPiece: Int = shop.signData.itemAmount
+
+        for (i in 0 until barrelBlockEntity.size()) {
+            val originItemStack = barrelBlockEntity.getStack(i)
+            if (!originItemStack.isEmpty) {
+                if (remainingPiece <= 0) break
+                val newItem = ItemStack(originItemStack.item)
+                if (originItemStack.count - remainingPiece <= 0) {
+                    barrelBlockEntity.setStack(i, ItemStack.EMPTY)
+                } else {
+                    newItem.count = remainingPiece
+                    originItemStack.count = originItemStack.count - remainingPiece
+                }
+                transfer.add(newItem)
+                remainingPiece -= originItemStack.count
+            }
+        }
+
+        if (remainingPiece <= 0) {
+            economy.withdraw(buyer.uuid, shop.signData.price)
+            economy.deposit(vendor.uuid, shop.signData.price)
+
+            val args = transfer[0].item.translationKey.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            val itemName = args[args.size - 1]
+
+            vendorPlayer?.sendMessage(Text.of("You sold for " + shop.signData.itemAmount + " of " + itemName + " to " + buyer.name), false)
+            buyerPlayer.sendMessage(Text.of("You have bought for ${shop.signData.itemAmount} of $itemName to ${shop.signData.vendorName}"), false)
+            for (itemStack in transfer) buyerPlayer.dropItem(itemStack, false)
+        }
     }
 
     data class SignData(val vendorName: String, val itemAmount: Int, val price: Float)
