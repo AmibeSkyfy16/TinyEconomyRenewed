@@ -7,7 +7,6 @@ import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.Players
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
-import net.fabricmc.fabric.api.event.player.UseItemCallback
 import net.minecraft.block.BarrelBlock
 import net.minecraft.block.BlockState
 import net.minecraft.block.WallSignBlock
@@ -22,7 +21,6 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
-import net.minecraft.util.TypedActionResult
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
@@ -35,6 +33,7 @@ import org.ktorm.entity.sequenceOf
 class ShopFeature2(private val databaseManager: DatabaseManager, private val economy: Economy, private val minecraftServer: MinecraftServer) {
 
     data class Shop(val barrelBlockEntity: BarrelBlockEntity, val signBlockEntities: MutableList<SignBlockEntity>, val signData: SignData)
+    data class SignData(val vendorName: String, val itemAmount: Int, val price: Float)
 
     enum class PlayerState {
         ONLINE,
@@ -44,19 +43,10 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
 
     private val Database.players get() = this.sequenceOf(Players)
 
-
     init {
 
         UseBlockCallback.EVENT.register(this::useBlockCallback)
-        UseItemCallback.EVENT.register{player, world, hand ->
-            println("Item used")
-            TypedActionResult.pass(ItemStack.EMPTY)
-        }
-
-//        AttackBlockCallback.EVENT.register(this::attackBlockCallback)
-
         PlayerBlockBreakEvents.BEFORE.register(this::beforeBlockBreak)
-
         PlayerTakeItemsCallback.EVENT.register { playerEntity, inventory ->
             if (inventory is BarrelBlockEntity) {
                 val shop = isAShop(inventory.pos, playerEntity.getWorld())
@@ -69,23 +59,7 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
 
     }
 
-    private fun attackBlockCallback(player: PlayerEntity, world: World, hand: Hand, pos: BlockPos, direction: Direction): ActionResult {
-
-        val block = world.getBlockState(pos).block
-        val shop = isAShop(pos, world)
-
-        if (shop != null) {
-            if (block is BarrelBlock || block is WallSignBlock) {
-                if (shop.signData.vendorName != player.name.string) {
-//                    world.server?.submit { world.breakBlock(pos, false, player) }
-                    return ActionResult.FAIL
-                }
-            }
-        }
-
-        return ActionResult.PASS
-    }
-
+    @Suppress("UNUSED_PARAMETER")
     private fun beforeBlockBreak(world: World, player: PlayerEntity, pos: BlockPos, state: BlockState, blockEntity: BlockEntity?): Boolean{
         val block = world.getBlockState(pos).block
         val shop = isAShop(pos, world)
@@ -98,6 +72,7 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
         return true
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun useBlockCallback(player: PlayerEntity, world: World, hand: Hand, hitResult: BlockHitResult): ActionResult {
 
         // Prevents a player from robbing a shop with a hopper
@@ -165,7 +140,6 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
                 if(barrelBlockEntity.getStack(i).translationKey != firstTranslationKey)
                     return null
             }
-
         }
 
         return Shop(barrelBlockEntity, signBlockEntities, firstSignData)
@@ -233,8 +207,6 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
         }
     }
 
-    data class SignData(val vendorName: String, val itemAmount: Int, val price: Float)
-
     private fun getWallSignData(sign: SignBlockEntity): SignData? {
         val vendorName = sign.getTextOnRow(0, false).string
         if (getPlayerState(vendorName) == PlayerState.NOT_EXIST) return null
@@ -248,7 +220,6 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
             null
         }
     }
-
 
     /**
      * Returns the blockEntity behind the block corresponding to the "blockPos" parameter. If no blockEntity is found the returned value will be null
