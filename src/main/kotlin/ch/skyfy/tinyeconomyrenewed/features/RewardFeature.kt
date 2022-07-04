@@ -4,7 +4,10 @@ import ch.skyfy.tinyeconomyrenewed.Economy
 import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
 import ch.skyfy.tinyeconomyrenewed.callbacks.AdvancementCompletedCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.EntityDamageCallback
-import ch.skyfy.tinyeconomyrenewed.db.*
+import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
+import ch.skyfy.tinyeconomyrenewed.db.advancementRewards
+import ch.skyfy.tinyeconomyrenewed.db.entityKilledRewards
+import ch.skyfy.tinyeconomyrenewed.db.minedBlockRewards
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.minecraft.advancement.Advancement
 import net.minecraft.block.BlockState
@@ -15,16 +18,10 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-import org.ktorm.database.Database
 import org.ktorm.dsl.like
 import org.ktorm.entity.find
-import org.ktorm.entity.sequenceOf
 
 class RewardFeature(private val databaseManager: DatabaseManager, private val economy: Economy, private val scoreboardManager: ScoreboardManager) {
-
-    private val Database.minedBlockRewards get() = this.sequenceOf(MinedBlockRewards)
-    private val Database.entityKilledRewards get() = this.sequenceOf(EntityKilledRewards)
-    private val Database.advancementRewards get() = this.sequenceOf(AdvancementRewards)
 
     init {
         registerEvents()

@@ -13,6 +13,10 @@ val archivesBaseName = property("archives_base_name")
 group = property("maven_group")!!
 version = property("mod_version")!!
 
+base{
+    archivesName.set(properties["archives_base_name"].toString())
+}
+
 repositories {
     mavenCentral()
     mavenLocal()
@@ -22,6 +26,9 @@ repositories {
     maven("https://api.modrinth.com/maven"){
         name = "Modrinth"
         content { includeGroup("maven.modrinth") }
+    }
+    flatDir {
+        dirs("libs")
     }
 }
 
@@ -34,15 +41,16 @@ dependencies {
     modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
 
     modImplementation("me.bymartrixx.player-events:api:${properties["player_events_api_version"]}")
-    include("maven.modrinth:mariadbserverfabricmc:1.0")?.let { modImplementation(it) }
     include("eu.pb4:sidebar-api:${properties["sidebar-api_version"]}")?.let { modImplementation(it) }
+//    include("maven.modrinth:mariadbserverfabricmc:1.0")?.let { modImplementation(it) }
 
-    transitiveInclude(implementation("com.github.saibotk:JMAW:0.3.1")!!)
+    // Local jar
+    include(":MariaDBServerFabricMC-1.0+1.19")?.let { modImplementation(it) }
+
     transitiveInclude(implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.5.3")!!)
     transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.0.5")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-core:3.5.0")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.5.0")!!)
-    transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.1")!!)
     transitiveInclude(implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")!!)
 
     handleIncludes(project, transitiveInclude)

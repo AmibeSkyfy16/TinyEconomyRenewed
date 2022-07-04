@@ -1,6 +1,7 @@
 package ch.skyfy.tinyeconomyrenewed
 
-import ch.skyfy.tinyeconomyrenewed.db.*
+import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
+import ch.skyfy.tinyeconomyrenewed.db.players
 import eu.pb4.sidebars.api.Sidebar
 import me.bymartrixx.playerevents.api.event.PlayerJoinCallback
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
@@ -8,16 +9,12 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
-import org.ktorm.database.Database
 import org.ktorm.dsl.like
 import org.ktorm.entity.find
-import org.ktorm.entity.sequenceOf
 
 class ScoreboardManager(private val databaseManager: DatabaseManager) {
 
     private val sidebarMap: MutableMap<String, Sidebar> = HashMap()
-
-    private val Database.players get() = this.sequenceOf(Players)
 
    init {
        initialize()

@@ -8,6 +8,8 @@ import net.fabricmc.loader.api.FabricLoader
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.nio.file.Path
+import kotlin.io.path.createDirectory
+import kotlin.io.path.exists
 
 class TinyEconomyRenewedMod : DedicatedServerModInitializer {
 
@@ -28,8 +30,7 @@ class TinyEconomyRenewedMod : DedicatedServerModInitializer {
 
     private fun createConfigDir() {
         try {
-            val file = CONFIG_DIRECTORY.toFile()
-            if (!file.exists()) file.mkdir()
+            if(!CONFIG_DIRECTORY.exists()) CONFIG_DIRECTORY.createDirectory()
         } catch (e: java.lang.Exception) {
             LOGGER.fatal("An exception occurred. Could not create the root folder that should contain the configuration files")
             throw TinyEconomyModException(e)

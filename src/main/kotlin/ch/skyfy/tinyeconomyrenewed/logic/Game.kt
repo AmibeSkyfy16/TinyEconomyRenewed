@@ -5,24 +5,19 @@ import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.Player
-import ch.skyfy.tinyeconomyrenewed.db.Players
+import ch.skyfy.tinyeconomyrenewed.db.players
 import ch.skyfy.tinyeconomyrenewed.features.RewardFeature
-import ch.skyfy.tinyeconomyrenewed.features.ShopFeature
 import ch.skyfy.tinyeconomyrenewed.features.ShopFeature2
 import me.bymartrixx.playerevents.api.event.PlayerJoinCallback
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
-import org.ktorm.database.Database
 import org.ktorm.dsl.like
 import org.ktorm.entity.add
 import org.ktorm.entity.find
-import org.ktorm.entity.sequenceOf
 import org.ktorm.entity.update
 
 
-class Game(private val databaseManager: DatabaseManager, private val minecraftServer: MinecraftServer) {
-
-    private val Database.players get() = this.sequenceOf(Players)
+class Game(private val databaseManager: DatabaseManager, minecraftServer: MinecraftServer) {
 
     private val economy: Economy = Economy(databaseManager)
     private val scoreboardManager: ScoreboardManager = ScoreboardManager(databaseManager)

@@ -12,6 +12,14 @@ import org.ktorm.entity.find
 import org.ktorm.entity.sequenceOf
 import kotlin.io.path.inputStream
 
+val Database.players get() = this.sequenceOf(Players)
+val Database.items get() = this.sequenceOf(Items)
+val Database.entities get() = this.sequenceOf(Entities)
+val Database.advancements get() = this.sequenceOf(Advancements)
+val Database.minedBlockRewards get() = this.sequenceOf(MinedBlockRewards)
+val Database.entityKilledRewards get() = this.sequenceOf(EntityKilledRewards)
+val Database.advancementRewards get() = this.sequenceOf(AdvancementRewards)
+
 /**
  * This class connects to the database and creates the required tables and populate it with default data.
  *
@@ -24,13 +32,6 @@ import kotlin.io.path.inputStream
 class DatabaseManager {
 
     val db: Database
-
-    private val Database.items get() = this.sequenceOf(Items)
-    private val Database.entities get() = this.sequenceOf(Entities)
-    private val Database.advancements get() = this.sequenceOf(Advancements)
-    private val Database.minedBlockRewards get() = this.sequenceOf(MinedBlockRewards)
-    private val Database.entityKilledRewards get() = this.sequenceOf(EntityKilledRewards)
-    private val Database.advancementRewards get() = this.sequenceOf(AdvancementRewards)
 
     init {
 

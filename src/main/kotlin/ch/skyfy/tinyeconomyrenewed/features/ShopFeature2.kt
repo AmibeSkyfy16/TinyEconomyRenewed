@@ -4,7 +4,7 @@ import ch.skyfy.tinyeconomyrenewed.Economy
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerTakeItemsCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
-import ch.skyfy.tinyeconomyrenewed.db.Players
+import ch.skyfy.tinyeconomyrenewed.db.players
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
 import net.minecraft.block.BarrelBlock
@@ -25,10 +25,8 @@ import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.world.World
-import org.ktorm.database.Database
 import org.ktorm.dsl.like
 import org.ktorm.entity.find
-import org.ktorm.entity.sequenceOf
 
 class ShopFeature2(private val databaseManager: DatabaseManager, private val economy: Economy, private val minecraftServer: MinecraftServer) {
 
@@ -40,8 +38,6 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
         OFFLINE,
         NOT_EXIST
     }
-
-    private val Database.players get() = this.sequenceOf(Players)
 
     init {
 
@@ -60,7 +56,7 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
     }
 
     @Suppress("UNUSED_PARAMETER")
-    private fun beforeBlockBreak(world: World, player: PlayerEntity, pos: BlockPos, state: BlockState, blockEntity: BlockEntity?): Boolean{
+    private fun beforeBlockBreak(world: World, player: PlayerEntity, pos: BlockPos, state: BlockState, blockEntity: BlockEntity?): Boolean {
         val block = world.getBlockState(pos).block
         val shop = isAShop(pos, world)
 
@@ -132,12 +128,12 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
         var firstTranslationKey = ""
         var once = false
         for (i in 0 until barrelBlockEntity.size()) {
-            if(!barrelBlockEntity.getStack(i).isEmpty){
-                if(!once){
+            if (!barrelBlockEntity.getStack(i).isEmpty) {
+                if (!once) {
                     once = true
                     firstTranslationKey = barrelBlockEntity.getStack(i).translationKey
                 }
-                if(barrelBlockEntity.getStack(i).translationKey != firstTranslationKey)
+                if (barrelBlockEntity.getStack(i).translationKey != firstTranslationKey)
                     return null
             }
         }
