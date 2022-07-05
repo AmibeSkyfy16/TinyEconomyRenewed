@@ -55,6 +55,7 @@ dependencies {
 
     handleIncludes(project, transitiveInclude)
 
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.7.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
     testImplementation("org.junit.platform:junit-platform-runner:1.8.2")
@@ -92,8 +93,21 @@ tasks {
         }
     }
 
-    named<Test>("test") {
+    named<Test>("test") { // https://stackoverflow.com/questions/40954017/gradle-how-to-get-output-from-test-stderr-stdout-into-console
         useJUnitPlatform()
+
+        testLogging {
+            outputs.upToDateWhen { false } // When the build task is executed, stderr-stdout of test classes will be show
+            showStandardStreams = true
+        }
+
+        doLast {
+            println("Displaying some default values:")
+            println("\tshowStackTraces: ${testLogging.showStackTraces}")
+            println("\tshowExceptions: ${testLogging.showExceptions}")
+            println("\tshowCauses: ${testLogging.showCauses}")
+            println("\tshowStandardStreams: ${testLogging.showStandardStreams}")
+        }
     }
 
 //    val copyJarToTestServer = register("copyJarToTestServer"){

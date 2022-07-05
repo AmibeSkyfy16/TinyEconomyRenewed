@@ -40,7 +40,7 @@ class DatabaseManager {
         EmbeddedDatabaseAPI.db.createDB("TinyEconomyRenewed")
 
         db = Database.connect(
-            "jdbc:mariadb://localhost:3308/TinyEconomyRenewed",
+            url = "jdbc:mariadb://localhost:3308/TinyEconomyRenewed",
             driver = "org.mariadb.jdbc.Driver",
             user = "root",
             password = ""

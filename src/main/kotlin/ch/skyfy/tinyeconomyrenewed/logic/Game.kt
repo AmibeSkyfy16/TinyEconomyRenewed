@@ -7,7 +7,7 @@ import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.Player
 import ch.skyfy.tinyeconomyrenewed.db.players
 import ch.skyfy.tinyeconomyrenewed.features.RewardFeature
-import ch.skyfy.tinyeconomyrenewed.features.ShopFeature2
+import ch.skyfy.tinyeconomyrenewed.features.ShopFeature
 import me.bymartrixx.playerevents.api.event.PlayerJoinCallback
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
@@ -24,7 +24,7 @@ class Game(private val databaseManager: DatabaseManager, minecraftServer: Minecr
 
     init {
         RewardFeature(databaseManager, economy, scoreboardManager)
-        ShopFeature2(databaseManager, economy, minecraftServer)
+        ShopFeature(databaseManager, economy,scoreboardManager, minecraftServer)
         registerEvents()
     }
 

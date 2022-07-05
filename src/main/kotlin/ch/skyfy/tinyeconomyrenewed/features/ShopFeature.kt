@@ -1,6 +1,7 @@
 package ch.skyfy.tinyeconomyrenewed.features
 
 import ch.skyfy.tinyeconomyrenewed.Economy
+import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerTakeItemsCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
@@ -28,7 +29,11 @@ import net.minecraft.world.World
 import org.ktorm.dsl.like
 import org.ktorm.entity.find
 
-class ShopFeature2(private val databaseManager: DatabaseManager, private val economy: Economy, private val minecraftServer: MinecraftServer) {
+class ShopFeature(
+    private val databaseManager: DatabaseManager,
+    private val economy: Economy,
+    private val scoreboardManager: ScoreboardManager,
+    private val minecraftServer: MinecraftServer) {
 
     data class Shop(val barrelBlockEntity: BarrelBlockEntity, val signBlockEntities: MutableList<SignBlockEntity>, val signData: SignData)
     data class SignData(val vendorName: String, val itemAmount: Int, val price: Float)
@@ -193,6 +198,9 @@ class ShopFeature2(private val databaseManager: DatabaseManager, private val eco
         if (remainingPiece <= 0) {
             economy.withdraw(buyer, shop.signData.price)
             economy.deposit(vendor, shop.signData.price)
+
+            scoreboardManager.updateSidebar(buyerPlayer)
+            if(vendorPlayer != null)scoreboardManager.updateSidebar(vendorPlayer)
 
             val args = transfer[0].item.translationKey.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             val itemName = args[args.size - 1]
