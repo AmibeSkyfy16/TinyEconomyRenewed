@@ -1,14 +1,15 @@
 /*
  *
- * build.gradle.kts is based on this : https://github.com/StckOverflw/TwitchControlsMinecraft/blob/4bf406893544c3edf52371fa6e7a6cc7ae80dc05/build.gradle.kts
+ * build_01.gradle.kts is based on this : https://github.com/homchom/recode/blob/b2d2c2b4bb0126f1d4c0711cae6cb54473e75113/build.gradle.kts
  *
  * This is one of the ways I tried to include no-mod libraries.
  *
- * This build file is the build im using right now, and it seems to work
+ * This build file currently not working (getting some error after copied the jar on my server and started the server)
  *
  * To use this file as build file, have a look at the settings.gradle.kts file
  *
  */
+
 
 @file:Suppress("GradlePackageVersionRange")
 
@@ -17,9 +18,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("fabric-loom") version "0.12-SNAPSHOT"
     id("org.jetbrains.kotlin.jvm") version "1.7.0"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
-val transitiveInclude: Configuration by configurations.creating
+val shade: Configuration by configurations.creating {
+    isCanBeResolved = true
+    exclude(group = "org.slf4j")
+}
 
 val archivesBaseName = property("archives_base_name")
 group = property("maven_group")!!
@@ -59,13 +64,11 @@ dependencies {
     // Local jar
     include(":MariaDBServerFabricMC-1.0+1.19")?.let { modImplementation(it) }
 
-    transitiveInclude(implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.5.3")!!)
-    transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.0.5")!!)
-    transitiveInclude(implementation("org.ktorm:ktorm-core:3.5.0")!!)
-    transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.5.0")!!)
-    transitiveInclude(implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")!!)
-
-    handleIncludes(project, transitiveInclude)
+    shadeImpl("ch.vorburger.mariaDB4j:mariaDB4j:2.5.3")
+    shadeImpl("org.mariadb.jdbc:mariadb-java-client:3.0.5")
+    shadeImpl("org.ktorm:ktorm-core:3.5.0")
+    shadeImpl("org.ktorm:ktorm-support-mysql:3.5.0")
+    shadeImpl("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.7.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
@@ -100,10 +103,30 @@ tasks {
     }
 
     named<Jar>("jar") {
+        enabled = false
         from("LICENSE") {
             rename { "${it}_${archivesBaseName}" }
         }
     }
+
+    val relocate by registering(com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation::class) {
+        target = shadowJar.get()
+        prefix = "${project.properties["maven_group"]}.tinyeconomyrenewed.shaded"
+    }
+
+    shadowJar {
+        dependsOn(relocate)
+        configurations = listOf(shade)
+        destinationDirectory.set(file("build/devlibs"))
+        archiveClassifier.set("dev")
+
+        from("LICENSE")
+    }
+
+    remapJar {
+        inputFile.value(shadowJar.get().archiveFile)
+    }
+
 
     named<Test>("test") { // https://stackoverflow.com/questions/40954017/gradle-how-to-get-output-from-test-stderr-stdout-into-console
         useJUnitPlatform()
@@ -122,54 +145,36 @@ tasks {
         }
     }
 
-//    val copyJarToTestServer = register("copyJarToTestServer"){
-//        println("copy to server")
-//        copyFile("build/libs/TinyEconomyRenewed-1.0-SNAPSHOT.jar", project.property("testServerModsFolder") as String)
-//    }
-//
-//    named<DefaultTask>("remapJar"){
-//        doLast{
-//            copyJarToTestServer.get()
-//        }
-//    }
-
 }
 
-fun copyFile(src: String, dest: String) {
-    copy {
-        from(src)
-        into(dest)
-    }
+typealias DependencyConfig = Action<ExternalModuleDependency>
+
+fun DependencyHandlerScope.shadeImpl(notation: Any) {
+    implementation(notation)
+    shade(notation)
 }
 
-fun DependencyHandlerScope.includeTransitive(
-    root: ResolvedDependency?,
-    dependencies: Set<ResolvedDependency>,
-    fabricLanguageKotlinDependency: ResolvedDependency,
-    checkedDependencies: MutableSet<ResolvedDependency> = HashSet()
-) {
-    dependencies.forEach {
-        if (checkedDependencies.contains(it) || (it.moduleGroup == "org.jetbrains.kotlin" && it.moduleName.startsWith("kotlin-stdlib")) || (it.moduleGroup == "org.slf4j" && it.moduleName == "slf4j-api"))
-            return@forEach
-
-        if (fabricLanguageKotlinDependency.children.any { kotlinDep -> kotlinDep.name == it.name }) {
-            println("Skipping -> ${it.name} (already in fabric-language-kotlin)")
-        } else {
-            include(it.name)
-            println("Including -> ${it.name} from ${root?.name}")
-        }
-        checkedDependencies += it
-
-        includeTransitive(root ?: it, it.children, fabricLanguageKotlinDependency, checkedDependencies)
-    }
+fun DependencyHandlerScope.shadeApi(notation: Any) {
+    api(notation)
+    shade(notation)
 }
 
-// from : https://github.com/StckOverflw/TwitchControlsMinecraft/blob/4bf406893544c3edf52371fa6e7a6cc7ae80dc05/build.gradle.kts
-fun DependencyHandlerScope.handleIncludes(project: Project, configuration: Configuration) {
-    includeTransitive(
-        null,
-        configuration.resolvedConfiguration.firstLevelModuleDependencies,
-        project.configurations.getByName("modImplementation").resolvedConfiguration.firstLevelModuleDependencies
-            .first { it.moduleGroup == "net.fabricmc" && it.moduleName == "fabric-language-kotlin" }
-    )
+fun DependencyHandlerScope.includeImpl(notation: Any) {
+    implementation(notation)
+    include(notation)
+}
+
+fun DependencyHandlerScope.includeApi(notation: Any) {
+    api(notation)
+    include(notation)
+}
+
+fun DependencyHandlerScope.includeModImpl(notation: Any) {
+    modImplementation(notation)
+    include(notation)
+}
+
+fun DependencyHandlerScope.includeModApi(notation: Any) {
+    modApi(notation)
+    include(notation)
 }
