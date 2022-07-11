@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("fabric-loom") version "0.12-SNAPSHOT"
-    id("org.jetbrains.kotlin.jvm") version "1.7.0"
+    id("org.jetbrains.kotlin.jvm") version "1.7.10"
 }
 
 val transitiveInclude: Configuration by configurations.creating
@@ -57,9 +57,9 @@ dependencies {
 //    include("maven.modrinth:mariadbserverfabricmc:1.0")?.let { modImplementation(it) }
 
     // Local jar
-    include(":MariaDBServerFabricMC-1.0+1.19")?.let { modImplementation(it) }
+    include(":MariaDBServerFabricMC-2.0+1.19")?.let { modImplementation(it) }
 
-    transitiveInclude(implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.5.3")!!)
+//    transitiveInclude(implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.5.3")!!)
     transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.0.5")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-core:3.5.0")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.5.0")!!)

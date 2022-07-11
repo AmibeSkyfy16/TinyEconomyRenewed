@@ -1,6 +1,5 @@
 package ch.skyfy.tinyeconomyrenewed.db
 
-import ch.skyfy.mariadbserverfabricmc.api.EmbeddedDatabaseAPI
 import ch.skyfy.tinyeconomyrenewed.DataRetriever
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import net.fabricmc.loader.api.FabricLoader
@@ -37,7 +36,7 @@ class DatabaseManager {
 
         TinyEconomyRenewedMod.LOGGER.info("[Database Manager init block] > current thread name ${Thread.currentThread().name}")
 
-        EmbeddedDatabaseAPI.db.createDB("TinyEconomyRenewed")
+        createDatabase()
 
         db = Database.connect(
             url = "jdbc:mariadb://localhost:3308/TinyEconomyRenewed",
@@ -47,6 +46,22 @@ class DatabaseManager {
         )
 
         initDatabase()
+    }
+
+    @Suppress("SqlNoDataSourceInspection")
+    private fun createDatabase(){
+        val database = Database.connect(
+            "jdbc:mariadb://localhost:3308",
+            driver = "org.mariadb.jdbc.Driver",
+            user = "root",
+            password = ""
+        )
+        database.useConnection { conn ->
+            val sql = "create database if not exists `TinyEconomyRenewed`;"
+            conn.prepareStatement(sql).use { statement ->
+               statement.executeQuery()
+            }
+        }
     }
 
     private fun initDatabase() {
