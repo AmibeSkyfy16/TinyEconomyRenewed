@@ -36,7 +36,7 @@ class DatabaseManager {
 
         TinyEconomyRenewedMod.LOGGER.info("[Database Manager init block] > current thread name ${Thread.currentThread().name}")
 
-        createDatabase()
+        createDatabase() // First we have to create the new database
 
         db = Database.connect(
             url = "jdbc:mariadb://localhost:3308/TinyEconomyRenewed",
@@ -45,7 +45,7 @@ class DatabaseManager {
             password = ""
         )
 
-        initDatabase()
+        initDatabase() // Then create tables and populate it with data
     }
 
     @Suppress("SqlNoDataSourceInspection")

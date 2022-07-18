@@ -17,6 +17,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("fabric-loom") version "0.12-SNAPSHOT"
     id("org.jetbrains.kotlin.jvm") version "1.7.10"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.10"
+    idea
 }
 
 val transitiveInclude: Configuration by configurations.creating
@@ -32,9 +34,10 @@ base{
 repositories {
     mavenCentral()
     mavenLocal()
-    maven("https://maven.bymartrixx.me") {}
-    maven("https://jitpack.io") {}
-    maven("https://maven.nucleoid.xyz"){}
+    maven("https://maven.bymartrixx.me")
+    maven("https://jitpack.io")
+    maven("https://maven.nucleoid.xyz")
+    maven("https://repo.repsy.io/mvn/amibeskyfy16/repo") // Use for my JsonConfig lib
     maven("https://api.modrinth.com/maven"){
         name = "Modrinth"
         content { includeGroup("maven.modrinth") }
@@ -60,10 +63,12 @@ dependencies {
     include(":MariaDBServerFabricMC-2.0+1.19")?.let { modImplementation(it) }
 
 //    transitiveInclude(implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.5.3")!!)
-    transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.0.5")!!)
+    transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.0.6")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-core:3.5.0")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.5.0")!!)
-    transitiveInclude(implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")!!)
+    transitiveInclude(implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")!!)
+    transitiveInclude(implementation("ch.skyfy.jsonconfig:json-config:2.1.4")!!)
+
 
     handleIncludes(project, transitiveInclude)
 
