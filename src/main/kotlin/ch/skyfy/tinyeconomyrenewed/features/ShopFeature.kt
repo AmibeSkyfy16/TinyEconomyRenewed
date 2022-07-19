@@ -9,7 +9,6 @@ import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.players
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
-import net.fabricmc.fabric.api.event.player.UseItemCallback
 import net.minecraft.block.BarrelBlock
 import net.minecraft.block.BlockState
 import net.minecraft.block.WallSignBlock
@@ -18,13 +17,13 @@ import net.minecraft.block.entity.BarrelBlockEntity
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.SignBlockEntity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.inventory.Inventory
 import net.minecraft.item.ItemStack
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
-import net.minecraft.util.TypedActionResult
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
@@ -52,20 +51,17 @@ class ShopFeature(
 
         UseBlockCallback.EVENT.register(this::useBlockCallback)
         PlayerBlockBreakEvents.BEFORE.register(this::beforeBlockBreak)
-        PlayerTakeItemsCallback.EVENT.register { playerEntity, inventory ->
-            if (inventory is BarrelBlockEntity) {
-                val shop = isAShop(inventory.pos, playerEntity.getWorld())
-                if (shop != null && shop.signData.vendorName != playerEntity.name.string) {
-                    return@register ActionResult.FAIL
-                }
-            }
-            ActionResult.PASS
-        }
-        UseItemCallback.EVENT.register { player, world, hand ->
-
-            TypedActionResult.pass(ItemStack.EMPTY)
-        }
-
+        PlayerTakeItemsCallback.EVENT.register(this::cancelPlayerFromTakeItem)
+        PlayerInsertItemsCallback.EVENT.register(this::cancelPlayerFromInsertItem)
+//        PlayerTakeItemsCallback.EVENT.register { playerEntity, inventory ->
+//            if (inventory is BarrelBlockEntity) {
+//                val shop = isAShop(inventory.pos, playerEntity.getWorld())
+//                if (shop != null && shop.signData.vendorName != playerEntity.name.string) {
+//                    return@register ActionResult.FAIL
+//                }
+//            }
+//            ActionResult.PASS
+//        }
         PlayerInsertItemsCallback.EVENT.register { playerEntity, inventory ->
             if (inventory is BarrelBlockEntity) {
                 val shop = isAShop(inventory.pos, playerEntity.getWorld())
@@ -75,19 +71,21 @@ class ShopFeature(
             }
             true
         }
-
-//        CanPlayerUseInventoryCallback.EVENT.register{playerEntity, inventory ->
-//            if (inventory is BarrelBlockEntity) {
-//
-//                val shop = isAShop(inventory.pos, playerEntity.getWorld())
-//                if (shop != null && shop.signData.vendorName != playerEntity.name.string) {
-//                    return@register false
-//                }
-//            }
-//            true
-//        }
-
     }
+
+    private fun <T> cancelPlayerFromInsertOrTakeItems(playerEntity: PlayerEntity, inventory: Inventory, pass: T, fail: T): T {
+        if (inventory is BarrelBlockEntity) {
+            val shop = isAShop(inventory.pos, playerEntity.getWorld())
+            if (shop != null && shop.signData.vendorName != playerEntity.name.string) return fail
+        }
+        return pass
+    }
+
+    private fun cancelPlayerFromInsertItem(playerEntity: PlayerEntity, inventory: Inventory): Boolean =
+        cancelPlayerFromInsertOrTakeItems(playerEntity, inventory, pass = true, fail = false)
+
+    private fun cancelPlayerFromTakeItem(playerEntity: PlayerEntity, inventory: Inventory): ActionResult =
+        cancelPlayerFromInsertOrTakeItems(playerEntity, inventory, ActionResult.PASS, ActionResult.FAIL)
 
     @Suppress("UNUSED_PARAMETER")
     private fun beforeBlockBreak(world: World, player: PlayerEntity, pos: BlockPos, state: BlockState, blockEntity: BlockEntity?): Boolean {
