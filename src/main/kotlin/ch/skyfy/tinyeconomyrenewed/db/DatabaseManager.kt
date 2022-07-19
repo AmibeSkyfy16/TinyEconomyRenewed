@@ -2,6 +2,7 @@ package ch.skyfy.tinyeconomyrenewed.db
 
 import ch.skyfy.tinyeconomyrenewed.DataRetriever
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
+import ch.skyfy.tinyeconomyrenewed.config.Configs
 import net.fabricmc.loader.api.FabricLoader
 import org.ktorm.database.Database
 import org.ktorm.dsl.eq
@@ -37,25 +38,15 @@ class DatabaseManager {
         TinyEconomyRenewedMod.LOGGER.info("[Database Manager init block] > current thread name ${Thread.currentThread().name}")
 
         createDatabase() // First we have to create the new database
-
-        db = Database.connect(
-            url = "jdbc:mariadb://localhost:3308/TinyEconomyRenewed",
-            driver = "org.mariadb.jdbc.Driver",
-            user = "root",
-            password = ""
-        )
-
+        val (url, user, password) = Configs.DB_CONFIG.data
+        db = Database.connect("$url/TinyEconomyRenewed", "org.mariadb.jdbc.Driver", user, password)
         initDatabase() // Then create tables and populate it with data
     }
 
-    @Suppress("SqlNoDataSourceInspection")
+    @Suppress("SqlNoDataSourceInspection", "SqlDialectInspection")
     private fun createDatabase(){
-        val database = Database.connect(
-            "jdbc:mariadb://localhost:3308",
-            driver = "org.mariadb.jdbc.Driver",
-            user = "root",
-            password = ""
-        )
+        val (url, user, password) = Configs.DB_CONFIG.data
+        val database = Database.connect(url, "org.mariadb.jdbc.Driver", user, password)
         database.useConnection { conn ->
             val sql = "create database if not exists `TinyEconomyRenewed`;"
             conn.prepareStatement(sql).use { statement ->

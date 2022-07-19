@@ -3,11 +3,13 @@ package ch.skyfy.tinyeconomyrenewed.features
 import ch.skyfy.tinyeconomyrenewed.Economy
 import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
+import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerInsertItemsCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerTakeItemsCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.players
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
+import net.fabricmc.fabric.api.event.player.UseItemCallback
 import net.minecraft.block.BarrelBlock
 import net.minecraft.block.BlockState
 import net.minecraft.block.WallSignBlock
@@ -22,6 +24,7 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
+import net.minecraft.util.TypedActionResult
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
@@ -33,7 +36,8 @@ class ShopFeature(
     private val databaseManager: DatabaseManager,
     private val economy: Economy,
     private val scoreboardManager: ScoreboardManager,
-    private val minecraftServer: MinecraftServer) {
+    private val minecraftServer: MinecraftServer
+) {
 
     data class Shop(val barrelBlockEntity: BarrelBlockEntity, val signBlockEntities: MutableList<SignBlockEntity>, val signData: SignData)
     data class SignData(val vendorName: String, val itemAmount: Int, val price: Float)
@@ -57,6 +61,31 @@ class ShopFeature(
             }
             ActionResult.PASS
         }
+        UseItemCallback.EVENT.register { player, world, hand ->
+
+            TypedActionResult.pass(ItemStack.EMPTY)
+        }
+
+        PlayerInsertItemsCallback.EVENT.register { playerEntity, inventory ->
+            if (inventory is BarrelBlockEntity) {
+                val shop = isAShop(inventory.pos, playerEntity.getWorld())
+                if (shop != null && shop.signData.vendorName != playerEntity.name.string) {
+                    return@register false
+                }
+            }
+            true
+        }
+
+//        CanPlayerUseInventoryCallback.EVENT.register{playerEntity, inventory ->
+//            if (inventory is BarrelBlockEntity) {
+//
+//                val shop = isAShop(inventory.pos, playerEntity.getWorld())
+//                if (shop != null && shop.signData.vendorName != playerEntity.name.string) {
+//                    return@register false
+//                }
+//            }
+//            true
+//        }
 
     }
 
@@ -79,7 +108,8 @@ class ShopFeature(
         // Prevents a player from robbing a shop with a hopper
         // There is a trick, player can still steal with hopper, I'll leave this trick available for crafty players
         for (itemStack in player.itemsHand) {
-            if (itemStack.item.translationKey == "block.minecraft.hopper") {
+            println("itemStack.item.translationKey " + itemStack.item.translationKey)
+            if (itemStack.item.translationKey == "block.minecraft.hopper" || itemStack.item.translationKey == "item.minecraft.hopper_minecart") {
                 val shop = isAShop(BlockPos(hitResult.pos.x, hitResult.pos.y + 1, hitResult.pos.z), world)
                 if (shop != null && shop.signData.vendorName != player.name.string) return ActionResult.FAIL
             }
@@ -200,7 +230,7 @@ class ShopFeature(
             economy.deposit(vendor, shop.signData.price)
 
             scoreboardManager.updateSidebar(buyerPlayer)
-            if(vendorPlayer != null)scoreboardManager.updateSidebar(vendorPlayer)
+            if (vendorPlayer != null) scoreboardManager.updateSidebar(vendorPlayer)
 
             val args = transfer[0].item.translationKey.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             val itemName = args[args.size - 1]

@@ -27,7 +27,7 @@ val archivesBaseName = property("archives_base_name")
 group = property("maven_group")!!
 version = property("mod_version")!!
 
-base{
+base {
     archivesName.set(properties["archives_base_name"].toString())
 }
 
@@ -38,13 +38,6 @@ repositories {
     maven("https://jitpack.io")
     maven("https://maven.nucleoid.xyz")
     maven("https://repo.repsy.io/mvn/amibeskyfy16/repo") // Use for my JsonConfig lib
-    maven("https://api.modrinth.com/maven"){
-        name = "Modrinth"
-        content { includeGroup("maven.modrinth") }
-    }
-    flatDir {
-        dirs("libs")
-    }
 }
 
 dependencies {
@@ -57,12 +50,7 @@ dependencies {
 
     modImplementation("me.bymartrixx.player-events:api:${properties["player_events_api_version"]}")
     include("eu.pb4:sidebar-api:${properties["sidebar-api_version"]}")?.let { modImplementation(it) }
-//    include("maven.modrinth:mariadbserverfabricmc:1.0")?.let { modImplementation(it) }
 
-    // Local jar
-    include(":MariaDBServerFabricMC-2.0+1.19")?.let { modImplementation(it) }
-
-//    transitiveInclude(implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.5.3")!!)
     transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.0.6")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-core:3.5.0")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.5.0")!!)
@@ -72,13 +60,8 @@ dependencies {
 
     handleIncludes(project, transitiveInclude)
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.7.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
-    testImplementation("org.junit.platform:junit-platform-runner:1.8.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.7.10")
 }
-
 tasks {
 
     val javaVersion = JavaVersion.VERSION_17
@@ -127,16 +110,16 @@ tasks {
         }
     }
 
-//    val copyJarToTestServer = register("copyJarToTestServer"){
-//        println("copy to server")
-//        copyFile("build/libs/TinyEconomyRenewed-1.0-SNAPSHOT.jar", project.property("testServerModsFolder") as String)
-//    }
-//
-//    named<DefaultTask>("remapJar"){
-//        doLast{
-//            copyJarToTestServer.get()
-//        }
-//    }
+    val copyJarToTestServer = register("copyJarToTestServer") {
+        println("copy to server")
+        copyFile("build/libs/TinyEconomyRenewed-1.0.jar", project.property("testServerModsFolder") as String)
+    }
+
+    build {
+        doLast {
+            copyJarToTestServer.get()
+        }
+    }
 
 }
 

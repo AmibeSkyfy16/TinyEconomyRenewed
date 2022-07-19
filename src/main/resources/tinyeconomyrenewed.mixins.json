@@ -5,8 +5,13 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "AdvancementMixin",
+    "BarrelBlockEntityMixin",
+    "GenericContainerScreenHandlerMixin",
+    "InventoryMixin",
     "LivingEntityMixin",
+    "LootableContainerBlockEntityMixin",
     "PlayerAdvancementTrackerMixin",
+    "PlayerScreenHandlerMixin",
     "ServerAdvancementLoaderMixin",
     "ServerPlayerInteractionManagerMixin",
     "SignBlockEntityMixin",

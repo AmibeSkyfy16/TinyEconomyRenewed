@@ -2,7 +2,13 @@
 
 The purpose of this project is basically to create a small economy system for a private server.
 
+Currently, suppressed (The database server should already be ready and installed manually at this time)
+```
 This project uses a mariadb database provided by the mod [MariaDBServerFabric](https://github.com/AmibeSkyfy16/MariaDBServerFabricMC)
+```
+
+To run this mod, you will need a MariaDB server version 10.8.3
+You can find here a video tutorial explaining how to install a MariaDB server: https://www.youtube.com/watch?v=XOHm-r05lGM
 
 
 The following things are implemented :

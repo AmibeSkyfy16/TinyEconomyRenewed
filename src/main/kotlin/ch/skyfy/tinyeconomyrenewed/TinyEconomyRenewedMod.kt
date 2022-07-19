@@ -1,7 +1,10 @@
 package ch.skyfy.tinyeconomyrenewed
 
 
+import ch.skyfy.jsonconfig.JsonConfig
+import ch.skyfy.tinyeconomyrenewed.config.Configs
 import ch.skyfy.tinyeconomyrenewed.exceptions.TinyEconomyModException
+import ch.skyfy.tinyeconomyrenewed.utils.setupConfigDirectory
 import kotlinx.coroutines.Dispatchers
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.loader.api.FabricLoader
@@ -20,21 +23,13 @@ class TinyEconomyRenewedMod : DedicatedServerModInitializer {
     }
 
     init {
+        setupConfigDirectory()
+        JsonConfig.loadConfigs(arrayOf(Configs.javaClass))
         DataRetriever // Get data like all minecraft items identifier, all advancements data (time to mine + id, etc., etc.)
-        createConfigDir()
     }
 
     override fun onInitializeServer() {
-        TinyEconomyRenewedInitializer(Dispatchers.IO)
-    }
-
-    private fun createConfigDir() {
-        try {
-            if(!CONFIG_DIRECTORY.exists()) CONFIG_DIRECTORY.createDirectory()
-        } catch (e: java.lang.Exception) {
-            LOGGER.fatal("An exception occurred. Could not create the root folder that should contain the configuration files")
-            throw TinyEconomyModException(e)
-        }
+        TinyEconomyRenewedInitializer()
     }
 
 }
