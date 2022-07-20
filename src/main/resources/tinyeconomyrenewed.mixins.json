@@ -11,7 +11,11 @@
     "GenericContainerScreenHandlerMixin",
     "LivingEntityMixin",
     "PlayerAdvancementTrackerMixin",
-    "SlotMixin"
+    "ServerWorldMixin",
+    "SlotMixin",
+    "EndCrystalEntityMixin",
+    "FireballEntityMixin",
+    "TntMixin"
   ],
   "client": [
   ],

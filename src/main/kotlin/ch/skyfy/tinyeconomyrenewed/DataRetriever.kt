@@ -18,14 +18,17 @@ object DataRetriever {
 
     init {
         AdvancementCreatedCallback.EVENT.register { id, display ->
-            advancements.add(
-                Advancement(
-                    id.toString(),
-                    display.frame.toString(),
-                    StringUtils.substringBetween(display.title.toString(), "'", "'"),
-                    StringUtils.substringBetween(display.description.toString(), "'", "'")
+                val title: String? = StringUtils.substringBetween(display.title.toString(), "'", "'")
+                val description: String? = StringUtils.substringBetween(display.description.toString(), "'", "'")
+                if(title == null || description == null)return@register
+                advancements.add(
+                    Advancement(
+                        id.toString(),
+                        display.frame.toString(),
+                        title,
+                        description
+                    )
                 )
-            )
         }
     }
 

@@ -9,6 +9,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
+import net.minecraft.block.Block
+import net.minecraft.entity.TntEntity
 import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
@@ -33,6 +35,7 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
             launch {
                 TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed is being initialized \uD83D\uDE9A \uD83D\uDE9A \uD83D\uDE9A")
                 val db = DatabaseManager()
+
                 optGameRef.set(Optional.of(Game(db, minecraftServer)))
                 isInitializationComplete = true
 

@@ -112,7 +112,7 @@ tasks {
 
     val copyJarToTestServer = register("copyJarToTestServer") {
         println("copy to server")
-        copyFile("build/libs/TinyEconomyRenewed-1.0.jar", project.property("testServerModsFolder") as String)
+        copyFile("build/libs/TinyEconomyRenewed-1.0.1.jar", project.property("testServerModsFolder") as String)
     }
 
     build {

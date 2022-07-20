@@ -3,8 +3,10 @@ package ch.skyfy.tinyeconomyrenewed.features
 import ch.skyfy.tinyeconomyrenewed.Economy
 import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
+import ch.skyfy.tinyeconomyrenewed.callbacks.CreateExplosionCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerInsertItemsCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerTakeItemsCallback
+import ch.skyfy.tinyeconomyrenewed.config.Configs
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.players
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
@@ -16,11 +18,15 @@ import net.minecraft.block.WallSignBlock.FACING
 import net.minecraft.block.entity.BarrelBlockEntity
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.SignBlockEntity
+import net.minecraft.entity.Entity
+import net.minecraft.entity.TntEntity
+import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.Inventory
 import net.minecraft.item.ItemStack
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
@@ -28,6 +34,8 @@ import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.world.World
+import net.minecraft.world.explosion.Explosion
+import net.minecraft.world.explosion.ExplosionBehavior
 import org.ktorm.dsl.like
 import org.ktorm.entity.find
 
@@ -48,28 +56,53 @@ class ShopFeature(
     }
 
     init {
-
         UseBlockCallback.EVENT.register(this::useBlockCallback)
         PlayerBlockBreakEvents.BEFORE.register(this::beforeBlockBreak)
         PlayerTakeItemsCallback.EVENT.register(this::cancelPlayerFromTakeItem)
         PlayerInsertItemsCallback.EVENT.register(this::cancelPlayerFromInsertItem)
-//        PlayerTakeItemsCallback.EVENT.register { playerEntity, inventory ->
-//            if (inventory is BarrelBlockEntity) {
-//                val shop = isAShop(inventory.pos, playerEntity.getWorld())
-//                if (shop != null && shop.signData.vendorName != playerEntity.name.string) {
-//                    return@register ActionResult.FAIL
-//                }
-//            }
-//            ActionResult.PASS
-//        }
-        PlayerInsertItemsCallback.EVENT.register { playerEntity, inventory ->
-            if (inventory is BarrelBlockEntity) {
-                val shop = isAShop(inventory.pos, playerEntity.getWorld())
-                if (shop != null && shop.signData.vendorName != playerEntity.name.string) {
-                    return@register false
+        CreateExplosionCallback.EVENT.register(this::manageShopExplosion)
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun manageShopExplosion(explosion: Explosion, serverWorld: ServerWorld, entity: Entity?, damageSource: DamageSource?, behavior: ExplosionBehavior?, x: Double, y: Double, z: Double, power: Float, createFire: Boolean, destructionType: Explosion.DestructionType){
+        val sc = Configs.SHOP_CONFIG.data
+
+        // If this setting is set to true
+        // No kind of explosion can destroy a shop
+        if (sc.shopsCannotBeDestroyedByAnyExplosion)
+            return cancelShopToBeDestroyed(explosion, serverWorld, null)
+
+        // A player cannot destroy the shop of another one using a tnt
+        if (entity is TntEntity) {
+            val causingEntity = entity.causingEntity
+            if (causingEntity != null) {
+                if (causingEntity is PlayerEntity)
+                    return cancelShopToBeDestroyed(explosion, serverWorld, causingEntity.name.string)
+            }
+        }
+
+        sc.allowShopsToBeDestroyedByAnExplosion.forEach { (explosionType, value) ->
+            if (entity != null) {
+                if (explosionType.id == entity.type.translationKey && !value)
+                    return cancelShopToBeDestroyed(explosion, serverWorld)
+            }
+            if (damageSource != null) {
+                if (damageSource.name == explosionType.id && !value) // bed in nether or respawn anchor
+                    cancelShopToBeDestroyed(explosion, serverWorld)
+            }
+        }
+    }
+
+    private fun cancelShopToBeDestroyed(explosion: Explosion, serverWorld: ServerWorld, vendorName: String? = null) {
+        val it = explosion.affectedBlocks.iterator()
+        while(it.hasNext()){
+            val affectedBlock = it.next()
+            val shop = isAShop(affectedBlock, serverWorld)
+            if ((vendorName == null && shop != null ) || (vendorName != null && shop != null && shop.signData.vendorName != vendorName)){
+                explosion.affectedBlocks.removeAll { bPos ->
+                    bPos == shop.barrelBlockEntity.pos || shop.signBlockEntities.stream().anyMatch { it.pos == bPos }
                 }
             }
-            true
         }
     }
 
@@ -79,6 +112,7 @@ class ShopFeature(
             if (shop != null && shop.signData.vendorName != playerEntity.name.string) return fail
         }
         return pass
+
     }
 
     private fun cancelPlayerFromInsertItem(playerEntity: PlayerEntity, inventory: Inventory): Boolean =
@@ -106,7 +140,6 @@ class ShopFeature(
         // Prevents a player from robbing a shop with a hopper
         // There is a trick, player can still steal with hopper, I'll leave this trick available for crafty players
         for (itemStack in player.itemsHand) {
-            println("itemStack.item.translationKey " + itemStack.item.translationKey)
             if (itemStack.item.translationKey == "block.minecraft.hopper" || itemStack.item.translationKey == "item.minecraft.hopper_minecart") {
                 val shop = isAShop(BlockPos(hitResult.pos.x, hitResult.pos.y + 1, hitResult.pos.z), world)
                 if (shop != null && shop.signData.vendorName != player.name.string) return ActionResult.FAIL
@@ -122,10 +155,7 @@ class ShopFeature(
                     player.sendMessage(Text.of("You cannot buy from your own shop"))
                     return ActionResult.PASS
                 }
-                println("Process transaction")
                 processTransaction(player as ServerPlayerEntity, shop)
-            } else if (block is BarrelBlock) {
-                println("its a shop, first block clicked = barrelBlock. Nothing to do")
             }
         }
         return ActionResult.PASS
@@ -281,8 +311,8 @@ class ShopFeature(
             BlockPos(blockPos.x + 1, blockPos.y, blockPos.z),
         ).forEach {
             world.getBlockEntity(it)?.let { blockEntity ->
-                println("block entity : " + blockEntity.type.toString())
-                println("block entity : " + blockEntity::class.java.toString())
+//                println("block entity : " + blockEntity.type.toString())
+//                println("block entity : " + blockEntity::class.java.toString())
                 if (blockEntity::class.java == T::class.java)
                     list.add(blockEntity as T)
             }
