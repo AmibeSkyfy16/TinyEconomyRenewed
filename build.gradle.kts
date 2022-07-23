@@ -12,7 +12,10 @@
 
 @file:Suppress("GradlePackageVersionRange")
 
+import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.archivesName
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+val transitiveInclude: Configuration by configurations.creating
 
 plugins {
     id("fabric-loom") version "0.12-SNAPSHOT"
@@ -21,14 +24,10 @@ plugins {
     idea
 }
 
-val transitiveInclude: Configuration by configurations.creating
-
-val archivesBaseName = property("archives_base_name")
-group = property("maven_group")!!
-version = property("mod_version")!!
-
 base {
-    archivesName.set(properties["archives_base_name"].toString())
+    archivesName.set(properties["archives_name"].toString())
+    group = property("maven_group")!!
+    version = property("mod_version")!!
 }
 
 repositories {
@@ -78,6 +77,11 @@ tasks {
         withSourcesJar()
     }
 
+    named<Wrapper>("wrapper") {
+        gradleVersion = "7.5"
+        distributionType = Wrapper.DistributionType.ALL
+    }
+
     named<KotlinCompile>("compileKotlin") {
         kotlinOptions.jvmTarget = javaVersion.toString()
     }
@@ -89,7 +93,7 @@ tasks {
 
     named<Jar>("jar") {
         from("LICENSE") {
-            rename { "${it}_${archivesBaseName}" }
+            rename { "${it}_${archivesName}" }
         }
     }
 
