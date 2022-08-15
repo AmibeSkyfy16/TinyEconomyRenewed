@@ -10,6 +10,7 @@ import org.ktorm.dsl.like
 import org.ktorm.entity.add
 import org.ktorm.entity.find
 import org.ktorm.entity.sequenceOf
+import org.ktorm.entity.update
 import kotlin.io.path.inputStream
 
 val Database.players get() = this.sequenceOf(Players)
@@ -84,11 +85,15 @@ class DatabaseManager {
             }
             if (DataRetriever.blocks.contains(itemTranslationKey)) { // Now, if the current itemTranslationKey is also a block, we repeat the same process, but for minedBlockReward table
                 val minedBlockReward = db.minedBlockRewards.find { it.itemId eq item.id }
+                val amountFromConfig = Configs.MINED_BLOCK_REWARD_CONFIG.data.map[itemTranslationKey]!!
                 if (minedBlockReward == null) {
                     db.minedBlockRewards.add(MinedBlockReward {
-                        amount = 0f
+                        amount = amountFromConfig
                         this.item = item
                     })
+                }else{
+                    if(minedBlockReward.amount != amountFromConfig)minedBlockReward.amount = amountFromConfig
+                    db.minedBlockRewards.update(minedBlockReward)
                 }
             }
         }
@@ -101,11 +106,15 @@ class DatabaseManager {
                 db.entities.add(entity)
             }
             val entityKilledReward = db.entityKilledRewards.find { it.entity.id eq entity.id }
+            val amountFromConfig = Configs.ENTITY_KILLED_REWARD_CONFIG.data.map[entityTranslationKey]!!
             if (entityKilledReward == null) {
                 db.entityKilledRewards.add(EntityKilledReward {
-                    amount = 1f
+                    amount = amountFromConfig
                     this.entity = entity
                 })
+            }else{
+                if(entityKilledReward.amount != amountFromConfig)entityKilledReward.amount = amountFromConfig
+                db.entityKilledRewards.update(entityKilledReward)
             }
         }
 
@@ -122,11 +131,15 @@ class DatabaseManager {
                 db.advancements.add(advancement)
             }
             val advancementReward = db.advancementRewards.find { it.advancement.id eq advancement.id }
+            val amountFromConfig = Configs.ADVANCEMENT_REWARD_CONFIG.data.map[advancementObj.advancementId]!!
             if (advancementReward == null) {
                 db.advancementRewards.add(AdvancementReward {
-                    amount = 0f
+                    amount = amountFromConfig
                     this.advancement = advancement
                 })
+            }else{
+                if(advancementReward.amount != amountFromConfig)advancementReward.amount = amountFromConfig
+                db.advancementRewards.update(advancementReward)
             }
         }
     }
