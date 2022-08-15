@@ -103,7 +103,7 @@ class DatabaseManager {
             val entityKilledReward = db.entityKilledRewards.find { it.entity.id eq entity.id }
             if (entityKilledReward == null) {
                 db.entityKilledRewards.add(EntityKilledReward {
-                    amount = 0f
+                    amount = 1f
                     this.entity = entity
                 })
             }

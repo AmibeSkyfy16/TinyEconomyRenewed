@@ -139,7 +139,7 @@ class ShopFeature(
 
         // Prevents a player from robbing a shop with a hopper
         // There is a trick, player can still steal with hopper, I'll leave this trick available for crafty players
-        for (itemStack in player.itemsHand) {
+        for (itemStack in player.handItems) {
             if (itemStack.item.translationKey == "block.minecraft.hopper" || itemStack.item.translationKey == "item.minecraft.hopper_minecart") {
                 val shop = isAShop(BlockPos(hitResult.pos.x, hitResult.pos.y + 1, hitResult.pos.z), world)
                 if (shop != null && shop.signData.vendorName != player.name.string) return ActionResult.FAIL

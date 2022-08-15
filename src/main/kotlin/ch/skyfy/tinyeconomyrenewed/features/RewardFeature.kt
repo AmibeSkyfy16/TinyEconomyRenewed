@@ -23,6 +23,10 @@ import org.ktorm.entity.find
 
 class RewardFeature(private val databaseManager: DatabaseManager, private val economy: Economy, private val scoreboardManager: ScoreboardManager) {
 
+    private val nerfEntitiesRewards: MutableMap<Long, Pair<String, BlockPos>> = mutableMapOf()
+
+    private val nerfBlocksRewards: MutableMap<Long, Pair<String, BlockPos>> = mutableMapOf()
+
     init {
         registerEvents()
     }
@@ -34,6 +38,9 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
     }
 
     private fun onPlayerBlockBreakEvent(world: World, player: PlayerEntity, pos: BlockPos, @Suppress("UNUSED_PARAMETER") state: BlockState, @Suppress("UNUSED_PARAMETER") blockEntity: BlockEntity?): Boolean {
+
+        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards)) return true
+
         economy.deposit(player.uuidAsString) {
             databaseManager.db.minedBlockRewards.find { it.item.translationKey like world.getBlockState(pos).block.translationKey }?.amount
         }
@@ -46,6 +53,9 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
         if (attacker !is PlayerEntity) return
 
         if (livingEntity.health <= 0) {
+
+            if (shouldNerf(attacker.uuidAsString, attacker.blockPos, nerfEntitiesRewards)) return
+
             economy.deposit(attacker.uuidAsString) {
                 databaseManager.db.entityKilledRewards.find { it.entity.translationKey like livingEntity.type.translationKey }?.amount
             }
@@ -58,6 +68,51 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
             databaseManager.db.advancementRewards.find { it.advancement.identifier like advancement.id.toString() }?.amount
         }
         scoreboardManager.updateSidebar(serverPlayerEntity)
+    }
+
+    private fun shouldNerf(uuid: String, pos: BlockPos, nerf: MutableMap<Long, Pair<String, BlockPos>>): Boolean {
+        nerf[System.currentTimeMillis()] = Pair(uuid, pos)
+
+        // Remove all entries more than 5 minute ago
+        nerf.entries.removeIf { it.value.first == uuid && System.currentTimeMillis() - it.key > 5 * 60 * 1000 }
+
+        val entries2 = nerf.entries.filter { it.value.first == uuid }.toMutableList()
+        if (entries2.count() == 1) return true
+
+        val last = entries2.last()
+
+        val ite = entries2.subList(0, entries2.count() - 1).reversed().withIndex().iterator()
+        var isPlayerMove = false
+
+        while (ite.hasNext()) {
+            val next = ite.next()
+            val entry = next.value
+            val index = next.index
+
+            val zDistance = entry.value.second.z.coerceAtLeast(last.value.second.z) - entry.value.second.z.coerceAtMost(last.value.second.z)
+            val xDistance = entry.value.second.x.coerceAtLeast(last.value.second.x) - entry.value.second.x.coerceAtMost(last.value.second.x)
+
+            if (zDistance >= 10 || xDistance >= 10)
+                isPlayerMove = true
+
+            if (last.key - entry.key >= 1 * 60 * 1000) {
+
+                // If player kill 30 or more entities without moving in one minute, we nerf
+                if (index >= 20 && !isPlayerMove)
+                    return true
+
+                // If player kill 60 or more entities while moving in one minute, we nerf
+                if (index >= 40)
+                    return true
+
+                break
+            } else if (!ite.hasNext()) {
+                // If player kill more than 15 entities in last few seconds
+                if (index >= 15)
+                    return true
+            }
+        }
+        return false
     }
 
 }

@@ -15,7 +15,8 @@
     "SlotMixin",
     "EndCrystalEntityMixin",
     "FireballEntityMixin",
-    "TntMixin"
+    "TntMixin",
+    "PlayerManagerMixin"
   ],
   "client": [
   ],

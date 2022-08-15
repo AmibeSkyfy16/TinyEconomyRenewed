@@ -19,6 +19,7 @@ public class AdvancementMixin {
     @Inject(at = @At("TAIL"), method = "<init>")
     private void test(Identifier id, @Nullable Advancement parent, @Nullable AdvancementDisplay display, AdvancementRewards rewards, Map<String, AdvancementCriterion> criteria, String[][] requirements, CallbackInfo callbackInfo) {
         if (id.toString().contains("recipes")) return;
+
         if (display != null) AdvancementCreatedCallback.EVENT.invoker().init(id, display);
     }
 }

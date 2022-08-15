@@ -3,12 +3,13 @@ package ch.skyfy.tinyeconomyrenewed.logic
 import ch.skyfy.tinyeconomyrenewed.Economy
 import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
+import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerJoinCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.Player
 import ch.skyfy.tinyeconomyrenewed.db.players
 import ch.skyfy.tinyeconomyrenewed.features.RewardFeature
 import ch.skyfy.tinyeconomyrenewed.features.ShopFeature
-import me.bymartrixx.playerevents.api.event.PlayerJoinCallback
+import net.minecraft.network.ClientConnection
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import org.ktorm.dsl.like
@@ -32,7 +33,7 @@ class Game(private val databaseManager: DatabaseManager, minecraftServer: Minecr
         PlayerJoinCallback.EVENT.register(this::onPlayerJoin)
     }
 
-    private fun onPlayerJoin(serverPlayerEntity: ServerPlayerEntity, @Suppress("UNUSED_PARAMETER") server: MinecraftServer) {
+    private fun onPlayerJoin(@Suppress("UNUSED_PARAMETER") connection: ClientConnection, serverPlayerEntity: ServerPlayerEntity) {
         val p = databaseManager.db.players.find { it.uuid like serverPlayerEntity.uuidAsString }
         if (p == null) {
             databaseManager.db.players.add(Player {

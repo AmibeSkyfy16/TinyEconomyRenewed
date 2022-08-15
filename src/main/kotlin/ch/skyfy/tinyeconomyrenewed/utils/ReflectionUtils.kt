@@ -1,5 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.utils
 
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.block.Block
 import net.minecraft.entity.EntityType
 import net.minecraft.item.Item
@@ -16,7 +17,13 @@ class ReflectionUtils {
             map[Item::class.java] = "method_7876"
             map[EntityType::class.java] = "method_5882"
 
-            val yarnMethodName = map[typeClass] ?: return list
+            val yarnMethodName: String = if(FabricLoader.getInstance().isDevelopmentEnvironment)
+                "getTranslationKey"
+            else
+                map[typeClass] ?: return list
+
+//            val yarnMethodName = "getTranslationKey"
+//            val yarnMethodName = map[typeClass] ?: return list
 
             for (field in tClass.declaredFields) {
                 if (field.type == typeClass) {
