@@ -36,8 +36,16 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
         ServerLifecycleEvents.SERVER_STARTED.register { minecraftServer ->
             launch {
 
+                DataRetriever.advancements.sortWith(compareBy { it.advancementId})
+
                 // We load config only here (after DataRetriever has been loaded)
                 JsonConfig.loadConfigs(arrayOf(Configs.javaClass))
+
+                val sb = java.lang.StringBuilder()
+                DataRetriever.advancements.forEach {
+                    sb.append("\t\t\t$['map']['${it.advancementId}']\t1.0\t1.0\r\n")
+                }
+                println(sb)
 
                 TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed is being initialized \uD83D\uDE9A \uD83D\uDE9A \uD83D\uDE9A")
                 val db = DatabaseManager()
