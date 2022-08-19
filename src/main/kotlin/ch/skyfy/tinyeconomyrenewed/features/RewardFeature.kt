@@ -2,6 +2,7 @@ package ch.skyfy.tinyeconomyrenewed.features
 
 import ch.skyfy.tinyeconomyrenewed.Economy
 import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
+import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod.Companion.LOGGER
 import ch.skyfy.tinyeconomyrenewed.callbacks.AdvancementCompletedCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.EntityDamageCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
@@ -64,6 +65,8 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
     }
 
     private fun onAdvancementCompleted(serverPlayerEntity: ServerPlayerEntity, advancement: Advancement, @Suppress("UNUSED_PARAMETER") criterionName: String) {
+        LOGGER.error(advancement.id.toString())
+        LOGGER.error(advancement.display?.title?.string ?: "")
         economy.deposit(serverPlayerEntity.uuidAsString) {
             databaseManager.db.advancementRewards.find { it.advancement.identifier like advancement.id.toString() }?.amount
         }
@@ -97,11 +100,11 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
 
             if (last.key - entry.key >= 1 * 60 * 1000) {
 
-                // If player kill 30 or more entities without moving in one minute, we nerf
+                // If player kill 20 or more entities without moving in the last one minute, we nerf
                 if (index >= 20 && !isPlayerMove)
                     return true
 
-                // If player kill 60 or more entities while moving in one minute, we nerf
+                // If player kill 40 or more entities while moving in the last one minute, we nerf
                 if (index >= 40)
                     return true
 

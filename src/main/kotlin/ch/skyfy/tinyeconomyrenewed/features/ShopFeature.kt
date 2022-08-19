@@ -4,6 +4,7 @@ import ch.skyfy.tinyeconomyrenewed.Economy
 import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.callbacks.CreateExplosionCallback
+import ch.skyfy.tinyeconomyrenewed.callbacks.HopperCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerInsertItemsCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerTakeItemsCallback
 import ch.skyfy.tinyeconomyrenewed.config.Configs
@@ -17,6 +18,8 @@ import net.minecraft.block.WallSignBlock
 import net.minecraft.block.WallSignBlock.FACING
 import net.minecraft.block.entity.BarrelBlockEntity
 import net.minecraft.block.entity.BlockEntity
+import net.minecraft.block.entity.Hopper
+import net.minecraft.block.entity.HopperBlockEntity
 import net.minecraft.block.entity.SignBlockEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.TntEntity
@@ -30,6 +33,7 @@ import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
+import net.minecraft.util.TypedActionResult
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
@@ -38,12 +42,13 @@ import net.minecraft.world.explosion.Explosion
 import net.minecraft.world.explosion.ExplosionBehavior
 import org.ktorm.dsl.like
 import org.ktorm.entity.find
+import java.util.function.BooleanSupplier
 
 class ShopFeature(
     private val databaseManager: DatabaseManager,
     private val economy: Economy,
     private val scoreboardManager: ScoreboardManager,
-    private val minecraftServer: MinecraftServer
+    private val minecraftServer: MinecraftServer,
 ) {
 
     data class Shop(val barrelBlockEntity: BarrelBlockEntity, val signBlockEntities: MutableList<SignBlockEntity>, val signData: SignData)
@@ -61,10 +66,23 @@ class ShopFeature(
         PlayerTakeItemsCallback.EVENT.register(this::cancelPlayerFromTakeItem)
         PlayerInsertItemsCallback.EVENT.register(this::cancelPlayerFromInsertItem)
         CreateExplosionCallback.EVENT.register(this::manageShopExplosion)
+        HopperCallback.EVENT.register(this::cancelHopperFromStealingAShop)
     }
 
     @Suppress("UNUSED_PARAMETER")
-    private fun manageShopExplosion(explosion: Explosion, serverWorld: ServerWorld, entity: Entity?, damageSource: DamageSource?, behavior: ExplosionBehavior?, x: Double, y: Double, z: Double, power: Float, createFire: Boolean, destructionType: Explosion.DestructionType){
+    private fun manageShopExplosion(
+        explosion: Explosion,
+        serverWorld: ServerWorld,
+        entity: Entity?,
+        damageSource: DamageSource?,
+        behavior: ExplosionBehavior?,
+        x: Double,
+        y: Double,
+        z: Double,
+        power: Float,
+        createFire: Boolean,
+        destructionType: Explosion.DestructionType,
+    ) {
         val sc = Configs.SHOP_CONFIG.data
 
         // If this setting is set to true
@@ -93,12 +111,18 @@ class ShopFeature(
         }
     }
 
+    private fun cancelHopperFromStealingAShop(world: World, pos: BlockPos, state: BlockState, hopper: Hopper): TypedActionResult<Boolean> {
+        val shop = isAShop(BlockPos(pos.x, pos.y + 1, pos.z), world as ServerWorld)
+        if(shop != null)return TypedActionResult.fail(false)
+        return TypedActionResult.pass(true)
+    }
+
     private fun cancelShopToBeDestroyed(explosion: Explosion, serverWorld: ServerWorld, vendorName: String? = null) {
         val it = explosion.affectedBlocks.iterator()
-        while(it.hasNext()){
+        while (it.hasNext()) {
             val affectedBlock = it.next()
             val shop = isAShop(affectedBlock, serverWorld)
-            if ((vendorName == null && shop != null ) || (vendorName != null && shop != null && shop.signData.vendorName != vendorName)){
+            if ((vendorName == null && shop != null) || (vendorName != null && shop != null && shop.signData.vendorName != vendorName)) {
                 explosion.affectedBlocks.removeAll { bPos ->
                     bPos == shop.barrelBlockEntity.pos || shop.signBlockEntities.stream().anyMatch { it.pos == bPos }
                 }
@@ -128,6 +152,7 @@ class ShopFeature(
 
         if (shop != null) {
             if (block is BarrelBlock || block is WallSignBlock) {
+                if(player.hasPermissionLevel(4))return true
                 if (shop.signData.vendorName != player.name.string) return false
             }
         }
@@ -139,12 +164,12 @@ class ShopFeature(
 
         // Prevents a player from robbing a shop with a hopper
         // There is a trick, player can still steal with hopper, I'll leave this trick available for crafty players
-        for (itemStack in player.handItems) {
-            if (itemStack.item.translationKey == "block.minecraft.hopper" || itemStack.item.translationKey == "item.minecraft.hopper_minecart") {
-                val shop = isAShop(BlockPos(hitResult.pos.x, hitResult.pos.y + 1, hitResult.pos.z), world)
-                if (shop != null && shop.signData.vendorName != player.name.string) return ActionResult.FAIL
-            }
-        }
+//        for (itemStack in player.handItems) {
+//            if (itemStack.item.translationKey == "block.minecraft.hopper" || itemStack.item.translationKey == "item.minecraft.hopper_minecart") {
+//                val shop = isAShop(BlockPos(hitResult.pos.x, hitResult.pos.y + 1, hitResult.pos.z), world)
+//                if (shop != null && shop.signData.vendorName != player.name.string) return ActionResult.FAIL
+//            }
+//        }
 
         val block = world.getBlockState(hitResult.blockPos).block
         val shop = isAShop(hitResult.blockPos, world)
