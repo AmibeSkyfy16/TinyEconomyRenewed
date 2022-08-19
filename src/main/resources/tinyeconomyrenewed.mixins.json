@@ -7,16 +7,15 @@
 
   ],
   "server": [
-    "AdvancementMixin",
+    "EndCrystalEntityMixin",
+    "FireballEntityMixin",
     "GenericContainerScreenHandlerMixin",
     "LivingEntityMixin",
     "PlayerAdvancementTrackerMixin",
+    "PlayerManagerMixin",
     "ServerWorldMixin",
     "SlotMixin",
-    "EndCrystalEntityMixin",
-    "FireballEntityMixin",
-    "TntMixin",
-    "PlayerManagerMixin"
+    "TntMixin"
   ],
   "client": [
   ],

@@ -1,8 +1,7 @@
 package ch.skyfy.tinyeconomyrenewed.config
 
-import ch.skyfy.jsonconfig.Defaultable
-import ch.skyfy.jsonconfig.Validatable
-import ch.skyfy.tinyeconomyrenewed.DataRetriever
+import ch.skyfy.jsonconfiglib.Defaultable
+import ch.skyfy.jsonconfiglib.Validatable
 
 @kotlinx.serialization.Serializable
 data class EntityKilledRewardConfig(
@@ -10,9 +9,5 @@ data class EntityKilledRewardConfig(
 ) : Validatable
 
 class DefaultEntityKilledRewardConfig : Defaultable<EntityKilledRewardConfig>{
-    override fun getDefault(): EntityKilledRewardConfig {
-        val map: MutableMap<String, Float> = mutableMapOf()
-        DataRetriever.entities.forEach { map[it] = 1f }
-        return EntityKilledRewardConfig(map)
-    }
+    override fun getDefault() = EntityKilledRewardConfig(mutableMapOf())
 }

@@ -15,9 +15,7 @@ class TinyEconomyRenewedMod : DedicatedServerModInitializer {
         val LOGGER: Logger = LogManager.getLogger(TinyEconomyRenewedMod::class.java)
     }
 
-    init {
-        TinyEconomyRenewedInitializer()
-    }
+    init { TinyEconomyRenewedInitializer() }
 
     override fun onInitializeServer() {}
 

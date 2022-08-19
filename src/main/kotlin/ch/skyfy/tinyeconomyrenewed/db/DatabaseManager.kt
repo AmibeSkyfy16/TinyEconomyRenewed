@@ -1,6 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.db
 
-import ch.skyfy.tinyeconomyrenewed.DataRetriever
+import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedInitializer
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.config.Configs
 import net.fabricmc.loader.api.FabricLoader
@@ -30,7 +30,7 @@ val Database.advancementRewards get() = this.sequenceOf(AdvancementRewards)
  * In order for the server administrator to be able to follow what is going on in the console correctly,
  * this class is instantiated in a coroutine right after the server is started @see TinyEconomyRenewedInitializer
  */
-class DatabaseManager {
+class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.RetrievedData) {
 
     val db: Database
 
@@ -45,14 +45,12 @@ class DatabaseManager {
     }
 
     @Suppress("SqlNoDataSourceInspection", "SqlDialectInspection")
-    private fun createDatabase(){
+    private fun createDatabase() {
         val (url, user, password) = Configs.DB_CONFIG.data
         val database = Database.connect(url, "org.mariadb.jdbc.Driver", user, password)
         database.useConnection { conn ->
             val sql = "create database if not exists `TinyEconomyRenewed`;"
-            conn.prepareStatement(sql).use { statement ->
-               statement.executeQuery()
-            }
+            conn.prepareStatement(sql).use { statement -> statement.executeQuery() }
         }
     }
 
@@ -77,13 +75,13 @@ class DatabaseManager {
         TinyEconomyRenewedMod.LOGGER.info("Populating database \uD83D\uDE8C")
 
         // Iterate through all minecraft item identifier
-        for (itemTranslationKey in DataRetriever.items) {
+        for (itemTranslationKey in retrievedData.items) {
             var item = db.items.find { it.translationKey like itemTranslationKey }
             if (item == null) { // If item is not already in database, we create a new one and add it to the database
                 item = Item { translationKey = itemTranslationKey }
                 db.items.add(item)
             }
-            if (DataRetriever.blocks.contains(itemTranslationKey)) { // Now, if the current itemTranslationKey is also a block, we repeat the same process, but for minedBlockReward table
+            if (retrievedData.blocks.contains(itemTranslationKey)) { // Now, if the current itemTranslationKey is also a block, we repeat the same process, but for minedBlockReward table
                 val minedBlockReward = db.minedBlockRewards.find { it.itemId eq item.id }
                 val amountFromConfig = Configs.MINED_BLOCK_REWARD_CONFIG.data.map[itemTranslationKey]!!
                 if (minedBlockReward == null) {
@@ -91,15 +89,15 @@ class DatabaseManager {
                         amount = amountFromConfig
                         this.item = item
                     })
-                }else{
-                    if(minedBlockReward.amount != amountFromConfig)minedBlockReward.amount = amountFromConfig
+                } else {
+                    if (minedBlockReward.amount != amountFromConfig) minedBlockReward.amount = amountFromConfig
                     db.minedBlockRewards.update(minedBlockReward)
                 }
             }
         }
 
         // Iterate through all minecraft entity identifier
-        for (entityTranslationKey in DataRetriever.entities) {
+        for (entityTranslationKey in retrievedData.entities) {
             var entity = db.entities.find { it.translationKey like entityTranslationKey }
             if (entity == null) { // If Entity is not already in database, we create a new one and add it to the database
                 entity = Entity { translationKey = entityTranslationKey }
@@ -112,14 +110,14 @@ class DatabaseManager {
                     amount = amountFromConfig
                     this.entity = entity
                 })
-            }else{
-                if(entityKilledReward.amount != amountFromConfig)entityKilledReward.amount = amountFromConfig
+            } else {
+                if (entityKilledReward.amount != amountFromConfig) entityKilledReward.amount = amountFromConfig
                 db.entityKilledRewards.update(entityKilledReward)
             }
         }
 
         // Iterate through all minecraft advancement
-        for (advancementObj in DataRetriever.advancements) {
+        for (advancementObj in retrievedData.advancements) {
             var advancement = db.advancements.find { it.identifier like advancementObj.advancementId }
             if (advancement == null) { // If Advancement is not already in database, we create a new one and add it to the database
                 advancement = Advancement {
@@ -137,8 +135,8 @@ class DatabaseManager {
                     amount = amountFromConfig
                     this.advancement = advancement
                 })
-            }else{
-                if(advancementReward.amount != amountFromConfig)advancementReward.amount = amountFromConfig
+            } else {
+                if (advancementReward.amount != amountFromConfig) advancementReward.amount = amountFromConfig
                 db.advancementRewards.update(advancementReward)
             }
         }

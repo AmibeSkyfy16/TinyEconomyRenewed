@@ -47,14 +47,14 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${properties["fabric_version"]}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
 
-//    modImplementation("me.bymartrixx.player-events:api:${properties["player_events_api_version"]}")
     include("eu.pb4:sidebar-api:${properties["sidebar-api_version"]}")?.let { modImplementation(it) }
 
     transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.0.7")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-core:3.5.0")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.5.0")!!)
     transitiveInclude(implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")!!)
-    transitiveInclude(implementation("ch.skyfy.jsonconfig:json-config:2.1.4")!!)
+    transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.1")!!)
+    transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.0")!!)
 
 
     handleIncludes(project, transitiveInclude)
