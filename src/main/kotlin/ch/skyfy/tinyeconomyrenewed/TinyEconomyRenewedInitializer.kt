@@ -117,9 +117,9 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
             }
             Advancement(it.id.toString(), it.display?.frame.toString(), title, description)
         }.sortedWith(compareBy { it.advancementId }),
-            Registry.ITEM.ids.map { it.toTranslationKey() }.sortedWith(compareBy { it }),
-            Registry.BLOCK.ids.map { it.toTranslationKey() }.sortedWith(compareBy { it }),
-            Registry.ENTITY_TYPE.ids.map { it.toTranslationKey() }.sortedWith(compareBy { it })
+            Registry.ITEM.ids.map { "item.${it.toTranslationKey()}" }.sortedWith(compareBy { it }),
+            Registry.BLOCK.ids.map { "block.${it.toTranslationKey()}" }.sortedWith(compareBy { it }),
+            Registry.ENTITY_TYPE.ids.map { "entity.${it.toTranslationKey()}"}.sortedWith(compareBy { it })
         )
 
         // Populating with default value

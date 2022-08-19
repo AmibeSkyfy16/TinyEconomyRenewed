@@ -23,6 +23,7 @@ public class PlayerAdvancementTrackerMixin {
     )
     public void playerAdvancementComplete(Advancement advancement, String criterionName, CallbackInfoReturnable<Boolean> cir) {
         if (advancement.getId().toString().contains("recipe")) return;
+        if(advancement.getDisplay() == null)return; // Some datapacks add technical "advancement" that are trigger many times, a real advancement will always have a display object
         AdvancementCompletedCallback.EVENT.invoker().completed(owner, advancement, criterionName);
     }
 

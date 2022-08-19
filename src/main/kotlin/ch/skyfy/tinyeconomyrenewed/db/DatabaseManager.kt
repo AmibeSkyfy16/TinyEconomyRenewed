@@ -15,6 +15,7 @@ import kotlin.io.path.inputStream
 
 val Database.players get() = this.sequenceOf(Players)
 val Database.items get() = this.sequenceOf(Items)
+val Database.blocks get() = this.sequenceOf(Blocks)
 val Database.entities get() = this.sequenceOf(Entities)
 val Database.advancements get() = this.sequenceOf(Advancements)
 val Database.minedBlockRewards get() = this.sequenceOf(MinedBlockRewards)
@@ -81,13 +82,35 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
                 item = Item { translationKey = itemTranslationKey }
                 db.items.add(item)
             }
-            if (retrievedData.blocks.contains(itemTranslationKey)) { // Now, if the current itemTranslationKey is also a block, we repeat the same process, but for minedBlockReward table
-                val minedBlockReward = db.minedBlockRewards.find { it.itemId eq item.id }
-                val amountFromConfig = Configs.MINED_BLOCK_REWARD_CONFIG.data.map[itemTranslationKey]!!
+//            if (retrievedData.blocks.contains(itemTranslationKey)) { // Now, if the current itemTranslationKey is also a block, we repeat the same process, but for minedBlockReward table
+//                val minedBlockReward = db.minedBlockRewards.find { it.itemId eq item.id }
+//                val amountFromConfig = Configs.MINED_BLOCK_REWARD_CONFIG.data.map[itemTranslationKey]!!
+//                if (minedBlockReward == null) {
+//                    db.minedBlockRewards.add(MinedBlockReward {
+//                        amount = amountFromConfig
+//                        this.item = item
+//                    })
+//                } else {
+//                    if (minedBlockReward.amount != amountFromConfig) minedBlockReward.amount = amountFromConfig
+//                    db.minedBlockRewards.update(minedBlockReward)
+//                }
+//            }
+        }
+
+        for (blockTranslationKey in retrievedData.blocks) {
+            var block = db.blocks.find { it.translationKey like blockTranslationKey }
+            if (block == null) { // If item is not already in database, we create a new one and add it to the database
+                block = Block { translationKey = blockTranslationKey }
+                db.blocks.add(block)
+            }
+
+            if (retrievedData.blocks.contains(blockTranslationKey)) { // Now, if the current itemTranslationKey is also a block, we repeat the same process, but for minedBlockReward table
+                val minedBlockReward = db.minedBlockRewards.find { it.blockId eq block.id }
+                val amountFromConfig = Configs.MINED_BLOCK_REWARD_CONFIG.data.map[blockTranslationKey]!!
                 if (minedBlockReward == null) {
                     db.minedBlockRewards.add(MinedBlockReward {
                         amount = amountFromConfig
-                        this.item = item
+                        this.block = block
                     })
                 } else {
                     if (minedBlockReward.amount != amountFromConfig) minedBlockReward.amount = amountFromConfig

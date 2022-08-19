@@ -23,6 +23,13 @@ interface Item : org.ktorm.entity.Entity<Item> {
     var translationKey: String
 }
 
+interface Block : org.ktorm.entity.Entity<Block> {
+    companion object : org.ktorm.entity.Entity.Factory<Block>()
+
+    val id: Int
+    var translationKey: String
+}
+
 interface Entity : org.ktorm.entity.Entity<Entity> {
     companion object : org.ktorm.entity.Entity.Factory<Entity>()
 
@@ -45,7 +52,7 @@ interface MinedBlockReward : org.ktorm.entity.Entity<MinedBlockReward> {
 
     val id: Int
     var amount: Float
-    var item: Item
+    var block: Block
 }
 
 interface EntityKilledReward : org.ktorm.entity.Entity<EntityKilledReward> {
@@ -81,6 +88,14 @@ open class Items(alias: String?) : Table<Item>("item", alias) {
     val id = int("id").primaryKey().bindTo { it.id }
     val translationKey = varchar("translation_key").bindTo { it.translationKey }
 }
+open class Blocks(alias: String?) : Table<Block>("block", alias) {
+    companion object : Blocks(null)
+
+    override fun aliased(alias: String) = Blocks(alias)
+
+    val id = int("id").primaryKey().bindTo { it.id }
+    val translationKey = varchar("translation_key").bindTo { it.translationKey }
+}
 open class Entities(alias: String?) : Table<Entity>("entity", alias) {
     companion object : Entities(null)
     override fun aliased(alias: String) = Entities(alias)
@@ -107,8 +122,8 @@ open class MinedBlockRewards(alias: String?) : Table<MinedBlockReward>("mined_bl
 
     val id = int("id").primaryKey().bindTo { it.id }
     val amount = float("amount").bindTo { it.amount }
-    val itemId = int("item_id").references(Items) { it.item }
-    val item get() = itemId.referenceTable as Items
+    val blockId = int("block_id").references(Blocks) { it.block }
+    val block get() = blockId.referenceTable as Blocks
 }
 open class EntityKilledRewards(alias: String?) : Table<EntityKilledReward>("entity_killed_reward", alias) {
     companion object : EntityKilledRewards(null)

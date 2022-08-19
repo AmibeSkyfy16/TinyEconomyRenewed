@@ -2,7 +2,6 @@ package ch.skyfy.tinyeconomyrenewed.features
 
 import ch.skyfy.tinyeconomyrenewed.Economy
 import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
-import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod.Companion.LOGGER
 import ch.skyfy.tinyeconomyrenewed.callbacks.AdvancementCompletedCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.EntityDamageCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
@@ -40,10 +39,10 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
 
     private fun onPlayerBlockBreakEvent(world: World, player: PlayerEntity, pos: BlockPos, @Suppress("UNUSED_PARAMETER") state: BlockState, @Suppress("UNUSED_PARAMETER") blockEntity: BlockEntity?): Boolean {
 
-        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards)) return true
+        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards, 5, 5, 60, 200)) return true
 
         economy.deposit(player.uuidAsString) {
-            databaseManager.db.minedBlockRewards.find { it.item.translationKey like world.getBlockState(pos).block.translationKey }?.amount
+            databaseManager.db.minedBlockRewards.find { it.block.translationKey like world.getBlockState(pos).block.translationKey }?.amount
         }
         scoreboardManager.updateSidebar(player as ServerPlayerEntity)
         return true
@@ -55,7 +54,7 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
 
         if (livingEntity.health <= 0) {
 
-            if (shouldNerf(attacker.uuidAsString, attacker.blockPos, nerfEntitiesRewards)) return
+            if (shouldNerf(attacker.uuidAsString, attacker.blockPos, nerfEntitiesRewards, 10, 10, 40, 80)) return
 
             economy.deposit(attacker.uuidAsString) {
                 databaseManager.db.entityKilledRewards.find { it.entity.translationKey like livingEntity.type.translationKey }?.amount
@@ -65,15 +64,20 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
     }
 
     private fun onAdvancementCompleted(serverPlayerEntity: ServerPlayerEntity, advancement: Advancement, @Suppress("UNUSED_PARAMETER") criterionName: String) {
-        LOGGER.error(advancement.id.toString())
-        LOGGER.error(advancement.display?.title?.string ?: "")
         economy.deposit(serverPlayerEntity.uuidAsString) {
             databaseManager.db.advancementRewards.find { it.advancement.identifier like advancement.id.toString() }?.amount
         }
         scoreboardManager.updateSidebar(serverPlayerEntity)
     }
 
-    private fun shouldNerf(uuid: String, pos: BlockPos, nerf: MutableMap<Long, Pair<String, BlockPos>>): Boolean {
+    private fun shouldNerf(uuid: String,
+                           pos: BlockPos,
+                           nerf: MutableMap<Long, Pair<String, BlockPos>>,
+                           minZDistance: Int,
+                           minXDistance: Int,
+                           minAmount1: Int,
+                           minAmount2: Int
+    ): Boolean {
         nerf[System.currentTimeMillis()] = Pair(uuid, pos)
 
         // Remove all entries more than 5 minute ago
@@ -95,17 +99,17 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
             val zDistance = entry.value.second.z.coerceAtLeast(last.value.second.z) - entry.value.second.z.coerceAtMost(last.value.second.z)
             val xDistance = entry.value.second.x.coerceAtLeast(last.value.second.x) - entry.value.second.x.coerceAtMost(last.value.second.x)
 
-            if (zDistance >= 10 || xDistance >= 10)
+            if (zDistance >= minZDistance || xDistance >= minXDistance)
                 isPlayerMove = true
 
             if (last.key - entry.key >= 1 * 60 * 1000) {
 
                 // If player kill 20 or more entities without moving in the last one minute, we nerf
-                if (index >= 20 && !isPlayerMove)
+                if (index >= minAmount1 && !isPlayerMove)
                     return true
 
                 // If player kill 40 or more entities while moving in the last one minute, we nerf
-                if (index >= 40)
+                if (index >= minAmount2)
                     return true
 
                 break

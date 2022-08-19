@@ -22,6 +22,13 @@ create table if not exists item
     constraint item_translation_key_uindex unique (translation_key)
 );
 
+create table if not exists block
+(
+    id int auto_increment primary key,
+    translation_key varchar(512) not null,
+    constraint block_translation_key_uindex unique (translation_key)
+);
+
 create table if not exists player
 (
     id int auto_increment primary key,
@@ -34,10 +41,10 @@ create table if not exists player
 create table if not exists mined_block_reward
 (
     id int auto_increment primary key,
-    item_id int not null,
+    block_id int not null,
     amount float null,
-    constraint mined_block_reward_item__fk foreign key (item_id) references item (id),
-    constraint mined_block_reward_item_id_uindex unique (item_id)
+    constraint mined_block_reward_block__fk foreign key (block_id) references block (id),
+    constraint mined_block_reward_block_id_uindex unique (block_id)
 );
 
 create table if not exists entity_killed_reward
