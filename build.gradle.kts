@@ -46,8 +46,9 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${properties["loader_version"]}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${properties["fabric_version"]}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
+    modImplementation("net.silkmc:silk-game:1.9.1")
 
-    include("eu.pb4:sidebar-api:${properties["sidebar-api_version"]}")?.let { modImplementation(it) }
+//    include("eu.pb4:sidebar-api:${properties["sidebar-api_version"]}")?.let { modImplementation(it) }
 
     transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.0.7")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-core:3.5.0")!!)
@@ -84,6 +85,8 @@ tasks {
 
     named<KotlinCompile>("compileKotlin") {
         kotlinOptions.jvmTarget = javaVersion.toString()
+        kotlinOptions.freeCompilerArgs += "-Xskip-prerelease-check"
+//        kotlinOptions.freeCompilerArgs += "-Xuse-k2"
     }
 
     named<JavaCompile>("compileJava") {

@@ -2,12 +2,15 @@ package ch.skyfy.tinyeconomyrenewed.features
 
 import ch.skyfy.tinyeconomyrenewed.Economy
 import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
+import ch.skyfy.tinyeconomyrenewed.ScoreboardManager2
 import ch.skyfy.tinyeconomyrenewed.callbacks.AdvancementCompletedCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.EntityDamageCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.advancementRewards
 import ch.skyfy.tinyeconomyrenewed.db.entityKilledRewards
 import ch.skyfy.tinyeconomyrenewed.db.minedBlockRewards
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.minecraft.advancement.Advancement
 import net.minecraft.block.BlockState
@@ -20,8 +23,11 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import org.ktorm.dsl.like
 import org.ktorm.entity.find
+import kotlin.coroutines.CoroutineContext
 
-class RewardFeature(private val databaseManager: DatabaseManager, private val economy: Economy, private val scoreboardManager: ScoreboardManager) {
+class RewardFeature(
+    private val databaseManager: DatabaseManager,
+    private val economy: Economy) {
 
     private val nerfEntitiesRewards: MutableMap<Long, Pair<String, BlockPos>> = mutableMapOf()
 
@@ -44,7 +50,7 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
         economy.deposit(player.uuidAsString) {
             databaseManager.db.minedBlockRewards.find { it.block.translationKey like world.getBlockState(pos).block.translationKey }?.amount
         }
-        scoreboardManager.updateSidebar(player as ServerPlayerEntity)
+//        scoreboardManager.updateSidebar(player as ServerPlayerEntity)
         return true
     }
 
@@ -59,7 +65,7 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
             economy.deposit(attacker.uuidAsString) {
                 databaseManager.db.entityKilledRewards.find { it.entity.translationKey like livingEntity.type.translationKey }?.amount
             }
-            scoreboardManager.updateSidebar(attacker as ServerPlayerEntity)
+//            scoreboardManager.updateSidebar(attacker as ServerPlayerEntity)
         }
     }
 
@@ -67,7 +73,8 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
         economy.deposit(serverPlayerEntity.uuidAsString) {
             databaseManager.db.advancementRewards.find { it.advancement.identifier like advancement.id.toString() }?.amount
         }
-        scoreboardManager.updateSidebar(serverPlayerEntity)
+
+//        scoreboardManager.updateSidebar(serverPlayerEntity)
     }
 
     private fun shouldNerf(uuid: String,

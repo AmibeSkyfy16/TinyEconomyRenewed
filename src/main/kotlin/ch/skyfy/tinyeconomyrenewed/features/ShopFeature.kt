@@ -2,6 +2,7 @@ package ch.skyfy.tinyeconomyrenewed.features
 
 import ch.skyfy.tinyeconomyrenewed.Economy
 import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
+import ch.skyfy.tinyeconomyrenewed.ScoreboardManager2
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.callbacks.CreateExplosionCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.HopperCallback
@@ -47,7 +48,7 @@ import java.util.function.BooleanSupplier
 class ShopFeature(
     private val databaseManager: DatabaseManager,
     private val economy: Economy,
-    private val scoreboardManager: ScoreboardManager,
+    private val scoreboardManager: ScoreboardManager2,
     private val minecraftServer: MinecraftServer,
 ) {
 
@@ -282,8 +283,8 @@ class ShopFeature(
             economy.withdraw(buyer, shop.signData.price)
             economy.deposit(vendor, shop.signData.price)
 
-            scoreboardManager.updateSidebar(buyerPlayer)
-            if (vendorPlayer != null) scoreboardManager.updateSidebar(vendorPlayer)
+//            scoreboardManager.updateSidebar(buyerPlayer)
+//            if (vendorPlayer != null) scoreboardManager.updateSidebar(vendorPlayer)
 
             val args = transfer[0].item.translationKey.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             val itemName = args[args.size - 1]

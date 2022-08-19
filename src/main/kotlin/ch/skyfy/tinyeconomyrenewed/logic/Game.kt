@@ -1,7 +1,7 @@
 package ch.skyfy.tinyeconomyrenewed.logic
 
 import ch.skyfy.tinyeconomyrenewed.Economy
-import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
+import ch.skyfy.tinyeconomyrenewed.ScoreboardManager2
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerJoinCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
@@ -20,12 +20,12 @@ import org.ktorm.entity.update
 
 class Game(private val databaseManager: DatabaseManager, minecraftServer: MinecraftServer) {
 
-    private val economy: Economy = Economy(databaseManager)
-    private val scoreboardManager: ScoreboardManager = ScoreboardManager(databaseManager)
+    private val scoreboardManager: ScoreboardManager2 = ScoreboardManager2(databaseManager)
+    private val economy: Economy = Economy(databaseManager, scoreboardManager)
 
     init {
-        RewardFeature(databaseManager, economy, scoreboardManager)
-        ShopFeature(databaseManager, economy,scoreboardManager, minecraftServer)
+        RewardFeature(databaseManager, economy)
+        ShopFeature(databaseManager, economy, scoreboardManager, minecraftServer)
         registerEvents()
     }
 
@@ -41,7 +41,7 @@ class Game(private val databaseManager: DatabaseManager, minecraftServer: Minecr
                 name = serverPlayerEntity.name.string
             })
         } else { // Update name (maybe some players can change their name)
-            if(p.name != serverPlayerEntity.name.string) {
+            if (p.name != serverPlayerEntity.name.string) {
                 TinyEconomyRenewedMod.LOGGER.info("Player ${p.name} has changed his name to ${serverPlayerEntity.name.string}")
                 p.name = serverPlayerEntity.name.string
                 databaseManager.db.players.update(p)
