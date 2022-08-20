@@ -17,9 +17,10 @@ class Economy(
 
     fun deposit(uuid: String, block: () -> Float) {
         launch {
-            databaseManager.cachePlayers.access { list ->
-                list.find { player -> player.uuid == uuid }.let { player -> if (player != null) deposit(player, block.invoke()) }
-            }
+            databaseManager.cachePlayers.find { player -> player.uuid == uuid }.let { player -> if (player != null) deposit(player, block.invoke()) }
+//            databaseManager.cachePlayers.access { list ->
+//                list.find { player -> player.uuid == uuid }.let { player -> if (player != null) deposit(player, block.invoke()) }
+//            }
         }
     }
 
@@ -28,9 +29,9 @@ class Economy(
     }
 
     fun withdraw(uuid: String, amount: Float) {
-        databaseManager.cachePlayers.access {list ->
-            list.find { it.uuid == uuid }.let { if (it != null) withdraw(it, amount) }
-        }
+//        databaseManager.cachePlayers.access {list ->
+//            list.find { it.uuid == uuid }.let { if (it != null) withdraw(it, amount) }
+//        }
     }
 
     fun withdraw(player: Player, amount: Float) {

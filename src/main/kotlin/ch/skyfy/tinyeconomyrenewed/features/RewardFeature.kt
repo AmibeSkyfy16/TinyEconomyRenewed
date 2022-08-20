@@ -40,9 +40,10 @@ class RewardFeature(
 //        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards, 5, 5, 60, 200)) return true
 
         economy.deposit(player.uuidAsString) {
-            databaseManager.cacheMinedBlockRewards.access { list ->
-                list.find { it.block.translationKey == world.getBlockState(pos).block.translationKey }?.amount ?: 0f
-            }
+            databaseManager.cacheMinedBlockRewards.find { it.block.translationKey == world.getBlockState(pos).block.translationKey }?.amount ?: 0f
+//            databaseManager.cacheMinedBlockRewards.access { list ->
+//                list.find { it.block.translationKey == world.getBlockState(pos).block.translationKey }?.amount ?: 0f
+//            }
         }
         // TODO update sidebar
         return true
@@ -57,9 +58,10 @@ class RewardFeature(
             if (shouldNerf(attacker.uuidAsString, attacker.blockPos, nerfEntitiesRewards, 10, 10, 40, 80)) return
 
             economy.deposit(attacker.uuidAsString) {
-                databaseManager.cacheEntityKilledRewards.access { list ->
-                    list.find { it.entity.translationKey == livingEntity.type.translationKey }?.amount ?: 0f
-                }
+                databaseManager.cacheEntityKilledRewards.find { it.entity.translationKey == livingEntity.type.translationKey }?.amount ?: 0f
+//                databaseManager.cacheEntityKilledRewards.access { list ->
+//                    list.find { it.entity.translationKey == livingEntity.type.translationKey }?.amount ?: 0f
+//                }
             }
             // TODO update sidebar
         }
@@ -68,9 +70,10 @@ class RewardFeature(
     @Suppress("SameParameterValue")
     private fun onAdvancementCompleted(serverPlayerEntity: ServerPlayerEntity, advancement: Advancement, @Suppress("UNUSED_PARAMETER") criterionName: String) {
         economy.deposit(serverPlayerEntity.uuidAsString) {
-            databaseManager.cacheAdvancementRewards.access { list ->
-                list.find { it.advancement.identifier == advancement.id.toString() }?.amount ?: 0f
-            }
+            databaseManager.cacheAdvancementRewards.find { it.advancement.identifier == advancement.id.toString() }?.amount ?: 0f
+//            databaseManager.cacheAdvancementRewards.access { list ->
+//                list.find { it.advancement.identifier == advancement.id.toString() }?.amount ?: 0f
+//            }
         }
         // TODO update sidebar
     }
