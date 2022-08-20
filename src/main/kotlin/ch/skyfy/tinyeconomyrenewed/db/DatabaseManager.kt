@@ -95,10 +95,6 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
 
     }
 
-    fun query(block: () -> Unit){
-        launch { block.invoke() }
-    }
-
     @Suppress("SqlNoDataSourceInspection", "SqlDialectInspection")
     private fun createDatabase() {
         val (url, user, password) = Configs.DB_CONFIG.data

@@ -34,6 +34,10 @@ import kotlin.io.path.inputStream
  */
 class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineContext = Dispatchers.IO) : CoroutineScope {
 
+    /**
+     * This will be use in future for registered command because command must be
+     * registered in [TinyEconomyRenewedMod.onInitializeServer] so we can pass this ref to every command object
+     */
     private val optGameRef: AtomicReference<Optional<Game>> = AtomicReference(Optional.empty())
 
     private var isInitializationComplete = false
