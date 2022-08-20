@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import net.minecraft.entity.passive.VillagerEntity
 import net.minecraft.text.Text
 import org.ktorm.dsl.like
 import org.ktorm.entity.find
@@ -40,11 +41,14 @@ class Economy(
             player.money += amount
             player.flushChanges()
         }
-        launch {
-            flow<Text> {
-                scoreboardManager.dollarMap[player.uuid]?.emit(Text.literal("dollar -> $amount"))
-            }.collect()
-        }
+//        runBlocking {
+//            scoreboardManager.dollarMap[player.uuid]?.emit(Text.literal("dollar -> $amount"))
+//        }
+//        launch {
+//            flow<Text> {
+//                scoreboardManager.dollarMap[player.uuid]?.emit(Text.literal("dollar -> $amount"))
+//            }
+//        }
         channelFlow<Text> {
             println("Flow in deposit fun")
             scoreboardManager.dollarMap[player.uuid]?.emit(Text.literal("DEPOSIT -> $amount"))

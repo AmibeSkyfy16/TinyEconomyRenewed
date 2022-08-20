@@ -137,7 +137,6 @@ class ShopFeature(
             if (shop != null && shop.signData.vendorName != playerEntity.name.string) return fail
         }
         return pass
-
     }
 
     private fun cancelPlayerFromInsertItem(playerEntity: PlayerEntity, inventory: Inventory): Boolean =

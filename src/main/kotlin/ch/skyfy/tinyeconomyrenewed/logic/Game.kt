@@ -9,6 +9,7 @@ import ch.skyfy.tinyeconomyrenewed.db.Player
 import ch.skyfy.tinyeconomyrenewed.db.players
 import ch.skyfy.tinyeconomyrenewed.features.RewardFeature
 import ch.skyfy.tinyeconomyrenewed.features.ShopFeature
+import ch.skyfy.tinyeconomyrenewed.features.VillagerTradeCostsMoneyFeature
 import net.minecraft.network.ClientConnection
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
@@ -26,6 +27,7 @@ class Game(private val databaseManager: DatabaseManager, minecraftServer: Minecr
     init {
         RewardFeature(databaseManager, economy)
         ShopFeature(databaseManager, economy, scoreboardManager, minecraftServer)
+        VillagerTradeCostsMoneyFeature(databaseManager)
         registerEvents()
     }
 
