@@ -4,6 +4,7 @@ import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedInitializer
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.config.Configs
 import net.fabricmc.loader.api.FabricLoader
+import net.silkmc.silk.game.cooldown.Cooldown
 import org.ktorm.database.Database
 import org.ktorm.dsl.eq
 import org.ktorm.dsl.like
@@ -35,6 +36,8 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
 
     val db: Database
 
+//    val cooldown: Cooldown = Cooldown()
+
     init {
 
         TinyEconomyRenewedMod.LOGGER.info("[Database Manager init block] > current thread name ${Thread.currentThread().name}")
@@ -43,6 +46,8 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
         val (url, user, password) = Configs.DB_CONFIG.data
         db = Database.connect("$url/TinyEconomyRenewed", "org.mariadb.jdbc.Driver", user, password)
         initDatabase() // Then create tables and populate it with data
+
+//        cooldown.withCooldown()
     }
 
     @Suppress("SqlNoDataSourceInspection", "SqlDialectInspection")

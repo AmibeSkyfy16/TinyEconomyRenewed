@@ -26,6 +26,7 @@ class MerchantInventoryMixin {
     @Nullable
     private TradeOffer tradeOffer;
 
+    @Shadow private int merchantRewardedExperience;
 
     @Inject(
             method = "updateOffers",
@@ -40,6 +41,9 @@ class MerchantInventoryMixin {
         if (merchant.getCustomer() == null && !(merchant.getCustomer() instanceof ServerPlayerEntity) || tradeOffer == null) return;
         var r = VillagerTradeCallback.EVENT.invoker().trade(tradeOffer.copySellItem(), (ServerPlayerEntity) merchant.getCustomer());
         if (r == ActionResult.FAIL) {
+            tradeOffer = null;
+            merchantRewardedExperience = 0;
+            ((MerchantInventory)(Object)this).setStack(2, ItemStack.EMPTY);
             this.merchant.onSellingItem(ItemStack.EMPTY);
             ci.cancel();
         }
