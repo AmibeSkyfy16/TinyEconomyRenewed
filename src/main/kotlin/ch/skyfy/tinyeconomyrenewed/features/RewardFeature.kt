@@ -17,7 +17,8 @@ import net.minecraft.world.World
 
 class RewardFeature(
     private val databaseManager: DatabaseManager,
-    private val economy: Economy) {
+    private val economy: Economy,
+) {
 
     private val nerfEntitiesRewards: MutableMap<Long, Pair<String, BlockPos>> = mutableMapOf()
 
@@ -39,12 +40,11 @@ class RewardFeature(
 //        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards, 5, 5, 60, 200)) return true
 
         economy.deposit(player.uuidAsString) {
-            databaseManager.cacheMinedBlockRewards.access {list ->
-                list.find{it.block.translationKey == world.getBlockState(pos).block.translationKey}?.amount ?: 0f
+            databaseManager.cacheMinedBlockRewards.access { list ->
+                list.find { it.block.translationKey == world.getBlockState(pos).block.translationKey }?.amount ?: 0f
             }
-//            databaseManager.db.minedBlockRewards.find { it.block.translationKey like world.getBlockState(pos).block.translationKey }?.amount ?: 0f
         }
-//        scoreboardManager.updateSidebar(player as ServerPlayerEntity)
+        // TODO update sidebar
         return true
     }
 
@@ -60,31 +60,30 @@ class RewardFeature(
                 databaseManager.cacheEntityKilledRewards.access { list ->
                     list.find { it.entity.translationKey == livingEntity.type.translationKey }?.amount ?: 0f
                 }
-//                databaseManager.db.entityKilledRewards.find { it.entity.translationKey like livingEntity.type.translationKey }?.amount ?: 0f
             }
-//            scoreboardManager.updateSidebar(attacker as ServerPlayerEntity)
+            // TODO update sidebar
         }
     }
 
+    @Suppress("SameParameterValue")
     private fun onAdvancementCompleted(serverPlayerEntity: ServerPlayerEntity, advancement: Advancement, @Suppress("UNUSED_PARAMETER") criterionName: String) {
         economy.deposit(serverPlayerEntity.uuidAsString) {
             databaseManager.cacheAdvancementRewards.access { list ->
                 list.find { it.advancement.identifier == advancement.id.toString() }?.amount ?: 0f
             }
-//            databaseManager.db.advancementRewards.find { it.advancement.identifier like advancement.id.toString() }?.amount ?: 0f
-//            databaseManager.db.advancementRewards.find { it.advancement.identifier like advancement.id.toString() }?.amount ?: 0f
         }
-
-//        scoreboardManager.updateSidebar(serverPlayerEntity)
+        // TODO update sidebar
     }
 
-    private fun shouldNerf(uuid: String,
-                           pos: BlockPos,
-                           nerf: MutableMap<Long, Pair<String, BlockPos>>,
-                           minZDistance: Int,
-                           minXDistance: Int,
-                           minAmount1: Int,
-                           minAmount2: Int
+    @Suppress("SameParameterValue")
+    private fun shouldNerf(
+        uuid: String,
+        pos: BlockPos,
+        nerf: MutableMap<Long, Pair<String, BlockPos>>,
+        minZDistance: Int,
+        minXDistance: Int,
+        minAmount1: Int,
+        minAmount2: Int,
     ): Boolean {
         nerf[System.currentTimeMillis()] = Pair(uuid, pos)
 

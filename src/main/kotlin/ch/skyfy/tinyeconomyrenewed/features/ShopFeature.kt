@@ -1,7 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.features
 
 import ch.skyfy.tinyeconomyrenewed.Economy
-import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
 import ch.skyfy.tinyeconomyrenewed.ScoreboardManager2
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.callbacks.CreateExplosionCallback
@@ -20,7 +19,6 @@ import net.minecraft.block.WallSignBlock.FACING
 import net.minecraft.block.entity.BarrelBlockEntity
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.Hopper
-import net.minecraft.block.entity.HopperBlockEntity
 import net.minecraft.block.entity.SignBlockEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.TntEntity
@@ -43,7 +41,6 @@ import net.minecraft.world.explosion.Explosion
 import net.minecraft.world.explosion.ExplosionBehavior
 import org.ktorm.dsl.like
 import org.ktorm.entity.find
-import java.util.function.BooleanSupplier
 
 class ShopFeature(
     private val databaseManager: DatabaseManager,
@@ -112,6 +109,7 @@ class ShopFeature(
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun cancelHopperFromStealingAShop(world: World, pos: BlockPos, state: BlockState, hopper: Hopper): TypedActionResult<Boolean> {
         val shop = isAShop(BlockPos(pos.x, pos.y + 1, pos.z), world as ServerWorld)
         if(shop != null)return TypedActionResult.fail(false)
@@ -161,16 +159,6 @@ class ShopFeature(
 
     @Suppress("UNUSED_PARAMETER")
     private fun useBlockCallback(player: PlayerEntity, world: World, hand: Hand, hitResult: BlockHitResult): ActionResult {
-
-        // Prevents a player from robbing a shop with a hopper
-        // There is a trick, player can still steal with hopper, I'll leave this trick available for crafty players
-//        for (itemStack in player.handItems) {
-//            if (itemStack.item.translationKey == "block.minecraft.hopper" || itemStack.item.translationKey == "item.minecraft.hopper_minecart") {
-//                val shop = isAShop(BlockPos(hitResult.pos.x, hitResult.pos.y + 1, hitResult.pos.z), world)
-//                if (shop != null && shop.signData.vendorName != player.name.string) return ActionResult.FAIL
-//            }
-//        }
-
         val block = world.getBlockState(hitResult.blockPos).block
         val shop = isAShop(hitResult.blockPos, world)
 

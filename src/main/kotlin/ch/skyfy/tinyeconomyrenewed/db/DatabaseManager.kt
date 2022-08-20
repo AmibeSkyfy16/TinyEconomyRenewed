@@ -34,18 +34,12 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
 
     val db: Database
 
-//    val players: MutableList<AtomicReference<Player>> = mutableListOf()
-//    val minedBlockRewards: MutableList<AtomicReference<MinedBlockReward>> = mutableListOf()
-//    val entityKilledRewards: MutableList<AtomicReference<EntityKilledReward>> = mutableListOf()
-
     lateinit var cachePlayers: IsolateState<List<Player>>
     lateinit var cacheMinedBlockRewards: IsolateState<List<MinedBlockReward>>
     lateinit var cacheEntityKilledRewards: IsolateState<List<EntityKilledReward>>
     lateinit var cacheAdvancementRewards: IsolateState<List<AdvancementReward>>
 
     private var updateThreadStarted = false
-
-    data class Test(val id: String)
 
     init {
         TinyEconomyRenewedMod.LOGGER.info("[Database Manager init block] > current thread name ${Thread.currentThread().name}")
@@ -55,19 +49,15 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
         db = Database.connect("$url/TinyEconomyRenewed", "org.mariadb.jdbc.Driver", user, password)
         initDatabase() // Then create tables and populate it with data
 
-        // Only update database every 1 minute in seperated thread
-//        players.addAll(db.players.map { AtomicReference(it) })
-//        minedBlockRewards.addAll(db.minedBlockRewards.map { AtomicReference(it) })
-//        entityKilledRewards.addAll(db.entityKilledRewards.map { AtomicReference(it) })
-
         /**
          * In order to optimize the queries to the database, we will retrieve the data once, then update it every 2 minutes.
-         * Without this, if for example 5 players are mining, it will make 600 database requests per minute  executed on the minecraft server thread,
+         * Without this, if for example 5 players are mining, it will make 600 database requests per minute executed on the minecraft server thread,
          * which would cause lag. Here we only update every 2 minutes from a separate thread
          */
         fixedRateTimer("", true, 0, 1 * 60 * 500) {
             if (!updateThreadStarted) {
                 updateThreadStarted = true
+                println("executed")
                 cachePlayers = IsolateState { db.players.toList() }
                 cacheMinedBlockRewards = IsolateState { db.minedBlockRewards.toList() }
                 cacheEntityKilledRewards = IsolateState { db.entityKilledRewards.toList() }
@@ -78,22 +68,8 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
             cacheMinedBlockRewards.access { it.forEach(db.minedBlockRewards::update) }
             cacheEntityKilledRewards.access { it.forEach(db.entityKilledRewards::update) }
             cacheAdvancementRewards.access { it.forEach(db.advancementRewards::update) }
-
-//            players.forEach { db.players.update(it.get().freeze()) }
-//            minedBlockRewards.forEach { db.minedBlockRewards.update(it.get().freeze()) }
-//            entityKilledRewards.forEach { db.entityKilledRewards.update(it.get().freeze()) }
-//            println("fixedRateTimer -> Thread id: " + Thread.currentThread().id)
-//            println("fixedRateTimer -> Thread name: " + Thread.currentThread().name)
-
-//            mutableList.clear()
-//            mutableList.addAll(db.players.map { AtomicReference(it.freeze()) })
         }
 
-    }
-
-    private fun updateAllPlayers() {
-//        mutableList.addAll(db.players.map { AtomicReference(it) })
-//        db.players.forEach {  }
     }
 
     @Suppress("SqlNoDataSourceInspection", "SqlDialectInspection")
@@ -114,8 +90,7 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
             connection.createStatement().use { statement ->
                 stream.bufferedReader().use { reader ->
                     for (sql in reader.readText().split(';'))
-                        if (sql.any { it.isLetterOrDigit() })
-                            statement.executeUpdate(sql)
+                        if (sql.any { it.isLetterOrDigit() }) statement.executeUpdate(sql)
                 }
             }
         }
@@ -133,19 +108,6 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
                 item = Item { translationKey = itemTranslationKey }
                 db.items.add(item)
             }
-//            if (retrievedData.blocks.contains(itemTranslationKey)) { // Now, if the current itemTranslationKey is also a block, we repeat the same process, but for minedBlockReward table
-//                val minedBlockReward = db.minedBlockRewards.find { it.itemId eq item.id }
-//                val amountFromConfig = Configs.MINED_BLOCK_REWARD_CONFIG.data.map[itemTranslationKey]!!
-//                if (minedBlockReward == null) {
-//                    db.minedBlockRewards.add(MinedBlockReward {
-//                        amount = amountFromConfig
-//                        this.item = item
-//                    })
-//                } else {
-//                    if (minedBlockReward.amount != amountFromConfig) minedBlockReward.amount = amountFromConfig
-//                    db.minedBlockRewards.update(minedBlockReward)
-//                }
-//            }
         }
 
         for (blockTranslationKey in retrievedData.blocks) {
