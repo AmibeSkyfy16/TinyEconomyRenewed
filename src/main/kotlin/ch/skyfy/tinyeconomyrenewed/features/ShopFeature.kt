@@ -334,7 +334,8 @@ class ShopFeature(
     }
 
     private fun getPlayerState(name: String): PlayerState {
-        databaseManager.db.players.find { it.name like name }.let { if (it == null) return PlayerState.NOT_EXIST }
+//        databaseManager.query { databaseManager.db.players.find { it.name like name }.let { if (it == null) return PlayerState.NOT_EXIST } }
+        databaseManager.cachePlayers.find { it.name == name }.let { if (it == null) return PlayerState.NOT_EXIST }
         minecraftServer.playerManager.getPlayer(name) ?: return PlayerState.OFFLINE
         return PlayerState.ONLINE
     }

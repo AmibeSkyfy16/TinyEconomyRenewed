@@ -17,6 +17,7 @@ import kotlin.concurrent.fixedRateTimer
 import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.inputStream
 
+
 val Database.players get() = this.sequenceOf(Players)
 val Database.items get() = this.sequenceOf(Items)
 val Database.blocks get() = this.sequenceOf(Blocks)
@@ -54,7 +55,7 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
     init {
         TinyEconomyRenewedMod.LOGGER.info("[Database Manager init block] > current thread name ${Thread.currentThread().name}")
 
-//        createDatabase() // First we have to create the new database
+        createDatabase() // First we have to create the new database
         val (url, user, password) = Configs.DB_CONFIG.data
         db = Database.connect("$url/TinyEconomyRenewed", "org.mariadb.jdbc.Driver", user, password)
         initDatabase() // Then create tables and populate it with data
@@ -86,13 +87,16 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
                 cacheEntityKilledRewards.forEach(db.entityKilledRewards::update)
                 cacheAdvancementRewards.forEach(db.advancementRewards::update)
 
-
 //            cachePlayers.access { it.forEach(db.players::update) }
 //            cacheMinedBlockRewards.access { it.forEach(db.minedBlockRewards::update) }
 //            cacheEntityKilledRewards.access { it.forEach(db.entityKilledRewards::update) }
 //            cacheAdvancementRewards.access { it.forEach(db.advancementRewards::update) }
         }
 
+    }
+
+    fun query(block: () -> Unit){
+        launch { block.invoke() }
     }
 
     @Suppress("SqlNoDataSourceInspection", "SqlDialectInspection")
