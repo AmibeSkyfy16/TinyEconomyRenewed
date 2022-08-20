@@ -1,16 +1,9 @@
 package ch.skyfy.tinyeconomyrenewed.features
 
 import ch.skyfy.tinyeconomyrenewed.Economy
-import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
-import ch.skyfy.tinyeconomyrenewed.ScoreboardManager2
 import ch.skyfy.tinyeconomyrenewed.callbacks.AdvancementCompletedCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.EntityDamageCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
-import ch.skyfy.tinyeconomyrenewed.db.advancementRewards
-import ch.skyfy.tinyeconomyrenewed.db.entityKilledRewards
-import ch.skyfy.tinyeconomyrenewed.db.minedBlockRewards
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.minecraft.advancement.Advancement
 import net.minecraft.block.BlockState
@@ -21,9 +14,6 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-import org.ktorm.dsl.like
-import org.ktorm.entity.find
-import kotlin.coroutines.CoroutineContext
 
 class RewardFeature(
     private val databaseManager: DatabaseManager,
@@ -45,10 +35,14 @@ class RewardFeature(
 
     private fun onPlayerBlockBreakEvent(world: World, player: PlayerEntity, pos: BlockPos, @Suppress("UNUSED_PARAMETER") state: BlockState, @Suppress("UNUSED_PARAMETER") blockEntity: BlockEntity?): Boolean {
 
-        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards, 5, 5, 60, 200)) return true
+        // TODO Uncomment this
+//        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards, 5, 5, 60, 200)) return true
 
         economy.deposit(player.uuidAsString) {
-            databaseManager.db.minedBlockRewards.find { it.block.translationKey like world.getBlockState(pos).block.translationKey }?.amount
+            databaseManager.cacheMinedBlockRewards.access {list ->
+                list.find{it.block.translationKey == world.getBlockState(pos).block.translationKey}?.amount ?: 0f
+            }
+//            databaseManager.db.minedBlockRewards.find { it.block.translationKey like world.getBlockState(pos).block.translationKey }?.amount ?: 0f
         }
 //        scoreboardManager.updateSidebar(player as ServerPlayerEntity)
         return true
@@ -63,7 +57,10 @@ class RewardFeature(
             if (shouldNerf(attacker.uuidAsString, attacker.blockPos, nerfEntitiesRewards, 10, 10, 40, 80)) return
 
             economy.deposit(attacker.uuidAsString) {
-                databaseManager.db.entityKilledRewards.find { it.entity.translationKey like livingEntity.type.translationKey }?.amount
+                databaseManager.cacheEntityKilledRewards.access { list ->
+                    list.find { it.entity.translationKey == livingEntity.type.translationKey }?.amount ?: 0f
+                }
+//                databaseManager.db.entityKilledRewards.find { it.entity.translationKey like livingEntity.type.translationKey }?.amount ?: 0f
             }
 //            scoreboardManager.updateSidebar(attacker as ServerPlayerEntity)
         }
@@ -71,7 +68,11 @@ class RewardFeature(
 
     private fun onAdvancementCompleted(serverPlayerEntity: ServerPlayerEntity, advancement: Advancement, @Suppress("UNUSED_PARAMETER") criterionName: String) {
         economy.deposit(serverPlayerEntity.uuidAsString) {
-            databaseManager.db.advancementRewards.find { it.advancement.identifier like advancement.id.toString() }?.amount
+            databaseManager.cacheAdvancementRewards.access { list ->
+                list.find { it.advancement.identifier == advancement.id.toString() }?.amount ?: 0f
+            }
+//            databaseManager.db.advancementRewards.find { it.advancement.identifier like advancement.id.toString() }?.amount ?: 0f
+//            databaseManager.db.advancementRewards.find { it.advancement.identifier like advancement.id.toString() }?.amount ?: 0f
         }
 
 //        scoreboardManager.updateSidebar(serverPlayerEntity)

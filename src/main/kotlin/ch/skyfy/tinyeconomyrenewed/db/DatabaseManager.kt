@@ -3,15 +3,13 @@ package ch.skyfy.tinyeconomyrenewed.db
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedInitializer
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.config.Configs
+import co.touchlab.stately.isolate.IsolateState
 import net.fabricmc.loader.api.FabricLoader
-import net.silkmc.silk.game.cooldown.Cooldown
 import org.ktorm.database.Database
 import org.ktorm.dsl.eq
 import org.ktorm.dsl.like
-import org.ktorm.entity.add
-import org.ktorm.entity.find
-import org.ktorm.entity.sequenceOf
-import org.ktorm.entity.update
+import org.ktorm.entity.*
+import kotlin.concurrent.fixedRateTimer
 import kotlin.io.path.inputStream
 
 val Database.players get() = this.sequenceOf(Players)
@@ -36,10 +34,20 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
 
     val db: Database
 
-//    val cooldown: Cooldown = Cooldown()
+//    val players: MutableList<AtomicReference<Player>> = mutableListOf()
+//    val minedBlockRewards: MutableList<AtomicReference<MinedBlockReward>> = mutableListOf()
+//    val entityKilledRewards: MutableList<AtomicReference<EntityKilledReward>> = mutableListOf()
+
+    lateinit var cachePlayers: IsolateState<List<Player>>
+    lateinit var cacheMinedBlockRewards: IsolateState<List<MinedBlockReward>>
+    lateinit var cacheEntityKilledRewards: IsolateState<List<EntityKilledReward>>
+    lateinit var cacheAdvancementRewards: IsolateState<List<AdvancementReward>>
+
+    private var updateThreadStarted = false
+
+    data class Test(val id: String)
 
     init {
-
         TinyEconomyRenewedMod.LOGGER.info("[Database Manager init block] > current thread name ${Thread.currentThread().name}")
 
         createDatabase() // First we have to create the new database
@@ -47,7 +55,45 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
         db = Database.connect("$url/TinyEconomyRenewed", "org.mariadb.jdbc.Driver", user, password)
         initDatabase() // Then create tables and populate it with data
 
-//        cooldown.withCooldown()
+        // Only update database every 1 minute in seperated thread
+//        players.addAll(db.players.map { AtomicReference(it) })
+//        minedBlockRewards.addAll(db.minedBlockRewards.map { AtomicReference(it) })
+//        entityKilledRewards.addAll(db.entityKilledRewards.map { AtomicReference(it) })
+
+        /**
+         * In order to optimize the queries to the database, we will retrieve the data once, then update it every 2 minutes.
+         * Without this, if for example 5 players are mining, it will make 600 database requests per minute  executed on the minecraft server thread,
+         * which would cause lag. Here we only update every 2 minutes from a separate thread
+         */
+        fixedRateTimer("", true, 0, 1 * 60 * 500) {
+            if (!updateThreadStarted) {
+                updateThreadStarted = true
+                cachePlayers = IsolateState { db.players.toList() }
+                cacheMinedBlockRewards = IsolateState { db.minedBlockRewards.toList() }
+                cacheEntityKilledRewards = IsolateState { db.entityKilledRewards.toList() }
+                cacheAdvancementRewards = IsolateState { db.advancementRewards.toList() }
+            }
+
+            cachePlayers.access { it.forEach(db.players::update) }
+            cacheMinedBlockRewards.access { it.forEach(db.minedBlockRewards::update) }
+            cacheEntityKilledRewards.access { it.forEach(db.entityKilledRewards::update) }
+            cacheAdvancementRewards.access { it.forEach(db.advancementRewards::update) }
+
+//            players.forEach { db.players.update(it.get().freeze()) }
+//            minedBlockRewards.forEach { db.minedBlockRewards.update(it.get().freeze()) }
+//            entityKilledRewards.forEach { db.entityKilledRewards.update(it.get().freeze()) }
+//            println("fixedRateTimer -> Thread id: " + Thread.currentThread().id)
+//            println("fixedRateTimer -> Thread name: " + Thread.currentThread().name)
+
+//            mutableList.clear()
+//            mutableList.addAll(db.players.map { AtomicReference(it.freeze()) })
+        }
+
+    }
+
+    private fun updateAllPlayers() {
+//        mutableList.addAll(db.players.map { AtomicReference(it) })
+//        db.players.forEach {  }
     }
 
     @Suppress("SqlNoDataSourceInspection", "SqlDialectInspection")
