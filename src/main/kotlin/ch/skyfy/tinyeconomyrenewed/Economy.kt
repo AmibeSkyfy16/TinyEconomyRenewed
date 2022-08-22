@@ -4,38 +4,19 @@ package ch.skyfy.tinyeconomyrenewed
 
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.Player
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 @Suppress("unused")
-class Economy(
-    private val databaseManager: DatabaseManager,
-    private val scoreboardManager: ScoreboardManager2, override val coroutineContext: CoroutineContext = Dispatchers.IO,
-)  : CoroutineScope{
+class Economy(private val databaseManager: DatabaseManager, private val scoreboardManager: ScoreboardManager2)  {
 
-    fun deposit(uuid: String, block: () -> Float) {
-        launch {
+    fun deposit(uuid: String, block: () -> Float) =
+        databaseManager.executor.execute {
             databaseManager.cachePlayers.find { player -> player.uuid == uuid }.let { player -> if (player != null) deposit(player, block.invoke()) }
-//            databaseManager.cachePlayers.access { list ->
-//                list.find { player -> player.uuid == uuid }.let { player -> if (player != null) deposit(player, block.invoke()) }
-//            }
         }
-    }
 
-    fun deposit(player: Player, amount: Float) {
-        player.money += amount
-    }
+    fun deposit(player: Player, amount: Float) { player.money += amount }
 
-    fun withdraw(uuid: String, amount: Float) {
-//        databaseManager.cachePlayers.access {list ->
-//            list.find { it.uuid == uuid }.let { if (it != null) withdraw(it, amount) }
-//        }
-    }
+    fun withdraw(uuid: String, amount: Float) = databaseManager.cachePlayers.find { it.uuid == uuid }.let { if (it != null) withdraw(it, amount) }
 
-    fun withdraw(player: Player, amount: Float) {
-        player.money -= amount
-    }
+    fun withdraw(player: Player, amount: Float) { player.money -= amount }
 
 }

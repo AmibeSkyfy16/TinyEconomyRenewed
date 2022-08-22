@@ -9,7 +9,6 @@ import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerInsertItemsCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerTakeItemsCallback
 import ch.skyfy.tinyeconomyrenewed.config.Configs
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
-import ch.skyfy.tinyeconomyrenewed.db.players
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
 import net.minecraft.block.BarrelBlock
@@ -39,8 +38,6 @@ import net.minecraft.util.math.Direction
 import net.minecraft.world.World
 import net.minecraft.world.explosion.Explosion
 import net.minecraft.world.explosion.ExplosionBehavior
-import org.ktorm.dsl.like
-import org.ktorm.entity.find
 
 class ShopFeature(
     private val databaseManager: DatabaseManager,
@@ -221,11 +218,11 @@ class ShopFeature(
 
         val vendorPlayer: ServerPlayerEntity? = minecraftServer.playerManager.getPlayer(shop.signData.vendorName)
 
-        val vendor = databaseManager.db.players.find { it.name like if (vendorPlayer != null) vendorPlayer.name.string else shop.signData.vendorName }
-        val buyer = databaseManager.db.players.find { it.uuid like buyerPlayer.uuidAsString }
+        val vendor = databaseManager.cachePlayers.find { it.name == if (vendorPlayer != null) vendorPlayer.name.string else shop.signData.vendorName }
+        val buyer = databaseManager.cachePlayers.find { it.uuid == buyerPlayer.uuidAsString }
 
         if (vendor == null || buyer == null) {
-            TinyEconomyRenewedMod.LOGGER.info("vendor or buyer was not found in database (null)")
+            TinyEconomyRenewedMod.LOGGER.info("vendor or buyer was not found in database")
             return
         }
         if (buyer.money - shop.signData.price < 0) {
@@ -270,6 +267,7 @@ class ShopFeature(
             economy.withdraw(buyer, shop.signData.price)
             economy.deposit(vendor, shop.signData.price)
 
+            // TODO update
 //            scoreboardManager.updateSidebar(buyerPlayer)
 //            if (vendorPlayer != null) scoreboardManager.updateSidebar(vendorPlayer)
 
@@ -291,9 +289,7 @@ class ShopFeature(
             val itemAmount = args[0].toInt()
             val price = args[2].toFloat()
             SignData(vendorName, itemAmount, price)
-        } catch (e: java.lang.Exception) {
-            null
-        }
+        } catch (e: java.lang.Exception) { null }
     }
 
     /**
@@ -305,11 +301,8 @@ class ShopFeature(
             Direction.SOUTH -> BlockPos(blockPos.x, blockPos.y, blockPos.z - 1)
             Direction.EAST -> BlockPos(blockPos.x - 1, blockPos.y, blockPos.z)
             Direction.WEST -> BlockPos(blockPos.x + 1, blockPos.y, blockPos.z)
-            else -> {
-                null
-            }
+            else -> null
         } ?: return null
-
         val blockEntity = world.getBlockEntity(pos)
         return if (blockEntity?.javaClass == T::class.java) blockEntity as T
         else null
@@ -324,8 +317,6 @@ class ShopFeature(
             BlockPos(blockPos.x + 1, blockPos.y, blockPos.z),
         ).forEach {
             world.getBlockEntity(it)?.let { blockEntity ->
-//                println("block entity : " + blockEntity.type.toString())
-//                println("block entity : " + blockEntity::class.java.toString())
                 if (blockEntity::class.java == T::class.java)
                     list.add(blockEntity as T)
             }
@@ -334,7 +325,6 @@ class ShopFeature(
     }
 
     private fun getPlayerState(name: String): PlayerState {
-//        databaseManager.query { databaseManager.db.players.find { it.name like name }.let { if (it == null) return PlayerState.NOT_EXIST } }
         databaseManager.cachePlayers.find { it.name == name }.let { if (it == null) return PlayerState.NOT_EXIST }
         minecraftServer.playerManager.getPlayer(name) ?: return PlayerState.OFFLINE
         return PlayerState.ONLINE

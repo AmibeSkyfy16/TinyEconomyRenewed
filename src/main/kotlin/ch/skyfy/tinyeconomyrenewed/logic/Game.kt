@@ -6,7 +6,7 @@ import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerJoinCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.Player
-import ch.skyfy.tinyeconomyrenewed.db.players
+//import ch.skyfy.tinyeconomyrenewed.db.players
 import ch.skyfy.tinyeconomyrenewed.features.RewardFeature
 import ch.skyfy.tinyeconomyrenewed.features.ShopFeature
 import ch.skyfy.tinyeconomyrenewed.features.VillagerTradeCostsMoneyFeature
@@ -36,18 +36,19 @@ class Game(private val databaseManager: DatabaseManager, minecraftServer: Minecr
     }
 
     private fun onPlayerJoin(@Suppress("UNUSED_PARAMETER") connection: ClientConnection, serverPlayerEntity: ServerPlayerEntity) {
-        val p = databaseManager.db.players.find { it.uuid like serverPlayerEntity.uuidAsString }
-        if (p == null) {
-            databaseManager.db.players.add(Player {
-                uuid = serverPlayerEntity.uuidAsString
-                name = serverPlayerEntity.name.string
-            })
-        } else { // Update name (maybe some players can change their name)
-            if (p.name != serverPlayerEntity.name.string) {
-                TinyEconomyRenewedMod.LOGGER.info("Player ${p.name} has changed his name to ${serverPlayerEntity.name.string}")
-                p.name = serverPlayerEntity.name.string
-                databaseManager.db.players.update(p)
-            }
+        val playerUUID = serverPlayerEntity.uuidAsString
+        val playerName = serverPlayerEntity.name.string
+
+        databaseManager.executor.execute {
+            val player = databaseManager.cachePlayers.find { it.uuid == playerUUID}
+            if (player == null)
+                databaseManager.cachePlayers.add(Player { uuid = playerUUID; name = playerName })
+            else
+                if(player.name != playerName) { // If a player changed his name, we have to update it in the database
+                    TinyEconomyRenewedMod.LOGGER.info("Player ${player.name} has changed his name to $playerName")
+                    player.name = playerName
+                    databaseManager.updatePlayers(player)
+                }
         }
     }
 }

@@ -20,6 +20,8 @@ import net.minecraft.util.Language
 import net.minecraft.util.registry.Registry
 import java.nio.file.Paths
 import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.absolutePathString
@@ -47,13 +49,21 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
     data class RetrievedData(val advancements: List<Advancement>, val items: List<String>, val blocks: List<String>, val entities: List<String>)
     data class Advancement(val advancementId: String, val advancementFrame: String, val advancementTitle: String, val advancementDescription: String)
 
+    private val executor: ExecutorService = Executors.newFixedThreadPool(1) {
+       val t = Thread(it)
+        t.name = "MY THREAD"
+        t.isDaemon = true
+        t
+    }
+
+
     init {
         setupConfigDirectory()
 
         ServerTickEvents.END_SERVER_TICK.register { minecraftServer ->
             if (!firstEndServerTick){
                 firstEndServerTick = true
-                launch {
+                executor.execute {
                     TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed is being initialized \uD83D\uDE9A \uD83D\uDE9A \uD83D\uDE9A")
 
                     ConfigManager.loadConfigs(arrayOf(Configs.javaClass))
@@ -65,9 +75,25 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
                     retrievedData.advancements.forEach { sb.append("\t\t\t$['map']['${it.advancementId}']\t1.0\t1.0\r\n") }
 //                println(sb)
 
-                    optGameRef.set(Optional.of(Game(DatabaseManager(retrievedData), minecraftServer)))
+                    optGameRef.set(Optional.of(Game(DatabaseManager(retrievedData, executor), minecraftServer)))
                     isInitializationComplete = true
                     TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed >> done ! Players can now connect \uD83D\uDC4C ✅")
+                }
+                launch {
+//                    TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed is being initialized \uD83D\uDE9A \uD83D\uDE9A \uD83D\uDE9A")
+//
+//                    ConfigManager.loadConfigs(arrayOf(Configs.javaClass))
+//
+//                    val retrievedData = retrieveDataAndPopulateDefaultConfiguration(minecraftServer)
+//
+//                    // It's a temporary code that I need for populate my Excel file
+//                    val sb = java.lang.StringBuilder()
+//                    retrievedData.advancements.forEach { sb.append("\t\t\t$['map']['${it.advancementId}']\t1.0\t1.0\r\n") }
+////                println(sb)
+//
+//                    optGameRef.set(Optional.of(Game(DatabaseManager(retrievedData), minecraftServer)))
+//                    isInitializationComplete = true
+//                    TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed >> done ! Players can now connect \uD83D\uDC4C ✅")
                 }
             }
         }

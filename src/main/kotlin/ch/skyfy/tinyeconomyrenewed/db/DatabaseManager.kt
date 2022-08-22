@@ -3,29 +3,27 @@ package ch.skyfy.tinyeconomyrenewed.db
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedInitializer
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.config.Configs
-import co.touchlab.stately.isolate.IsolateState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import net.fabricmc.loader.api.FabricLoader
-import net.silkmc.silk.core.task.mcCoroutineTask
 import org.ktorm.database.Database
 import org.ktorm.dsl.eq
 import org.ktorm.dsl.like
 import org.ktorm.entity.*
+import java.util.concurrent.ExecutorService
 import kotlin.concurrent.fixedRateTimer
 import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.inputStream
 
 
-val Database.players get() = this.sequenceOf(Players)
-val Database.items get() = this.sequenceOf(Items)
-val Database.blocks get() = this.sequenceOf(Blocks)
-val Database.entities get() = this.sequenceOf(Entities)
-val Database.advancements get() = this.sequenceOf(Advancements)
-val Database.minedBlockRewards get() = this.sequenceOf(MinedBlockRewards)
-val Database.entityKilledRewards get() = this.sequenceOf(EntityKilledRewards)
-val Database.advancementRewards get() = this.sequenceOf(AdvancementRewards)
+private val Database.players get() = this.sequenceOf(Players)
+private val Database.items get() = this.sequenceOf(Items)
+private val Database.blocks get() = this.sequenceOf(Blocks)
+private val Database.entities get() = this.sequenceOf(Entities)
+private val Database.advancements get() = this.sequenceOf(Advancements)
+private val Database.minedBlockRewards get() = this.sequenceOf(MinedBlockRewards)
+private val Database.entityKilledRewards get() = this.sequenceOf(EntityKilledRewards)
+private val Database.advancementRewards get() = this.sequenceOf(AdvancementRewards)
 
 /**
  * This class connects to the database and creates the required tables and populate it with default data.
@@ -34,9 +32,12 @@ val Database.advancementRewards get() = this.sequenceOf(AdvancementRewards)
  *
  * Also, during the installation, the console will display messages about the progress of the installation.
  * In order for the server administrator to be able to follow what is going on in the console correctly,
- * this class is instantiated in a coroutine right after the server is started @see TinyEconomyRenewedInitializer
+ * this class is instantiated in a coroutine right after the server is started in [TinyEconomyRenewedInitializer]
  */
-class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.RetrievedData, override val coroutineContext: CoroutineContext = Dispatchers.IO) : CoroutineScope {
+class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.RetrievedData,
+                       val executor: ExecutorService,
+                      override val coroutineContext: CoroutineContext = Dispatchers.IO
+) : CoroutineScope {
 
     val db: Database
 
@@ -45,10 +46,35 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
 //    lateinit var cacheEntityKilledRewards: IsolateState<List<EntityKilledReward>>
 //    lateinit var cacheAdvancementRewards: IsolateState<List<AdvancementReward>>
 
-    val cachePlayers: List<Player>
-    val cacheMinedBlockRewards: List<MinedBlockReward>
-    val cacheEntityKilledRewards: List<EntityKilledReward>
-    val cacheAdvancementRewards: List<AdvancementReward>
+    val cachePlayers: MutableList<Player> get() {
+//        val f = executor.submit({}, field)
+        return field
+    }
+    val cacheMinedBlockRewards: MutableList<MinedBlockReward>get() {
+//        val f = executor.submit({}, field)
+        return field
+    }
+    val cacheEntityKilledRewards: MutableList<EntityKilledReward>get() {
+//        val f = executor.submit({}, field)
+        return field
+    }
+    val cacheAdvancementRewards: MutableList<AdvancementReward>get() {
+//        val f = executor.submit({}, field)
+        return field
+    }
+
+    fun updatePlayers(player: Player){
+        executor.execute { db.players.update(player) }
+    }
+    fun updateMinedBlockRewards(minedBlockReward: MinedBlockReward){
+        executor.execute { db.minedBlockRewards.update(minedBlockReward) }
+    }
+    fun updateEntityKilledRewards(entityKilledReward: EntityKilledReward){
+        executor.execute { db.entityKilledRewards.update(entityKilledReward) }
+    }
+    fun updateAdvancementRewards(advancementReward: AdvancementReward){
+        executor.execute { db.advancementRewards.update(advancementReward) }
+    }
 
     private var updateThreadStarted = false
 
@@ -60,39 +86,54 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
         db = Database.connect("$url/TinyEconomyRenewed", "org.mariadb.jdbc.Driver", user, password)
         initDatabase() // Then create tables and populate it with data
 
-        cachePlayers = db.players.toList()
-        cacheMinedBlockRewards = db.minedBlockRewards.toList()
-        cacheEntityKilledRewards = db.entityKilledRewards.toList()
-        cacheAdvancementRewards = db.advancementRewards.toList()
+        cachePlayers = db.players.toMutableList()
+        cacheMinedBlockRewards = db.minedBlockRewards.toMutableList()
+        cacheEntityKilledRewards = db.entityKilledRewards.toMutableList()
+        cacheAdvancementRewards = db.advancementRewards.toMutableList()
 
         /**
          * In order to optimize the queries to the database, we will retrieve the data once, then update it every 2 minutes.
          * Without this, if for example 5 players are mining, it will make 600 database requests per minute executed on the minecraft server thread,
          * which would cause lag. Here we only update every 2 minutes from a separate thread
          */
-
         fixedRateTimer("", true, 0, 1 * 60 * 500) {
             if (!updateThreadStarted) {
                 updateThreadStarted = true
-                println("executed")
-//                cachePlayers = IsolateState { db.players.toList() }
-//                cacheMinedBlockRewards = IsolateState { db.minedBlockRewards.toList() }
-//                cacheEntityKilledRewards = IsolateState { db.entityKilledRewards.toList() }
-//                cacheAdvancementRewards = IsolateState { db.advancementRewards.toList() }
+
+                println("executed first")
+
+                executor.execute{
+                    cachePlayers.forEach(db.players::update)
+                    cacheMinedBlockRewards.forEach(db.minedBlockRewards::update)
+                    cacheEntityKilledRewards.forEach(db.entityKilledRewards::update)
+                    cacheAdvancementRewards.forEach(db.advancementRewards::update)
+                }
             }
 
-                println("update db")
+            executor.execute {
+                println("update db Thread name: ${Thread.currentThread().name}")
                 cachePlayers.forEach(db.players::update)
                 cacheMinedBlockRewards.forEach(db.minedBlockRewards::update)
                 cacheEntityKilledRewards.forEach(db.entityKilledRewards::update)
                 cacheAdvancementRewards.forEach(db.advancementRewards::update)
-
-//            cachePlayers.access { it.forEach(db.players::update) }
-//            cacheMinedBlockRewards.access { it.forEach(db.minedBlockRewards::update) }
-//            cacheEntityKilledRewards.access { it.forEach(db.entityKilledRewards::update) }
-//            cacheAdvancementRewards.access { it.forEach(db.advancementRewards::update) }
+                cacheData()
+            }
         }
 
+    }
+
+    /**
+     * We recover all that could be modified manually in the database
+     */
+    private fun cacheData(){
+        cachePlayers.clear()
+        cacheMinedBlockRewards.clear()
+        cacheEntityKilledRewards.clear()
+        cacheAdvancementRewards.clear()
+        cachePlayers.addAll(db.players.toMutableList())
+        cacheMinedBlockRewards.addAll(db.minedBlockRewards.toMutableList())
+        cacheEntityKilledRewards.addAll(db.entityKilledRewards.toMutableList())
+        cacheAdvancementRewards.addAll(db.advancementRewards.toMutableList())
     }
 
     @Suppress("SqlNoDataSourceInspection", "SqlDialectInspection")
