@@ -5,9 +5,6 @@ import ch.skyfy.tinyeconomyrenewed.config.Configs
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.logic.Game
 import ch.skyfy.tinyeconomyrenewed.utils.setupConfigDirectory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.loader.api.FabricLoader
@@ -23,7 +20,6 @@ import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.inputStream
 
@@ -34,7 +30,7 @@ import kotlin.io.path.inputStream
  * As the initialization takes time, the operations are performed in a separate thread.
  * While the initialization is in progress, players will not be able to connect
  */
-class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineContext = Dispatchers.IO) : CoroutineScope {
+class TinyEconomyRenewedInitializer {
 
     /**
      * This will be use in future for registered command because command must be
@@ -51,7 +47,7 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
 
     private val executor: ExecutorService = Executors.newFixedThreadPool(1) {
        val t = Thread(it)
-        t.name = "MY THREAD"
+        t.name = "DATABASE THREAD"
         t.isDaemon = true
         t
     }
@@ -78,22 +74,6 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
                     optGameRef.set(Optional.of(Game(DatabaseManager(retrievedData, executor), minecraftServer)))
                     isInitializationComplete = true
                     TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed >> done ! Players can now connect \uD83D\uDC4C ✅")
-                }
-                launch {
-//                    TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed is being initialized \uD83D\uDE9A \uD83D\uDE9A \uD83D\uDE9A")
-//
-//                    ConfigManager.loadConfigs(arrayOf(Configs.javaClass))
-//
-//                    val retrievedData = retrieveDataAndPopulateDefaultConfiguration(minecraftServer)
-//
-//                    // It's a temporary code that I need for populate my Excel file
-//                    val sb = java.lang.StringBuilder()
-//                    retrievedData.advancements.forEach { sb.append("\t\t\t$['map']['${it.advancementId}']\t1.0\t1.0\r\n") }
-////                println(sb)
-//
-//                    optGameRef.set(Optional.of(Game(DatabaseManager(retrievedData), minecraftServer)))
-//                    isInitializationComplete = true
-//                    TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed >> done ! Players can now connect \uD83D\uDC4C ✅")
                 }
             }
         }
@@ -153,9 +133,9 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
         )
 
         // Populating with default value
-        retrievedData.advancements.forEach { Configs.ADVANCEMENT_REWARD_CONFIG.`data`.map.putIfAbsent(it.advancementId, 1f) }
-        retrievedData.entities.forEach { Configs.ENTITY_KILLED_REWARD_CONFIG.`data`.map.putIfAbsent(it, 1f) }
-        retrievedData.blocks.forEach { Configs.MINED_BLOCK_REWARD_CONFIG.`data`.map.putIfAbsent(it, 1f) }
+        retrievedData.advancements.forEach { Configs.ADVANCEMENT_REWARD_CONFIG.`data`.map.putIfAbsent(it.advancementId, 10f) }
+        retrievedData.entities.forEach { Configs.ENTITY_KILLED_REWARD_CONFIG.`data`.map.putIfAbsent(it, 2f) }
+        retrievedData.blocks.forEach { Configs.MINED_BLOCK_REWARD_CONFIG.`data`.map.putIfAbsent(it, 0.5f) }
         ConfigManager.save(Configs.ADVANCEMENT_REWARD_CONFIG)
         ConfigManager.save(Configs.ENTITY_KILLED_REWARD_CONFIG)
         ConfigManager.save(Configs.MINED_BLOCK_REWARD_CONFIG)

@@ -46,7 +46,7 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${properties["loader_version"]}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${properties["fabric_version"]}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
-    modImplementation("net.silkmc:silk-game:1.9.1")
+    modImplementation("net.silkmc:silk-game:1.9.2")
 
 //    include("eu.pb4:sidebar-api:${properties["sidebar-api_version"]}")?.let { modImplementation(it) }
 
@@ -122,7 +122,7 @@ tasks {
 
     val copyJarToTestServer = register("copyJarToTestServer") {
         println("copy to server")
-        copyFile("build/libs/TinyEconomyRenewed-1.0.2+1.19.2.jar", project.property("testServerModsFolder") as String)
+        copyFile("build/libs/TinyEconomyRenewed-1.0.3+1.19.2.jar", project.property("testServerModsFolder") as String)
     }
 
     build {

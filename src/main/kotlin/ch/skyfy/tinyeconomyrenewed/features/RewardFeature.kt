@@ -1,9 +1,12 @@
 package ch.skyfy.tinyeconomyrenewed.features
 
 import ch.skyfy.tinyeconomyrenewed.Economy
+import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
 import ch.skyfy.tinyeconomyrenewed.callbacks.AdvancementCompletedCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.EntityDamageCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.minecraft.advancement.Advancement
 import net.minecraft.block.BlockState
@@ -14,11 +17,12 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import kotlin.coroutines.CoroutineContext
 
 class RewardFeature(
     private val databaseManager: DatabaseManager,
-    private val economy: Economy,
-) {
+    private val economy: Economy, override val coroutineContext: CoroutineContext = Dispatchers.IO
+) : CoroutineScope {
 
     private val nerfEntitiesRewards: MutableMap<Long, Pair<String, BlockPos>> = mutableMapOf()
 
@@ -34,18 +38,15 @@ class RewardFeature(
         AdvancementCompletedCallback.EVENT.register(this::onAdvancementCompleted)
     }
 
-    private fun onPlayerBlockBreakEvent(world: World, player: PlayerEntity, pos: BlockPos, @Suppress("UNUSED_PARAMETER") state: BlockState, @Suppress("UNUSED_PARAMETER") blockEntity: BlockEntity?): Boolean {
+    @Suppress("UNUSED_PARAMETER")
+    private fun onPlayerBlockBreakEvent(world: World, player: PlayerEntity, pos: BlockPos, state: BlockState, blockEntity: BlockEntity?): Boolean {
 
-        // TODO Uncomment this
-//        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards, 5, 5, 60, 200)) return true
+        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards, 2, 2, 60, 500, 50)) return true
 
         economy.deposit(player.uuidAsString) {
-            databaseManager.cacheMinedBlockRewards.find { it.block.translationKey == world.getBlockState(pos).block.translationKey }?.amount ?: 0f
-//            databaseManager.cacheMinedBlockRewards.access { list ->
-//                list.find { it.block.translationKey == world.getBlockState(pos).block.translationKey }?.amount ?: 0f
-//            }
+            databaseManager.cacheMinedBlockRewards.find { it.block.translationKey == state.block.translationKey }?.amount ?: 0f
         }
-        // TODO update sidebar
+
         return true
     }
 
@@ -54,16 +55,11 @@ class RewardFeature(
         if (attacker !is PlayerEntity) return
 
         if (livingEntity.health <= 0) {
-
-            if (shouldNerf(attacker.uuidAsString, attacker.blockPos, nerfEntitiesRewards, 10, 10, 40, 80)) return
+            if (shouldNerf(attacker.uuidAsString, attacker.blockPos, nerfEntitiesRewards, 10, 10, 40, 80, 15)) return
 
             economy.deposit(attacker.uuidAsString) {
                 databaseManager.cacheEntityKilledRewards.find { it.entity.translationKey == livingEntity.type.translationKey }?.amount ?: 0f
-//                databaseManager.cacheEntityKilledRewards.access { list ->
-//                    list.find { it.entity.translationKey == livingEntity.type.translationKey }?.amount ?: 0f
-//                }
             }
-            // TODO update sidebar
         }
     }
 
@@ -71,11 +67,7 @@ class RewardFeature(
     private fun onAdvancementCompleted(serverPlayerEntity: ServerPlayerEntity, advancement: Advancement, @Suppress("UNUSED_PARAMETER") criterionName: String) {
         economy.deposit(serverPlayerEntity.uuidAsString) {
             databaseManager.cacheAdvancementRewards.find { it.advancement.identifier == advancement.id.toString() }?.amount ?: 0f
-//            databaseManager.cacheAdvancementRewards.access { list ->
-//                list.find { it.advancement.identifier == advancement.id.toString() }?.amount ?: 0f
-//            }
         }
-        // TODO update sidebar
     }
 
     @Suppress("SameParameterValue")
@@ -87,6 +79,7 @@ class RewardFeature(
         minXDistance: Int,
         minAmount1: Int,
         minAmount2: Int,
+        minAmount3: Int,
     ): Boolean {
         nerf[System.currentTimeMillis()] = Pair(uuid, pos)
 
@@ -94,7 +87,6 @@ class RewardFeature(
         nerf.entries.removeIf { it.value.first == uuid && System.currentTimeMillis() - it.key > 5 * 60 * 1000 }
 
         val entries2 = nerf.entries.filter { it.value.first == uuid }.toMutableList()
-        if (entries2.count() == 1) return true
 
         val last = entries2.last()
 
@@ -125,7 +117,7 @@ class RewardFeature(
                 break
             } else if (!ite.hasNext()) {
                 // If player kill more than 15 entities in last few seconds
-                if (index >= 15)
+                if (index >= minAmount3)
                     return true
             }
         }

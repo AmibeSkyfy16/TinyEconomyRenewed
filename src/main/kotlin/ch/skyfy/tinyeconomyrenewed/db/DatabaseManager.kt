@@ -5,15 +5,18 @@ import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.config.Configs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.fabricmc.loader.api.FabricLoader
+import net.silkmc.silk.core.task.infiniteMcCoroutineTask
 import org.ktorm.database.Database
 import org.ktorm.dsl.eq
 import org.ktorm.dsl.like
 import org.ktorm.entity.*
+import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
-import kotlin.concurrent.fixedRateTimer
 import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.inputStream
+import kotlin.time.Duration.Companion.minutes
 
 
 private val Database.players get() = this.sequenceOf(Players)
@@ -32,58 +35,32 @@ private val Database.advancementRewards get() = this.sequenceOf(AdvancementRewar
  *
  * Also, during the installation, the console will display messages about the progress of the installation.
  * In order for the server administrator to be able to follow what is going on in the console correctly,
- * this class is instantiated in a coroutine right after the server is started in [TinyEconomyRenewedInitializer]
+ * this class is instantiated in a custom thread right after the server is started in [TinyEconomyRenewedInitializer]
  */
-class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.RetrievedData,
-                       val executor: ExecutorService,
-                      override val coroutineContext: CoroutineContext = Dispatchers.IO
+class DatabaseManager(
+    private val retrievedData: TinyEconomyRenewedInitializer.RetrievedData,
+    val executor: ExecutorService,
+    override val coroutineContext: CoroutineContext = Dispatchers.Default
 ) : CoroutineScope {
 
-    val db: Database
+    private val db: Database
 
-//    lateinit var cachePlayers: IsolateState<List<Player>>
-//    lateinit var cacheMinedBlockRewards: IsolateState<List<MinedBlockReward>>
-//    lateinit var cacheEntityKilledRewards: IsolateState<List<EntityKilledReward>>
-//    lateinit var cacheAdvancementRewards: IsolateState<List<AdvancementReward>>
+    val cachePlayers: MutableList<Player>
+    val cacheMinedBlockRewards: MutableList<MinedBlockReward>
+    val cacheEntityKilledRewards: MutableList<EntityKilledReward>
+    val cacheAdvancementRewards: MutableList<AdvancementReward>
 
-    val cachePlayers: MutableList<Player> get() {
-//        val f = executor.submit({}, field)
-        return field
-    }
-    val cacheMinedBlockRewards: MutableList<MinedBlockReward>get() {
-//        val f = executor.submit({}, field)
-        return field
-    }
-    val cacheEntityKilledRewards: MutableList<EntityKilledReward>get() {
-//        val f = executor.submit({}, field)
-        return field
-    }
-    val cacheAdvancementRewards: MutableList<AdvancementReward>get() {
-//        val f = executor.submit({}, field)
-        return field
-    }
+    fun addPlayer(player: Player) =  db.players.add(player)
+//    fun addPlayer(player: Player) = executor.execute { db.players.add(player) }
 
-    fun updatePlayers(player: Player){
-        executor.execute { db.players.update(player) }
-    }
-    fun updateMinedBlockRewards(minedBlockReward: MinedBlockReward){
-        executor.execute { db.minedBlockRewards.update(minedBlockReward) }
-    }
-    fun updateEntityKilledRewards(entityKilledReward: EntityKilledReward){
-        executor.execute { db.entityKilledRewards.update(entityKilledReward) }
-    }
-    fun updateAdvancementRewards(advancementReward: AdvancementReward){
-        executor.execute { db.advancementRewards.update(advancementReward) }
-    }
-
-    private var updateThreadStarted = false
+    fun updatePlayers(player: Player) = executor.execute { db.players.update(player) }
 
     init {
         TinyEconomyRenewedMod.LOGGER.info("[Database Manager init block] > current thread name ${Thread.currentThread().name}")
 
-        createDatabase() // First we have to create the new database
-        val (url, user, password) = Configs.DB_CONFIG.data
-        db = Database.connect("$url/TinyEconomyRenewed", "org.mariadb.jdbc.Driver", user, password)
+        val (url, user, password) = Configs.DB_CONFIG.`data`
+        createDatabase() // Create a new database called TinyEconomyRenewed (if it is not already exist)
+        db = Database.connect("$url/TinyEconomyRenewed", "org.mariadb.jdbc.Driver", user, password) // Connect to it
         initDatabase() // Then create tables and populate it with data
 
         cachePlayers = db.players.toMutableList()
@@ -96,52 +73,26 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
          * Without this, if for example 5 players are mining, it will make 600 database requests per minute executed on the minecraft server thread,
          * which would cause lag. Here we only update every 2 minutes from a separate thread
          */
-        fixedRateTimer("", true, 0, 1 * 60 * 500) {
-            if (!updateThreadStarted) {
-                updateThreadStarted = true
-
-                println("executed first")
-
-                executor.execute{
-                    cachePlayers.forEach(db.players::update)
-                    cacheMinedBlockRewards.forEach(db.minedBlockRewards::update)
-                    cacheEntityKilledRewards.forEach(db.entityKilledRewards::update)
-                    cacheAdvancementRewards.forEach(db.advancementRewards::update)
-                }
-            }
-
-            executor.execute {
-                println("update db Thread name: ${Thread.currentThread().name}")
+        infiniteMcCoroutineTask(sync = false, client = false, period = 1.minutes) {
+            val callable: Callable<Unit> = Callable {
+                println("Updating database. [Thread Name]: ${Thread.currentThread().name}")
                 cachePlayers.forEach(db.players::update)
                 cacheMinedBlockRewards.forEach(db.minedBlockRewards::update)
                 cacheEntityKilledRewards.forEach(db.entityKilledRewards::update)
                 cacheAdvancementRewards.forEach(db.advancementRewards::update)
-                cacheData()
+            }
+            withContext(Dispatchers.IO) {
+                val list = executor.invokeAll(listOf(callable))
+                while (true) { if (list.all { future -> future.isDone }) break }
             }
         }
 
     }
 
-    /**
-     * We recover all that could be modified manually in the database
-     */
-    private fun cacheData(){
-        cachePlayers.clear()
-        cacheMinedBlockRewards.clear()
-        cacheEntityKilledRewards.clear()
-        cacheAdvancementRewards.clear()
-        cachePlayers.addAll(db.players.toMutableList())
-        cacheMinedBlockRewards.addAll(db.minedBlockRewards.toMutableList())
-        cacheEntityKilledRewards.addAll(db.entityKilledRewards.toMutableList())
-        cacheAdvancementRewards.addAll(db.advancementRewards.toMutableList())
-    }
-
     @Suppress("SqlNoDataSourceInspection", "SqlDialectInspection")
     private fun createDatabase() {
-        val (url, user, password) = Configs.DB_CONFIG.data
-        val database = Database.connect(url, "org.mariadb.jdbc.Driver", user, password)
-
-        database.useConnection { conn ->
+        val (url, user, password) = Configs.DB_CONFIG.`data`
+        Database.connect(url, "org.mariadb.jdbc.Driver", user, password).useConnection { conn ->
             val sql = "create database if not exists `TinyEconomyRenewed`;"
             conn.prepareStatement(sql).use { statement -> statement.executeQuery() }
         }
@@ -149,7 +100,6 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
 
     private fun initDatabase() {
         TinyEconomyRenewedMod.LOGGER.info("Initializing database with init.sql script \uD83D\uDCC3")
-
         val stream = FabricLoader.getInstance().getModContainer(TinyEconomyRenewedMod.MOD_ID).get().findPath("assets/tinyeconomyrenewed/sql/init.sql").get().inputStream()
         db.useConnection { connection ->
             connection.createStatement().use { statement ->
@@ -159,7 +109,6 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
                 }
             }
         }
-
         populateDatabase()
     }
 
@@ -184,7 +133,7 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
 
             if (retrievedData.blocks.contains(blockTranslationKey)) { // Now, if the current itemTranslationKey is also a block, we repeat the same process, but for minedBlockReward table
                 val minedBlockReward = db.minedBlockRewards.find { it.blockId eq block.id }
-                val amountFromConfig = Configs.MINED_BLOCK_REWARD_CONFIG.data.map[blockTranslationKey]!!
+                val amountFromConfig = Configs.MINED_BLOCK_REWARD_CONFIG.`data`.map[blockTranslationKey]!!
                 if (minedBlockReward == null) {
                     db.minedBlockRewards.add(MinedBlockReward {
                         amount = amountFromConfig

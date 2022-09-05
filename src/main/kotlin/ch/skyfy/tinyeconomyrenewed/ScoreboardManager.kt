@@ -1,46 +1,73 @@
 package ch.skyfy.tinyeconomyrenewed
 
+import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerJoinCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
-import net.minecraft.server.network.ServerPlayerEntity
+import ch.skyfy.tinyeconomyrenewed.db.Player
+import ch.skyfy.tinyeconomyrenewed.logic.Game.Companion.PLAYER_JOIN_CALLBACK_SECOND
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
+import net.minecraft.text.Text
+import net.silkmc.silk.core.annotations.DelicateSilkApi
+import net.silkmc.silk.core.task.silkCoroutineScope
+import net.silkmc.silk.core.text.literal
+import net.silkmc.silk.game.sideboard.Sideboard
+import net.silkmc.silk.game.sideboard.SideboardLine
+import net.silkmc.silk.game.sideboard.sideboard
+import kotlin.coroutines.CoroutineContext
 
-class ScoreboardManager(private val databaseManager: DatabaseManager) {
+class ScoreboardManager(
+    private val databaseManager: DatabaseManager,
+    override val coroutineContext: CoroutineContext = Dispatchers.IO
+) : CoroutineScope {
 
-//    private val sidebarMap: MutableMap<String, Sidebar> = HashMap()
+    private data class PlayerSideboard(
+        val uuid: String,
+        val sideboard: Sideboard,
+        val updatableLine: SideboardLine.Updatable
+    )
+
+    private val sideboards = mutableSetOf<PlayerSideboard>()
 
     init {
         initialize()
     }
 
+    /**
+     * Update Money field in the sideboard
+     *
+     * @param uuid A [String] object that represent the uuid of the player that we have to update the money on his sideboard
+     */
+    fun updatePlayerMoney(uuid: String) {
+        val amount = databaseManager.cachePlayers.find { player: Player -> player.uuid == uuid }?.money ?: -1f
+        sideboards.find { it.uuid == uuid }?.updatableLine?.launchUpdate("Money: $amount".literal)
+    }
+
+    @OptIn(DelicateSilkApi::class)
     private fun initialize() {
-//        ServerPlayConnectionEvents.DISCONNECT.register { handler, _ -> sidebarMap.remove(handler.player.uuidAsString) }
+        ServerPlayConnectionEvents.DISCONNECT.register { handler, _ -> sideboards.removeIf { it.uuid == handler.player.uuidAsString } }
 
-//        PlayerJoinCallback.EVENT.register { _, player ->
-//            if (!sidebarMap.containsKey(player.uuidAsString)) {
-//                val sb = Sidebar(Sidebar.Priority.HIGH)
-//                sb.title = Text.literal(">> Tiny Economy Renewed <<")
-//                    .setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true))
-//                sb.updateRate = 20
-//                sb.addPlayer(player)
-//                sidebarMap[player.uuidAsString] = sb
-//            }
+        PlayerJoinCallback.EVENT.register(PLAYER_JOIN_CALLBACK_SECOND) { _, player ->
 
-//            updateSidebar(player)
-//            sidebarMap[player.uuidAsString]?.show()
-//        }
+            val playerUUID = player.uuidAsString
+
+            databaseManager.executor.execute {
+                if (sideboards.none { it.uuid == playerUUID}) {
+                    val moneyLine = SideboardLine.Updatable("Money: -1.0".literal)
+                    val mySideboard = sideboard("<< Main Board >>".literal) {
+                        line(Text.empty())
+                        line(moneyLine)
+                    }
+                    mySideboard.displayToPlayer(player)
+                    sideboards.add(PlayerSideboard(playerUUID, mySideboard, moneyLine))
+                    silkCoroutineScope.launch {
+                        delay(1000)
+                        updatePlayerMoney(playerUUID)
+                    }
+                }
+            }
+        }
     }
-
-    fun updateSidebar(serverPlayerEntity: ServerPlayerEntity) {
-//        val sb = sidebarMap[serverPlayerEntity.uuidAsString] ?: return
-//
-//        val list = ArrayList<Text>()
-//
-//        list.add(Text.literal("").setStyle(Style.EMPTY))
-//        list.add(
-//            Text.literal("Money: ${databaseManager.db.players.find { it.uuid like serverPlayerEntity.uuidAsString }?.money}")
-//                .setStyle(Style.EMPTY)
-//        )
-//
-//        for (i in list.indices.reversed()) sb.setLine(i, list[list.size - 1 - i])
-    }
-
 }

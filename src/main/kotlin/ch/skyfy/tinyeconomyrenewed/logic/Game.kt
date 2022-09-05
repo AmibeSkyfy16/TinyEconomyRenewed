@@ -1,27 +1,39 @@
 package ch.skyfy.tinyeconomyrenewed.logic
 
 import ch.skyfy.tinyeconomyrenewed.Economy
-import ch.skyfy.tinyeconomyrenewed.ScoreboardManager2
+import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerJoinCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.Player
-//import ch.skyfy.tinyeconomyrenewed.db.players
 import ch.skyfy.tinyeconomyrenewed.features.RewardFeature
 import ch.skyfy.tinyeconomyrenewed.features.ShopFeature
 import ch.skyfy.tinyeconomyrenewed.features.VillagerTradeCostsMoneyFeature
+import net.fabricmc.fabric.api.event.EventFactory
 import net.minecraft.network.ClientConnection
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
-import org.ktorm.dsl.like
-import org.ktorm.entity.add
-import org.ktorm.entity.find
-import org.ktorm.entity.update
+import net.minecraft.util.Identifier
 
 
 class Game(private val databaseManager: DatabaseManager, minecraftServer: MinecraftServer) {
 
-    private val scoreboardManager: ScoreboardManager2 = ScoreboardManager2(databaseManager)
+    companion object{
+
+        val PLAYER_JOIN_CALLBACK_FIRST = Identifier("fabric", "player_join_callback_first")
+        val PLAYER_JOIN_CALLBACK_SECOND = Identifier("fabric", "player_join_callback_second")
+
+        init {
+            setUpEventPhaseOrdering()
+        }
+
+
+        private fun setUpEventPhaseOrdering(){
+            PlayerJoinCallback.EVENT.addPhaseOrdering(PLAYER_JOIN_CALLBACK_FIRST, PLAYER_JOIN_CALLBACK_SECOND)
+        }
+    }
+
+    private val scoreboardManager: ScoreboardManager = ScoreboardManager(databaseManager)
     private val economy: Economy = Economy(databaseManager, scoreboardManager)
 
     init {
@@ -32,7 +44,7 @@ class Game(private val databaseManager: DatabaseManager, minecraftServer: Minecr
     }
 
     private fun registerEvents() {
-        PlayerJoinCallback.EVENT.register(this::onPlayerJoin)
+        PlayerJoinCallback.EVENT.register(PLAYER_JOIN_CALLBACK_FIRST, this::onPlayerJoin)
     }
 
     private fun onPlayerJoin(@Suppress("UNUSED_PARAMETER") connection: ClientConnection, serverPlayerEntity: ServerPlayerEntity) {
@@ -40,15 +52,18 @@ class Game(private val databaseManager: DatabaseManager, minecraftServer: Minecr
         val playerName = serverPlayerEntity.name.string
 
         databaseManager.executor.execute {
-            val player = databaseManager.cachePlayers.find { it.uuid == playerUUID}
-            if (player == null)
-                databaseManager.cachePlayers.add(Player { uuid = playerUUID; name = playerName })
-            else
-                if(player.name != playerName) { // If a player changed his name, we have to update it in the database
+            var player = databaseManager.cachePlayers.find { it.uuid == playerUUID}
+            if (player == null) {
+                player = Player { uuid = playerUUID; name = playerName }
+                databaseManager.cachePlayers.add(player)
+                databaseManager.addPlayer(player)
+            }else {
+                if (player.name != playerName) { // If a player changed his name, we have to update it in the database
                     TinyEconomyRenewedMod.LOGGER.info("Player ${player.name} has changed his name to $playerName")
                     player.name = playerName
                     databaseManager.updatePlayers(player)
                 }
+            }
         }
     }
 }

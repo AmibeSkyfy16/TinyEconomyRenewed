@@ -1,7 +1,7 @@
 package ch.skyfy.tinyeconomyrenewed.features
 
 import ch.skyfy.tinyeconomyrenewed.Economy
-import ch.skyfy.tinyeconomyrenewed.ScoreboardManager2
+import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.callbacks.CreateExplosionCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.HopperCallback
@@ -38,11 +38,12 @@ import net.minecraft.util.math.Direction
 import net.minecraft.world.World
 import net.minecraft.world.explosion.Explosion
 import net.minecraft.world.explosion.ExplosionBehavior
+import net.silkmc.silk.core.text.literal
 
 class ShopFeature(
     private val databaseManager: DatabaseManager,
     private val economy: Economy,
-    private val scoreboardManager: ScoreboardManager2,
+    private val scoreboardManager: ScoreboardManager,
     private val minecraftServer: MinecraftServer,
 ) {
 
@@ -78,7 +79,7 @@ class ShopFeature(
         createFire: Boolean,
         destructionType: Explosion.DestructionType,
     ) {
-        val sc = Configs.SHOP_CONFIG.data
+        val sc = Configs.SHOP_CONFIG.`data`
 
         // If this setting is set to true
         // No kind of explosion can destroy a shop
@@ -264,12 +265,8 @@ class ShopFeature(
         }
 
         if (remainingPiece <= 0) {
-            economy.withdraw(buyer, shop.signData.price)
-            economy.deposit(vendor, shop.signData.price)
-
-            // TODO update
-//            scoreboardManager.updateSidebar(buyerPlayer)
-//            if (vendorPlayer != null) scoreboardManager.updateSidebar(vendorPlayer)
+            economy.withdraw(buyer.uuid, shop.signData.price)
+            economy.deposit(vendor.uuid) { shop.signData.price }
 
             val args = transfer[0].item.translationKey.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             val itemName = args[args.size - 1]
