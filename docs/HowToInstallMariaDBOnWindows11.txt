@@ -1,0 +1,20 @@
+1. Download MariaDB version 10.8.3 (https://mariadb.com/downloads/)
+2. Open Windows Terminal As Administrator (Make sure you are using PowerShell)
+3. Type this command: cd 'C:\Program Files\'
+4. Create a new folder called MariaDB 10.8.3 by typing this command: mkdir 'MariaDB 10.8.3'
+5. Extract the zip file content in this folder C:\Program Files\MariaDB 10.8.3
+6. Type this command: cd '.\MariaDB 10.8.3\'
+7. Create a folder called data with this command: mkdir 'data'
+8. Type this command: cd .\bin\ (now you can access many executable to manage MariaDB like start/shutdown the server, etc.)
+ 
+9. To install MariaDB for the first time, type this command: .\mariadb-install-db.exe --datadir='..\data\' --password='Pa$$w0rd' --port='3307'
+ 	info links: https://mariadb.com/kb/en/mysql_install_dbexe/
+10. We can now use mariadbd.exe to start the mariadb instance pointing to the data directory. Type this command: .\mariadbd.exe --console --datadir='..\data\' --port='3307'
+ 	info links: https://mariadb.com/kb/en/running-mariadb-from-the-build-directory/
+ 	
+11. Open Another tab in the Windows Terminal (click the current one and select duplicate tab)
+12. Type this command: cd 'C:\Program Files\MariaDB 10.8.3\bin'
+13. Now we can use mariadb.exe to enter in the database server. Type this command: .\mariadb.exe --user='root' --password='Pa$$w0rd' --port='3307'
+14. You can leave by typing this command: exit
+ 
+15. Now, if you want to stop the MariaDB server, type this command: .\mariadb-admin.exe --user='root' --password='Pa$$w0rd' --port='3307' shutdown
