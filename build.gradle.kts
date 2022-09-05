@@ -48,8 +48,6 @@ dependencies {
     modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
     modImplementation("net.silkmc:silk-game:1.9.2")
 
-//    include("eu.pb4:sidebar-api:${properties["sidebar-api_version"]}")?.let { modImplementation(it) }
-
     transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.0.7")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-core:3.5.0")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.5.0")!!)
