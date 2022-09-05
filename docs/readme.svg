@@ -316,7 +316,7 @@
             <text x="124.447px" y="206.254px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">private modded server</text>
             <text x="124.447px" y="234.304px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">This mod</text>
             <text x="201.985px" y="234.304px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,20,109);fill-opacity:0.73;">requires</text>
-            <text x="279.524px" y="234.304px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">a MariaDB database server (version 10.8.3)</text>
+            <text x="279.524px" y="234.304px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">a MariaDB database server (version 10.8.4)</text>
             <g transform="matrix(14,0,0,14,201.985,262.355)">
                 <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
             </g>
