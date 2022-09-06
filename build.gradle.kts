@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val transitiveInclude: Configuration by configurations.creating
 
 plugins {
-    id("fabric-loom") version "0.12-SNAPSHOT"
+    id("fabric-loom") version "1.0-SNAPSHOT"
     id("org.jetbrains.kotlin.jvm") version "1.7.10"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.7.10"
     idea
@@ -88,7 +88,6 @@ tasks {
     named<KotlinCompile>("compileKotlin") {
         kotlinOptions.jvmTarget = javaVersion.toString()
         kotlinOptions.freeCompilerArgs += "-Xskip-prerelease-check"
-//        kotlinOptions.freeCompilerArgs += "-Xuse-k2"
     }
 
     named<JavaCompile>("compileJava") {
