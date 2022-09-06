@@ -36,13 +36,14 @@ class ScoreboardManager(private val databaseManager: DatabaseManager) {
      * @param uuid A [String] object that represent the uuid of the player that we have to update the money on his sideboard
      */
     fun updatePlayerMoney(uuid: String) {
-        if (Thread.currentThread().name != "LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT") {
-            val amount = databaseManager.getValue { databaseManager.cachePlayers.find { player: Player -> player.uuid == uuid }?.money ?: -1f }
+//        if (Thread.currentThread().name != "LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT") {
+//            val amount = databaseManager.getValue {  databaseManager.cachePlayers.access {  players -> players.find { player: Player -> player.uuid == uuid }?.money ?: -1f } }
+//            sideboards.find { it.uuid == uuid }?.updatableLine?.launchUpdate("Money: $amount".literal)
+//        } else {
+            val amount = databaseManager.cachePlayers.access {  players -> players.find { player: Player -> player.uuid == uuid }?.money ?: -1f }
+//            val amount = databaseManager.cachePlayers.find { player: Player -> player.uuid == uuid }?.money ?: -1f
             sideboards.find { it.uuid == uuid }?.updatableLine?.launchUpdate("Money: $amount".literal)
-        } else {
-            val amount = databaseManager.cachePlayers.find { player: Player -> player.uuid == uuid }?.money ?: -1f
-            sideboards.find { it.uuid == uuid }?.updatableLine?.launchUpdate("Money: $amount".literal)
-        }
+//        }
     }
 
     @OptIn(DelicateSilkApi::class)

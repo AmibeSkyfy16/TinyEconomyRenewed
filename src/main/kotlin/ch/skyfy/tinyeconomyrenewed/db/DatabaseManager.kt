@@ -4,6 +4,7 @@ import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedInitializer
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedInitializer.Companion.LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.config.Configs
+import co.touchlab.stately.isolate.IsolateState
 import kotlinx.coroutines.runBlocking
 import net.fabricmc.loader.api.FabricLoader
 import net.silkmc.silk.core.task.infiniteMcCoroutineTask
@@ -36,10 +37,10 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
 
     private val db: Database
 
-    val cachePlayers: MutableList<Player>
-    val cacheMinedBlockRewards: List<MinedBlockReward>
-    val cacheEntityKilledRewards: List<EntityKilledReward>
-    val cacheAdvancementRewards: List<AdvancementReward>
+    val cachePlayers: IsolateState<MutableList<Player>>
+    val cacheMinedBlockRewards: IsolateState<List<MinedBlockReward>>
+    val cacheEntityKilledRewards: IsolateState<List<EntityKilledReward>>
+    val cacheAdvancementRewards: IsolateState<List<AdvancementReward>>
 
     inline fun <reified T> getValue(crossinline block: () -> T): T = runBlocking(LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT) { block.invoke() }
 
@@ -53,10 +54,10 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
         db = Database.connect("$url/TinyEconomyRenewed", "org.mariadb.jdbc.Driver", user, password) // Connect to it
         initDatabase() // Then create tables and populate it with data
 
-        cachePlayers = db.players.toMutableList()
-        cacheMinedBlockRewards = db.minedBlockRewards.toList()
-        cacheEntityKilledRewards = db.entityKilledRewards.toList()
-        cacheAdvancementRewards = db.advancementRewards.toList()
+        cachePlayers = IsolateState{db.players.toMutableList()}
+        cacheMinedBlockRewards =  IsolateState{db.minedBlockRewards.toList()}
+        cacheEntityKilledRewards =  IsolateState{db.entityKilledRewards.toList()}
+        cacheAdvancementRewards =  IsolateState{db.advancementRewards.toList()}
 
         /**
          * In order to optimize the queries to the database, we will retrieve the data once, then update it every 2 minutes.
@@ -65,7 +66,8 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
          */
         infiniteMcCoroutineTask(sync = false, client = false, period = 1.minutes) {
             runBlocking(LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT) {
-                cachePlayers.forEach(db.players::update)
+                println("UPDATING DATABASE ${Thread.currentThread().name}")
+                cachePlayers.access { db.players::update }
             }
         }
 

@@ -5,10 +5,7 @@ import ch.skyfy.tinyeconomyrenewed.config.Configs
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.logic.Game
 import ch.skyfy.tinyeconomyrenewed.utils.setupConfigDirectory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.*
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.loader.api.FabricLoader
@@ -37,7 +34,7 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
 
     companion object {
         @OptIn(DelicateCoroutinesApi::class)
-        val LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT = newSingleThreadContext("LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT")
+        val LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT = newFixedThreadPoolContext(20, "LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT")
         val LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE = CoroutineScope(LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT)
     }
 
@@ -81,8 +78,7 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
         }
 
         ServerPlayConnectionEvents.INIT.register { serverPlayNetworkHandler, _ ->
-            if (!isInitializationComplete)
-                serverPlayNetworkHandler.disconnect(Text.literal("TinyEconomyRenewed has not finished to be initialized ⛔").setStyle(Style.EMPTY.withColor(Formatting.GOLD)))
+            if (!isInitializationComplete) serverPlayNetworkHandler.disconnect(Text.literal("TinyEconomyRenewed has not finished to be initialized ⛔").setStyle(Style.EMPTY.withColor(Formatting.GOLD)))
         }
     }
 

@@ -1,6 +1,7 @@
 package ch.skyfy.tinyeconomyrenewed.features
 
 import ch.skyfy.tinyeconomyrenewed.Economy
+import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedInitializer.Companion.LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.callbacks.CreateExplosionCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.HopperCallback
@@ -8,6 +9,9 @@ import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerInsertItemsCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerTakeItemsCallback
 import ch.skyfy.tinyeconomyrenewed.config.Configs
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
+import ch.skyfy.tinyeconomyrenewed.db.Player
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
 import net.minecraft.block.BarrelBlock
@@ -46,12 +50,6 @@ class ShopFeature(
 
     data class Shop(val barrelBlockEntity: BarrelBlockEntity, val signBlockEntities: MutableList<SignBlockEntity>, val signData: SignData)
     data class SignData(val vendorName: String, val itemAmount: Int, val price: Float)
-
-    enum class PlayerState {
-        ONLINE,
-        OFFLINE,
-        NOT_EXIST
-    }
 
     init {
         UseBlockCallback.EVENT.register(this::useBlockCallback)
@@ -212,71 +210,88 @@ class ShopFeature(
         return Shop(barrelBlockEntity, signBlockEntities, firstSignData)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun processTransaction(buyerPlayer: ServerPlayerEntity, shop: Shop) {
 
         val vendorPlayer: ServerPlayerEntity? = minecraftServer.playerManager.getPlayer(shop.signData.vendorName)
 
-        val vendor = databaseManager.cachePlayers.find { it.name == if (vendorPlayer != null) vendorPlayer.name.string else shop.signData.vendorName }
-        val buyer = databaseManager.cachePlayers.find { it.uuid == buyerPlayer.uuidAsString }
-
-        if (vendor == null || buyer == null) {
-            TinyEconomyRenewedMod.LOGGER.info("vendor or buyer was not found in database")
-            return
-        }
-        if (buyer.money - shop.signData.price < 0) {
-            buyerPlayer.sendMessage(Text.of("You don't have enough money"), false)
-            return
+        val def = LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.async {
+            val vendor = databaseManager.cachePlayers.access { players: MutableList<Player> -> players.find { it.name == if (vendorPlayer != null) vendorPlayer.name.string else shop.signData.vendorName } }
+            val buyer = databaseManager.cachePlayers.access { players: MutableList<Player> -> players.find { it.uuid == buyerPlayer.uuidAsString } }
+            return@async Pair(vendor, buyer)
         }
 
-        val barrelBlockEntity = shop.barrelBlockEntity
+        def.invokeOnCompletion {
+            println("Completed")
+            val pair = def.getCompleted()
+            val vendor = pair.first
+            val buyer = pair.second
 
-        // Count the numbers of item in the barrel
-        var availableItemStack = 0
-        for (i in 0 until barrelBlockEntity.size()) {
-            val it = barrelBlockEntity.getStack(i)
-            if (!it.isEmpty) availableItemStack += it.count
-        }
+            buyerPlayer.server.execute {
 
-        if (availableItemStack < shop.signData.itemAmount) {
-            buyerPlayer.sendMessage(Text.of("There are not enough items in stock!"), false)
-            return
-        }
-
-        val transfer = ArrayList<ItemStack>()
-        var remainingPiece: Int = shop.signData.itemAmount
-
-        for (i in 0 until barrelBlockEntity.size()) {
-            val originItemStack = barrelBlockEntity.getStack(i)
-            if (!originItemStack.isEmpty) {
-                if (remainingPiece <= 0) break
-                val newItem = ItemStack(originItemStack.item)
-                if (originItemStack.count - remainingPiece <= 0) {
-                    barrelBlockEntity.setStack(i, ItemStack.EMPTY)
-                } else {
-                    newItem.count = remainingPiece
-                    originItemStack.count = originItemStack.count - remainingPiece
+                if (vendor == null || buyer == null) {
+                    TinyEconomyRenewedMod.LOGGER.info("vendor or buyer was not found in database")
+                    return@execute
                 }
-                transfer.add(newItem)
-                remainingPiece -= originItemStack.count
+                if (buyer.money - shop.signData.price < 0) {
+                    buyerPlayer.sendMessage(Text.of("You don't have enough money"), false)
+                    return@execute
+                }
+
+                val barrelBlockEntity = shop.barrelBlockEntity
+
+                // Count the numbers of item in the barrel
+                var availableItemStack = 0
+                for (i in 0 until barrelBlockEntity.size()) {
+                    val stack = barrelBlockEntity.getStack(i)
+                    if (!stack.isEmpty) availableItemStack += stack.count
+                }
+
+                if (availableItemStack < shop.signData.itemAmount) {
+                    buyerPlayer.sendMessage(Text.of("There are not enough items in stock!"), false)
+                    return@execute
+                }
+
+                val transfer = ArrayList<ItemStack>()
+                var remainingPiece: Int = shop.signData.itemAmount
+
+                for (i in 0 until barrelBlockEntity.size()) {
+                    val originItemStack = barrelBlockEntity.getStack(i)
+                    if (!originItemStack.isEmpty) {
+                        if (remainingPiece <= 0) break
+                        val newItem = ItemStack(originItemStack.item)
+                        if (originItemStack.count - remainingPiece <= 0) {
+                            barrelBlockEntity.setStack(i, ItemStack.EMPTY)
+                        } else {
+                            newItem.count = remainingPiece
+                            originItemStack.count = originItemStack.count - remainingPiece
+                        }
+                        transfer.add(newItem)
+                        remainingPiece -= originItemStack.count
+                    }
+                }
+
+                if (remainingPiece <= 0) {
+                    economy.withdraw(buyer.uuid, shop.signData.price)
+                    economy.deposit(vendor.uuid) { shop.signData.price }
+
+                    val args = transfer[0].item.translationKey.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                    val itemName = args[args.size - 1]
+
+                    vendorPlayer?.sendMessage(Text.of("You sold for " + shop.signData.itemAmount + " of " + itemName + " to " + buyer.name), false)
+                    buyerPlayer.sendMessage(Text.of("You have bought for ${shop.signData.itemAmount} of $itemName to ${shop.signData.vendorName}"), false)
+                    for (itemStack in transfer) buyerPlayer.dropItem(itemStack, false)
+                }
             }
-        }
-
-        if (remainingPiece <= 0) {
-            economy.withdraw(buyer.uuid, shop.signData.price)
-            economy.deposit(vendor.uuid) { shop.signData.price }
-
-            val args = transfer[0].item.translationKey.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            val itemName = args[args.size - 1]
-
-            vendorPlayer?.sendMessage(Text.of("You sold for " + shop.signData.itemAmount + " of " + itemName + " to " + buyer.name), false)
-            buyerPlayer.sendMessage(Text.of("You have bought for ${shop.signData.itemAmount} of $itemName to ${shop.signData.vendorName}"), false)
-            for (itemStack in transfer) buyerPlayer.dropItem(itemStack, false)
         }
     }
 
     private fun getWallSignData(sign: SignBlockEntity): SignData? {
         val vendorName = sign.getTextOnRow(0, false).string
-        if (getPlayerState(vendorName) == PlayerState.NOT_EXIST) return null
+
+        // TODO this code, can potentially stuck the minecraft server thread
+        databaseManager.cachePlayers.access { players -> players.find { player: Player ->  player.name == vendorName } } ?: return null
+
         val args = sign.getTextOnRow(2, false).string.split(" ")
         if (args.count() != 3) return null
         return try {
@@ -318,12 +333,6 @@ class ShopFeature(
             }
         }
         return list
-    }
-
-    private fun getPlayerState(name: String): PlayerState {
-        databaseManager.cachePlayers.find { it.name == name }.let { if (it == null) return PlayerState.NOT_EXIST }
-        minecraftServer.playerManager.getPlayer(name) ?: return PlayerState.OFFLINE
-        return PlayerState.ONLINE
     }
 
 }

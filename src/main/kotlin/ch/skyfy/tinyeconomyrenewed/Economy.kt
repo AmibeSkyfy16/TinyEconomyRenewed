@@ -21,8 +21,18 @@ class Economy(private val databaseManager: DatabaseManager, private val scoreboa
 //            databaseManager.getValue{
 //                databaseManager.cachePlayers.find { player -> player.uuid == uuid }
 //            }?.let { player: Player -> deposit(player, block.invoke()) }
-            databaseManager.cachePlayers.find { player -> player.uuid == uuid }?.let { player -> deposit(player, block.invoke()) }
-            scoreboardManager.updatePlayerMoney(uuid)
+            val player = databaseManager.cachePlayers.access { players ->
+                players.find { player -> player.uuid == uuid }?.let {
+                    deposit(it, block.invoke())
+                    scoreboardManager.updatePlayerMoney(uuid)
+                }
+            }
+//            if (player != null){
+//                deposit(player, block.invoke())
+//                scoreboardManager.updatePlayerMoney(uuid)
+//            }
+//                databaseManager.cachePlayers.find { player -> player.uuid == uuid }?.let { player -> deposit(player, block.invoke()) }
+//            scoreboardManager.updatePlayerMoney(uuid)
         }
     }
 
@@ -33,16 +43,23 @@ class Economy(private val databaseManager: DatabaseManager, private val scoreboa
 
     fun withdraw(uuid: String, amount: Float) {
         LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
-            databaseManager.cachePlayers.find { it.uuid == uuid }?.let {
-                withdraw(it, amount)
-                scoreboardManager.updatePlayerMoney(uuid)
+            databaseManager.cachePlayers.access { players ->
+                players.find { it.uuid == uuid }?.let {
+                    withdraw(it, amount)
+                    scoreboardManager.updatePlayerMoney(uuid)
+                }
             }
+//            databaseManager.cachePlayers.find { it.uuid == uuid }?.let {
+//                withdraw(it, amount)
+//                scoreboardManager.updatePlayerMoney(uuid)
+//            }
         }
 
     }
 
-    private fun withdraw(player: Player, amount: Float) {
+    private fun withdraw(player: Player, amount: Float) : Float {
         player.money -= amount
+        return player.money
     }
 
 }

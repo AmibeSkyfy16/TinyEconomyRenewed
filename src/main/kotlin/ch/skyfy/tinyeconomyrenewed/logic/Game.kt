@@ -53,10 +53,12 @@ class Game(private val databaseManager: DatabaseManager, minecraftServer: Minecr
         val playerName = serverPlayerEntity.name.string
 
         LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
-            var player = databaseManager.cachePlayers.find { it.uuid == playerUUID }
+            var player = databaseManager.cachePlayers.access { players -> players.find { it.uuid == playerUUID } }
+//            var player = databaseManager.cachePlayers.find { it.uuid == playerUUID }
             if (player == null) {
                 player = Player { uuid = playerUUID; name = playerName }
-                databaseManager.cachePlayers.add(player)
+                databaseManager.cachePlayers.access { players -> players.add(player) }
+//                databaseManager.cachePlayers.add(player)
                 databaseManager.addPlayer(player)
             } else {
                 if (player.name != playerName) { // If a player changed his name, we have to update it in the database
