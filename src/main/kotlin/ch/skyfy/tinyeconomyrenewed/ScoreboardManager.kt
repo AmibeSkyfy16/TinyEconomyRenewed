@@ -1,11 +1,10 @@
 package ch.skyfy.tinyeconomyrenewed
 
+import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedInitializer.Companion.LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerJoinCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.Player
 import ch.skyfy.tinyeconomyrenewed.logic.Game.Companion.PLAYER_JOIN_CALLBACK_SECOND
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
@@ -16,12 +15,8 @@ import net.silkmc.silk.core.text.literal
 import net.silkmc.silk.game.sideboard.Sideboard
 import net.silkmc.silk.game.sideboard.SideboardLine
 import net.silkmc.silk.game.sideboard.sideboard
-import kotlin.coroutines.CoroutineContext
 
-class ScoreboardManager(
-    private val databaseManager: DatabaseManager,
-    override val coroutineContext: CoroutineContext = Dispatchers.IO
-) : CoroutineScope {
+class ScoreboardManager(private val databaseManager: DatabaseManager) {
 
     private data class PlayerSideboard(
         val uuid: String,
@@ -41,8 +36,13 @@ class ScoreboardManager(
      * @param uuid A [String] object that represent the uuid of the player that we have to update the money on his sideboard
      */
     fun updatePlayerMoney(uuid: String) {
-        val amount = databaseManager.cachePlayers.find { player: Player -> player.uuid == uuid }?.money ?: -1f
-        sideboards.find { it.uuid == uuid }?.updatableLine?.launchUpdate("Money: $amount".literal)
+        if (Thread.currentThread().name != "LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT") {
+            val amount = databaseManager.getValue { databaseManager.cachePlayers.find { player: Player -> player.uuid == uuid }?.money ?: -1f }
+            sideboards.find { it.uuid == uuid }?.updatableLine?.launchUpdate("Money: $amount".literal)
+        } else {
+            val amount = databaseManager.cachePlayers.find { player: Player -> player.uuid == uuid }?.money ?: -1f
+            sideboards.find { it.uuid == uuid }?.updatableLine?.launchUpdate("Money: $amount".literal)
+        }
     }
 
     @OptIn(DelicateSilkApi::class)
@@ -53,8 +53,8 @@ class ScoreboardManager(
 
             val playerUUID = player.uuidAsString
 
-            databaseManager.executor.execute {
-                if (sideboards.none { it.uuid == playerUUID}) {
+            LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
+                if (sideboards.none { it.uuid == playerUUID }) {
                     val moneyLine = SideboardLine.Updatable("Money: -1.0".literal)
                     val mySideboard = sideboard("<< Main Board >>".literal) {
                         line(Text.empty())

@@ -19,10 +19,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import kotlin.coroutines.CoroutineContext
 
-class RewardFeature(
-    private val databaseManager: DatabaseManager,
-    private val economy: Economy, override val coroutineContext: CoroutineContext = Dispatchers.IO
-) : CoroutineScope {
+class RewardFeature(private val databaseManager: DatabaseManager, private val economy: Economy){
 
     private val nerfEntitiesRewards: MutableMap<Long, Pair<String, BlockPos>> = mutableMapOf()
 

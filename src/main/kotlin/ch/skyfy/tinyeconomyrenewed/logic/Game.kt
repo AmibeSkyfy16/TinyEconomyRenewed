@@ -2,6 +2,7 @@ package ch.skyfy.tinyeconomyrenewed.logic
 
 import ch.skyfy.tinyeconomyrenewed.Economy
 import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
+import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedInitializer.Companion.LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerJoinCallback
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
@@ -9,7 +10,7 @@ import ch.skyfy.tinyeconomyrenewed.db.Player
 import ch.skyfy.tinyeconomyrenewed.features.RewardFeature
 import ch.skyfy.tinyeconomyrenewed.features.ShopFeature
 import ch.skyfy.tinyeconomyrenewed.features.VillagerTradeCostsMoneyFeature
-import net.fabricmc.fabric.api.event.EventFactory
+import kotlinx.coroutines.launch
 import net.minecraft.network.ClientConnection
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
@@ -18,7 +19,7 @@ import net.minecraft.util.Identifier
 
 class Game(private val databaseManager: DatabaseManager, minecraftServer: MinecraftServer) {
 
-    companion object{
+    companion object {
 
         val PLAYER_JOIN_CALLBACK_FIRST = Identifier("fabric", "player_join_callback_first")
         val PLAYER_JOIN_CALLBACK_SECOND = Identifier("fabric", "player_join_callback_second")
@@ -28,7 +29,7 @@ class Game(private val databaseManager: DatabaseManager, minecraftServer: Minecr
         }
 
 
-        private fun setUpEventPhaseOrdering(){
+        private fun setUpEventPhaseOrdering() {
             PlayerJoinCallback.EVENT.addPhaseOrdering(PLAYER_JOIN_CALLBACK_FIRST, PLAYER_JOIN_CALLBACK_SECOND)
         }
     }
@@ -38,7 +39,7 @@ class Game(private val databaseManager: DatabaseManager, minecraftServer: Minecr
 
     init {
         RewardFeature(databaseManager, economy)
-        ShopFeature(databaseManager, economy, scoreboardManager, minecraftServer)
+        ShopFeature(databaseManager, economy, minecraftServer)
         VillagerTradeCostsMoneyFeature(databaseManager)
         registerEvents()
     }
@@ -51,13 +52,13 @@ class Game(private val databaseManager: DatabaseManager, minecraftServer: Minecr
         val playerUUID = serverPlayerEntity.uuidAsString
         val playerName = serverPlayerEntity.name.string
 
-        databaseManager.executor.execute {
-            var player = databaseManager.cachePlayers.find { it.uuid == playerUUID}
+        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
+            var player = databaseManager.cachePlayers.find { it.uuid == playerUUID }
             if (player == null) {
                 player = Player { uuid = playerUUID; name = playerName }
                 databaseManager.cachePlayers.add(player)
                 databaseManager.addPlayer(player)
-            }else {
+            } else {
                 if (player.name != playerName) { // If a player changed his name, we have to update it in the database
                     TinyEconomyRenewedMod.LOGGER.info("Player ${player.name} has changed his name to $playerName")
                     player.name = playerName

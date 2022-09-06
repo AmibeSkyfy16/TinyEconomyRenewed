@@ -5,6 +5,10 @@ import ch.skyfy.tinyeconomyrenewed.config.Configs
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.logic.Game
 import ch.skyfy.tinyeconomyrenewed.utils.setupConfigDirectory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.loader.api.FabricLoader
@@ -17,9 +21,8 @@ import net.minecraft.util.Language
 import net.minecraft.util.registry.Registry
 import java.nio.file.Paths
 import java.util.*
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.inputStream
 
@@ -30,7 +33,13 @@ import kotlin.io.path.inputStream
  * As the initialization takes time, the operations are performed in a separate thread.
  * While the initialization is in progress, players will not be able to connect
  */
-class TinyEconomyRenewedInitializer {
+class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineContext = LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT) : CoroutineScope{
+
+    companion object {
+        @OptIn(DelicateCoroutinesApi::class)
+        val LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT = newSingleThreadContext("LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT")
+        val LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE = CoroutineScope(LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT)
+    }
 
     /**
      * This will be use in future for registered command because command must be
@@ -45,21 +54,14 @@ class TinyEconomyRenewedInitializer {
     data class RetrievedData(val advancements: List<Advancement>, val items: List<String>, val blocks: List<String>, val entities: List<String>)
     data class Advancement(val advancementId: String, val advancementFrame: String, val advancementTitle: String, val advancementDescription: String)
 
-    private val executor: ExecutorService = Executors.newFixedThreadPool(1) {
-       val t = Thread(it)
-        t.name = "DATABASE THREAD"
-        t.isDaemon = true
-        t
-    }
-
-
     init {
         setupConfigDirectory()
 
         ServerTickEvents.END_SERVER_TICK.register { minecraftServer ->
-            if (!firstEndServerTick){
+            if (!firstEndServerTick) {
                 firstEndServerTick = true
-                executor.execute {
+
+                launch {
                     TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed is being initialized \uD83D\uDE9A \uD83D\uDE9A \uD83D\uDE9A")
 
                     ConfigManager.loadConfigs(arrayOf(Configs.javaClass))
@@ -69,9 +71,9 @@ class TinyEconomyRenewedInitializer {
                     // It's a temporary code that I need for populate my Excel file
                     val sb = java.lang.StringBuilder()
                     retrievedData.advancements.forEach { sb.append("\t\t\t$['map']['${it.advancementId}']\t1.0\t1.0\r\n") }
-//                println(sb)
+//                    println(sb)
 
-                    optGameRef.set(Optional.of(Game(DatabaseManager(retrievedData, executor), minecraftServer)))
+                    optGameRef.set(Optional.of(Game(DatabaseManager(retrievedData), minecraftServer)))
                     isInitializationComplete = true
                     TinyEconomyRenewedMod.LOGGER.info("TinyEconomyRenewed >> done ! Players can now connect \uD83D\uDC4C ✅")
                 }
@@ -129,7 +131,7 @@ class TinyEconomyRenewedInitializer {
         }.sortedWith(compareBy { it.advancementId }),
             Registry.ITEM.ids.map { "item.${it.toTranslationKey()}" }.sortedWith(compareBy { it }),
             Registry.BLOCK.ids.map { "block.${it.toTranslationKey()}" }.sortedWith(compareBy { it }),
-            Registry.ENTITY_TYPE.ids.map { "entity.${it.toTranslationKey()}"}.sortedWith(compareBy { it })
+            Registry.ENTITY_TYPE.ids.map { "entity.${it.toTranslationKey()}" }.sortedWith(compareBy { it })
         )
 
         // Populating with default value

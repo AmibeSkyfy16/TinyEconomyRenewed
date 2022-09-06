@@ -1,7 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.features
 
 import ch.skyfy.tinyeconomyrenewed.Economy
-import ch.skyfy.tinyeconomyrenewed.ScoreboardManager
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.callbacks.CreateExplosionCallback
 import ch.skyfy.tinyeconomyrenewed.callbacks.HopperCallback
@@ -38,12 +37,10 @@ import net.minecraft.util.math.Direction
 import net.minecraft.world.World
 import net.minecraft.world.explosion.Explosion
 import net.minecraft.world.explosion.ExplosionBehavior
-import net.silkmc.silk.core.text.literal
 
 class ShopFeature(
     private val databaseManager: DatabaseManager,
     private val economy: Economy,
-    private val scoreboardManager: ScoreboardManager,
     private val minecraftServer: MinecraftServer,
 ) {
 
@@ -110,7 +107,7 @@ class ShopFeature(
     @Suppress("UNUSED_PARAMETER")
     private fun cancelHopperFromStealingAShop(world: World, pos: BlockPos, state: BlockState, hopper: Hopper): TypedActionResult<Boolean> {
         val shop = isAShop(BlockPos(pos.x, pos.y + 1, pos.z), world as ServerWorld)
-        if(shop != null)return TypedActionResult.fail(false)
+        if (shop != null) return TypedActionResult.fail(false)
         return TypedActionResult.pass(true)
     }
 
@@ -148,7 +145,7 @@ class ShopFeature(
 
         if (shop != null) {
             if (block is BarrelBlock || block is WallSignBlock) {
-                if(player.hasPermissionLevel(4))return true
+                if (player.hasPermissionLevel(4)) return true
                 if (shop.signData.vendorName != player.name.string) return false
             }
         }
@@ -286,7 +283,9 @@ class ShopFeature(
             val itemAmount = args[0].toInt()
             val price = args[2].toFloat()
             SignData(vendorName, itemAmount, price)
-        } catch (e: java.lang.Exception) { null }
+        } catch (e: java.lang.Exception) {
+            null
+        }
     }
 
     /**

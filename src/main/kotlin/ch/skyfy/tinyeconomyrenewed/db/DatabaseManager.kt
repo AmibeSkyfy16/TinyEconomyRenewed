@@ -1,23 +1,18 @@
 package ch.skyfy.tinyeconomyrenewed.db
 
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedInitializer
+import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedInitializer.Companion.LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT
 import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.config.Configs
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runBlocking
 import net.fabricmc.loader.api.FabricLoader
 import net.silkmc.silk.core.task.infiniteMcCoroutineTask
 import org.ktorm.database.Database
 import org.ktorm.dsl.eq
 import org.ktorm.dsl.like
 import org.ktorm.entity.*
-import java.util.concurrent.Callable
-import java.util.concurrent.ExecutorService
-import kotlin.coroutines.CoroutineContext
 import kotlin.io.path.inputStream
 import kotlin.time.Duration.Companion.minutes
-
 
 private val Database.players get() = this.sequenceOf(Players)
 private val Database.items get() = this.sequenceOf(Items)
@@ -37,36 +32,31 @@ private val Database.advancementRewards get() = this.sequenceOf(AdvancementRewar
  * In order for the server administrator to be able to follow what is going on in the console correctly,
  * this class is instantiated in a custom thread right after the server is started in [TinyEconomyRenewedInitializer]
  */
-class DatabaseManager(
-    private val retrievedData: TinyEconomyRenewedInitializer.RetrievedData,
-    val executor: ExecutorService,
-    override val coroutineContext: CoroutineContext = Dispatchers.Default
-) : CoroutineScope {
+class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.RetrievedData) {
 
     private val db: Database
 
     val cachePlayers: MutableList<Player>
-    val cacheMinedBlockRewards: MutableList<MinedBlockReward>
-    val cacheEntityKilledRewards: MutableList<EntityKilledReward>
-    val cacheAdvancementRewards: MutableList<AdvancementReward>
+    val cacheMinedBlockRewards: List<MinedBlockReward>
+    val cacheEntityKilledRewards: List<EntityKilledReward>
+    val cacheAdvancementRewards: List<AdvancementReward>
 
-    fun addPlayer(player: Player) =  db.players.add(player)
-//    fun addPlayer(player: Player) = executor.execute { db.players.add(player) }
+    inline fun <reified T> getValue(crossinline block: () -> T): T = runBlocking(LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT) { block.invoke() }
 
-    fun updatePlayers(player: Player) = executor.execute { db.players.update(player) }
+    fun addPlayer(player: Player) = db.players.add(player)
+
+    fun updatePlayers(player: Player) = db.players.update(player)
 
     init {
-        TinyEconomyRenewedMod.LOGGER.info("[Database Manager init block] > current thread name ${Thread.currentThread().name}")
-
         val (url, user, password) = Configs.DB_CONFIG.`data`
         createDatabase() // Create a new database called TinyEconomyRenewed (if it is not already exist)
         db = Database.connect("$url/TinyEconomyRenewed", "org.mariadb.jdbc.Driver", user, password) // Connect to it
         initDatabase() // Then create tables and populate it with data
 
         cachePlayers = db.players.toMutableList()
-        cacheMinedBlockRewards = db.minedBlockRewards.toMutableList()
-        cacheEntityKilledRewards = db.entityKilledRewards.toMutableList()
-        cacheAdvancementRewards = db.advancementRewards.toMutableList()
+        cacheMinedBlockRewards = db.minedBlockRewards.toList()
+        cacheEntityKilledRewards = db.entityKilledRewards.toList()
+        cacheAdvancementRewards = db.advancementRewards.toList()
 
         /**
          * In order to optimize the queries to the database, we will retrieve the data once, then update it every 2 minutes.
@@ -74,16 +64,8 @@ class DatabaseManager(
          * which would cause lag. Here we only update every 2 minutes from a separate thread
          */
         infiniteMcCoroutineTask(sync = false, client = false, period = 1.minutes) {
-            val callable: Callable<Unit> = Callable {
-                println("Updating database. [Thread Name]: ${Thread.currentThread().name}")
+            runBlocking(LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT) {
                 cachePlayers.forEach(db.players::update)
-                cacheMinedBlockRewards.forEach(db.minedBlockRewards::update)
-                cacheEntityKilledRewards.forEach(db.entityKilledRewards::update)
-                cacheAdvancementRewards.forEach(db.advancementRewards::update)
-            }
-            withContext(Dispatchers.IO) {
-                val list = executor.invokeAll(listOf(callable))
-                while (true) { if (list.all { future -> future.isDone }) break }
             }
         }
 

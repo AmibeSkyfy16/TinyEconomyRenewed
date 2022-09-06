@@ -2,8 +2,10 @@
 
 package ch.skyfy.tinyeconomyrenewed
 
+import ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedInitializer.Companion.LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.db.Player
+import kotlinx.coroutines.launch
 
 @Suppress("unused")
 class Economy(private val databaseManager: DatabaseManager, private val scoreboardManager: ScoreboardManager) {
@@ -14,21 +16,29 @@ class Economy(private val databaseManager: DatabaseManager, private val scoreboa
      * @param uuid A [String] object that represent the player uuid to whom the money must be deposited
      * @param block A code that will return the amount earned by the player
      */
-    fun deposit(uuid: String, block: () -> Float) =
-        databaseManager.executor.execute { // Remind: all thing related to the database must be executed on the DATABASE THREAD
+    fun deposit(uuid: String, block: () -> Float) {
+        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
+//            databaseManager.getValue{
+//                databaseManager.cachePlayers.find { player -> player.uuid == uuid }
+//            }?.let { player: Player -> deposit(player, block.invoke()) }
             databaseManager.cachePlayers.find { player -> player.uuid == uuid }?.let { player -> deposit(player, block.invoke()) }
             scoreboardManager.updatePlayerMoney(uuid)
         }
+    }
+
 
     private fun deposit(player: Player, amount: Float) {
         player.money += amount
     }
 
-    fun withdraw(uuid: String, amount: Float) = databaseManager.executor.execute {
-        databaseManager.cachePlayers.find { it.uuid == uuid }?.let {
-            withdraw(it, amount)
-            scoreboardManager.updatePlayerMoney(uuid)
+    fun withdraw(uuid: String, amount: Float) {
+        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
+            databaseManager.cachePlayers.find { it.uuid == uuid }?.let {
+                withdraw(it, amount)
+                scoreboardManager.updatePlayerMoney(uuid)
+            }
         }
+
     }
 
     private fun withdraw(player: Player, amount: Float) {
