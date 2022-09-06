@@ -54,10 +54,10 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
         db = Database.connect("$url/TinyEconomyRenewed", "org.mariadb.jdbc.Driver", user, password) // Connect to it
         initDatabase() // Then create tables and populate it with data
 
-        cachePlayers = IsolateState{db.players.toMutableList()}
-        cacheMinedBlockRewards =  IsolateState{db.minedBlockRewards.toList()}
-        cacheEntityKilledRewards =  IsolateState{db.entityKilledRewards.toList()}
-        cacheAdvancementRewards =  IsolateState{db.advancementRewards.toList()}
+        cachePlayers = IsolateState { db.players.toMutableList() }
+        cacheMinedBlockRewards = IsolateState { db.minedBlockRewards.toList() }
+        cacheEntityKilledRewards = IsolateState { db.entityKilledRewards.toList() }
+        cacheAdvancementRewards = IsolateState { db.advancementRewards.toList() }
 
         /**
          * In order to optimize the queries to the database, we will retrieve the data once, then update it every 2 minutes.
