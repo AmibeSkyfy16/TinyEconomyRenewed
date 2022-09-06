@@ -54,18 +54,14 @@ class Game(private val databaseManager: DatabaseManager, minecraftServer: Minecr
 
         LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
             var player = databaseManager.cachePlayers.access { players -> players.find { it.uuid == playerUUID } }
-//            var player = databaseManager.cachePlayers.find { it.uuid == playerUUID }
             if (player == null) {
                 player = Player { uuid = playerUUID; name = playerName }
                 databaseManager.cachePlayers.access { players -> players.add(player) }
-//                databaseManager.cachePlayers.add(player)
                 databaseManager.addPlayer(player)
-            } else {
-                if (player.name != playerName) { // If a player changed his name, we have to update it in the database
+            } else if (player.name != playerName) { // If a player changed his name, we have to update it in the database
                     TinyEconomyRenewedMod.LOGGER.info("Player ${player.name} has changed his name to $playerName")
                     player.name = playerName
                     databaseManager.updatePlayers(player)
-                }
             }
         }
     }

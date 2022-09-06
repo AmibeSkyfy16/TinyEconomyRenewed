@@ -42,11 +42,7 @@ import net.minecraft.world.World
 import net.minecraft.world.explosion.Explosion
 import net.minecraft.world.explosion.ExplosionBehavior
 
-class ShopFeature(
-    private val databaseManager: DatabaseManager,
-    private val economy: Economy,
-    private val minecraftServer: MinecraftServer,
-) {
+class ShopFeature(private val databaseManager: DatabaseManager, private val economy: Economy, private val minecraftServer: MinecraftServer) {
 
     data class Shop(val barrelBlockEntity: BarrelBlockEntity, val signBlockEntities: MutableList<SignBlockEntity>, val signData: SignData)
     data class SignData(val vendorName: String, val itemAmount: Int, val price: Float)

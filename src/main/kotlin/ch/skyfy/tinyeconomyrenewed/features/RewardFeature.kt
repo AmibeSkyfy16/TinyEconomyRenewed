@@ -34,7 +34,7 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
     @Suppress("UNUSED_PARAMETER")
     private fun onPlayerBlockBreakEvent(world: World, player: PlayerEntity, pos: BlockPos, state: BlockState, blockEntity: BlockEntity?): Boolean {
 
-//        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards, 2, 2, 60, 500, 100)) return true
+        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards, 2, 2, 60, 500, 100)) return true
 
         economy.deposit(player.uuidAsString) {
             databaseManager.cacheMinedBlockRewards.access { minedBlockRewards -> minedBlockRewards.find { it.block.translationKey == state.block.translationKey }?.amount ?: 0f }

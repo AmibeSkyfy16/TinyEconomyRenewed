@@ -18,21 +18,12 @@ class Economy(private val databaseManager: DatabaseManager, private val scoreboa
      */
     fun deposit(uuid: String, block: () -> Float) {
         LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
-//            databaseManager.getValue{
-//                databaseManager.cachePlayers.find { player -> player.uuid == uuid }
-//            }?.let { player: Player -> deposit(player, block.invoke()) }
-            val player = databaseManager.cachePlayers.access { players ->
+            databaseManager.cachePlayers.access { players ->
                 players.find { player -> player.uuid == uuid }?.let {
                     deposit(it, block.invoke())
                     scoreboardManager.updatePlayerMoney(uuid)
                 }
             }
-//            if (player != null){
-//                deposit(player, block.invoke())
-//                scoreboardManager.updatePlayerMoney(uuid)
-//            }
-//                databaseManager.cachePlayers.find { player -> player.uuid == uuid }?.let { player -> deposit(player, block.invoke()) }
-//            scoreboardManager.updatePlayerMoney(uuid)
         }
     }
 
@@ -49,17 +40,12 @@ class Economy(private val databaseManager: DatabaseManager, private val scoreboa
                     scoreboardManager.updatePlayerMoney(uuid)
                 }
             }
-//            databaseManager.cachePlayers.find { it.uuid == uuid }?.let {
-//                withdraw(it, amount)
-//                scoreboardManager.updatePlayerMoney(uuid)
-//            }
         }
 
     }
 
-    private fun withdraw(player: Player, amount: Float) : Float {
+    private fun withdraw(player: Player, amount: Float) {
         player.money -= amount
-        return player.money
     }
 
 }
