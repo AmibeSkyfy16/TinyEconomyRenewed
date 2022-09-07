@@ -212,8 +212,8 @@ class ShopFeature(private val databaseManager: DatabaseManager, private val econ
         val vendorPlayer: ServerPlayerEntity? = minecraftServer.playerManager.getPlayer(shop.signData.vendorName)
 
         val def = LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.async {
-            val vendor = databaseManager.cachePlayers.access { players: MutableList<Player> -> players.find { it.name == if (vendorPlayer != null) vendorPlayer.name.string else shop.signData.vendorName } }
-            val buyer = databaseManager.cachePlayers.access { players: MutableList<Player> -> players.find { it.uuid == buyerPlayer.uuidAsString } }
+            val vendor = databaseManager.cachePlayers.find { it.name == if (vendorPlayer != null) vendorPlayer.name.string else shop.signData.vendorName }
+            val buyer = databaseManager.cachePlayers.find { it.uuid == buyerPlayer.uuidAsString }
             return@async Pair(vendor, buyer)
         }
 
@@ -286,7 +286,7 @@ class ShopFeature(private val databaseManager: DatabaseManager, private val econ
         val vendorName = sign.getTextOnRow(0, false).string
 
         // TODO this code, can potentially stuck the minecraft server thread
-        databaseManager.cachePlayers.access { players -> players.find { player: Player ->  player.name == vendorName } } ?: return null
+        databaseManager.cachePlayers.find { player: Player ->  player.name == vendorName } ?: return null
 
         val args = sign.getTextOnRow(2, false).string.split(" ")
         if (args.count() != 3) return null
