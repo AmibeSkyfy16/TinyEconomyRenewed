@@ -5,7 +5,10 @@ import ch.skyfy.tinyeconomyrenewed.config.Configs
 import ch.skyfy.tinyeconomyrenewed.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.logic.Game
 import ch.skyfy.tinyeconomyrenewed.utils.setupConfigDirectory
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.loader.api.FabricLoader
@@ -30,11 +33,10 @@ import kotlin.io.path.inputStream
  * As the initialization takes time, the operations are performed in a separate thread.
  * While the initialization is in progress, players will not be able to connect
  */
-class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineContext = LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT) : CoroutineScope{
+class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineContext = LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT) : CoroutineScope {
 
     companion object {
-        @OptIn(DelicateCoroutinesApi::class)
-        val LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT = newFixedThreadPoolContext(20, "LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT")
+        val LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT = Dispatchers.Default
         val LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE = CoroutineScope(LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT)
     }
 
@@ -79,6 +81,17 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
 
         ServerPlayConnectionEvents.INIT.register { serverPlayNetworkHandler, _ ->
             if (!isInitializationComplete) serverPlayNetworkHandler.disconnect(Text.literal("TinyEconomyRenewed has not finished to be initialized ⛔").setStyle(Style.EMPTY.withColor(Formatting.GOLD)))
+        }
+
+        ServerLifecycleEvents.SERVER_STOPPING.register {
+            println("CANCEL")
+//            LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT.cancel()
+//            LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT.cancelChildren()
+//            executor.shutdown()
+//            executor.shutdownNow()
+//            executor.awaitTermination(1000, TimeUnit.MILLISECONDS)
+//            println("FINISH")
+//            exitProcess(-1)
         }
     }
 

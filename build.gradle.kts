@@ -52,11 +52,10 @@ dependencies {
     transitiveInclude(implementation("org.ktorm:ktorm-core:3.5.0")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.5.0")!!)
     transitiveInclude(implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")!!)
-    transitiveInclude(implementation("co.touchlab:stately-isolate:1.2.3")!!)
     transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.1")!!)
     transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.0")!!)
-    transitiveInclude(implementation("co.touchlab:stately-isolate:1.2.3")!!)
-    transitiveInclude(implementation("co.touchlab:stately-iso-collections:1.2.3")!!)
+//    transitiveInclude(implementation("co.touchlab:stately-isolate:1.2.3")!!)
+//    transitiveInclude(implementation("co.touchlab:stately-iso-collections:1.2.3")!!)
 
 
     handleIncludes(project, transitiveInclude)

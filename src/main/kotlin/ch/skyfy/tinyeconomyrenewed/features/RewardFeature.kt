@@ -34,10 +34,10 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
     @Suppress("UNUSED_PARAMETER")
     private fun onPlayerBlockBreakEvent(world: World, player: PlayerEntity, pos: BlockPos, state: BlockState, blockEntity: BlockEntity?): Boolean {
 
-        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards, 2, 2, 60, 500, 100)) return true
+//        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards, 2, 2, 60, 500, 100)) return true
 
         economy.deposit(player.uuidAsString) {
-            databaseManager.cacheMinedBlockRewards.access { minedBlockRewards -> minedBlockRewards.find { it.block.translationKey == state.block.translationKey }?.amount ?: 0f }
+            databaseManager.cacheMinedBlockRewards.find { it.block.translationKey == state.block.translationKey }?.amount ?: 0f
         }
 
         return true
@@ -51,7 +51,7 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
             if (shouldNerf(attacker.uuidAsString, attacker.blockPos, nerfEntitiesRewards, 10, 10, 40, 80, 15)) return
 
             economy.deposit(attacker.uuidAsString) {
-                databaseManager.cacheEntityKilledRewards.access { entityKilledRewards -> entityKilledRewards.find { it.entity.translationKey == livingEntity.type.translationKey }?.amount ?: 0f }
+                databaseManager.cacheEntityKilledRewards.find { it.entity.translationKey == livingEntity.type.translationKey }?.amount ?: 0f
             }
         }
     }
@@ -59,7 +59,7 @@ class RewardFeature(private val databaseManager: DatabaseManager, private val ec
     @Suppress("SameParameterValue")
     private fun onAdvancementCompleted(serverPlayerEntity: ServerPlayerEntity, advancement: Advancement, @Suppress("UNUSED_PARAMETER") criterionName: String) {
         economy.deposit(serverPlayerEntity.uuidAsString) {
-            databaseManager.cacheAdvancementRewards.access { advancementRewards -> advancementRewards.find { it.advancement.identifier == advancement.id.toString() }?.amount ?: 0f }
+            databaseManager.cacheAdvancementRewards.find { it.advancement.identifier == advancement.id.toString() }?.amount ?: 0f
         }
     }
 
