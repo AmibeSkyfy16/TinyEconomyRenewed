@@ -23,10 +23,6 @@ class Economy(private val databaseManager: DatabaseManager, private val scoreboa
                     scoreboardManager.updatePlayerMoney(uuid, deposit(it, block.invoke()))
                 }
             }
-//            databaseManager.cachePlayers.find { player -> player.uuid == uuid }?.let {
-//                deposit(it, block.invoke())
-//                scoreboardManager.updatePlayerMoney(uuid)
-//            }
         }
     }
 

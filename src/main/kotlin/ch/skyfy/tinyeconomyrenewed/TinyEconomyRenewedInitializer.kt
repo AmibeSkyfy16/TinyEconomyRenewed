@@ -82,17 +82,6 @@ class TinyEconomyRenewedInitializer(override val coroutineContext: CoroutineCont
         ServerPlayConnectionEvents.INIT.register { serverPlayNetworkHandler, _ ->
             if (!isInitializationComplete) serverPlayNetworkHandler.disconnect(Text.literal("TinyEconomyRenewed has not finished to be initialized ⛔").setStyle(Style.EMPTY.withColor(Formatting.GOLD)))
         }
-
-        ServerLifecycleEvents.SERVER_STOPPING.register {
-            println("CANCEL")
-//            LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT.cancel()
-//            LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT.cancelChildren()
-//            executor.shutdown()
-//            executor.shutdownNow()
-//            executor.awaitTermination(1000, TimeUnit.MILLISECONDS)
-//            println("FINISH")
-//            exitProcess(-1)
-        }
     }
 
     /**

@@ -16,7 +16,6 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.Identifier
 
-
 class Game(private val databaseManager: DatabaseManager, minecraftServer: MinecraftServer) {
 
     companion object {
@@ -27,7 +26,6 @@ class Game(private val databaseManager: DatabaseManager, minecraftServer: Minecr
         init {
             setUpEventPhaseOrdering()
         }
-
 
         private fun setUpEventPhaseOrdering() {
             PlayerJoinCallback.EVENT.addPhaseOrdering(PLAYER_JOIN_CALLBACK_FIRST, PLAYER_JOIN_CALLBACK_SECOND)
@@ -40,7 +38,7 @@ class Game(private val databaseManager: DatabaseManager, minecraftServer: Minecr
     init {
         RewardFeature(databaseManager, economy)
         ShopFeature(databaseManager, economy, minecraftServer)
-        VillagerTradeCostsMoneyFeature(databaseManager)
+        VillagerTradeCostsMoneyFeature(databaseManager, economy)
         registerEvents()
     }
 

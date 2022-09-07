@@ -32,7 +32,7 @@ public abstract class SlotMixin {
             if(slot2.inventory instanceof MerchantInventory merchantInventory){
                 System.out.println(merchantInventory.getStack(2).getTranslationKey());
                 if(!merchantInventory.getStack(2).isEmpty()){
-                    System.out.println("not empty");
+//                    System.out.println("not empty");
 //                    cir.setReturnValue(false);
 //                    cir.cancel();
                 }

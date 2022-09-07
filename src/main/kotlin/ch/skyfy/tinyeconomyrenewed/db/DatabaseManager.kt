@@ -40,6 +40,7 @@ private val Database.advancementRewards get() = this.sequenceOf(AdvancementRewar
  * In order for the server administrator to be able to follow what is going on in the console correctly,
  * this class is instantiated in a custom thread right after the server is started in [TinyEconomyRenewedInitializer]
  */
+@Suppress("unused")
 class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.RetrievedData) {
 
     private val db: Database

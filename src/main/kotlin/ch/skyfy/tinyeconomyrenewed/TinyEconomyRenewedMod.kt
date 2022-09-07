@@ -1,6 +1,5 @@
 package ch.skyfy.tinyeconomyrenewed
 
-
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import org.apache.logging.log4j.LogManager
