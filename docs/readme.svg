@@ -1,68 +1,211 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="100%" height="100%" viewBox="0 0 800 3000" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
-    <g transform="matrix(1.39088,0,0,3.67629,-2.63022,4.14846)">
+<svg width="100%" height="100%" viewBox="0 0 800 4500" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1.39088,0,0,5.51443,-2.63022,6.22269)">
         <rect x="1.891" y="-1.128" width="575.177" height="816.041" style="fill:rgb(13,17,23);"/>
     </g>
-    <g id="Other-features" serif:id="Other features" transform="matrix(1,0,0,1,0,2.7)">
+    <g id="Side" transform="matrix(1,0,0,1,1.66978e-13,1204.49)">
         <g transform="matrix(1,0,0,1,-84.4468,1644.37)">
             <g id="other-feature-desc" serif:id="other feature desc">
-                <text x="124.447px" y="195.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">Find below a list of other features</text>
-                <text x="150.293px" y="229.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">- Trade with a villager requires a price.</text>
-                <text x="167.524px" y="246.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">This feature can be usefull if for example you have a mod like</text>
-                <g transform="matrix(14,0,0,14,193.37,263.203)">
-                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
-                </g>
-                <text x="167.524px" y="263.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">Inf<tspan x="201.985px " y="263.203px ">n</tspan>ityVillagerTrading in your modded server.</text>
-                <g transform="matrix(14,0,0,14,701.678,280.203)">
-                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
-                </g>
-                <text x="167.524px" y="280.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">You like the fact that you can trade endlessly, but you also f<tspan x="710.293px " y="280.203px ">n</tspan>d it too</text>
-                <text x="167.524px" y="297.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">balanced.</text>
-                <text x="167.524px" y="314.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">Then you can ask for a cost to nerf this a bit</text>
-                <g transform="matrix(14,0,0,14,201.985,348.203)">
-                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
-                </g>
-                <g transform="matrix(14,0,0,14,305.37,348.203)">
-                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
-                </g>
-                <g transform="matrix(14,0,0,14,667.216,348.203)">
-                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
-                </g>
-                <g transform="matrix(14,0,0,14,761.985,348.203)">
-                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
-                </g>
-                <text x="124.447px" y="348.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">You can f<tspan x="210.601px " y="348.203px ">n</tspan>d and conf<tspan x="313.985px " y="348.203px ">g</tspan>ure other features in the following conf<tspan x="675.831px " y="348.203px ">g</tspan>uration f<tspan x="770.601px " y="348.203px ">l</tspan>e:</text>
-                <g transform="matrix(14,0,0,14,184.754,365.203)">
-                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(255,212,59);fill-rule:nonzero;"/>
-                </g>
-                <text x="150.293px" y="365.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,212,59);">conf<tspan x="193.37px " y="365.203px ">g</tspan></text>
-                <text x="201.985px" y="365.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(8,239,76);">/</text>
-                <text x="210.601px" y="365.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,212,59);">tinyeconomyrenewed</text>
-                <text x="365.678px" y="365.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(8,239,76);">/</text>
-                <g transform="matrix(14,0,0,14,443.216,365.203)">
-                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
-                </g>
-                <g transform="matrix(14,0,0,14,494.908,365.203)">
-                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
-                </g>
-                <g transform="matrix(14,0,0,14,546.601,365.203)">
-                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
-                </g>
-                <g transform="matrix(14,0,0,14,598.293,365.203)">
-                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
-                </g>
-                <g transform="matrix(14,0,0,14,641.37,365.203)">
-                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
-                </g>
-                <text x="374.293px" y="365.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,20,109);">villager<tspan x="451.831px " y="365.203px ">t</tspan>rade<tspan x="503.524px " y="365.203px ">c</tspan>osts<tspan x="555.216px " y="365.203px ">m</tspan>oney<tspan x="606.908px " y="365.203px ">c</tspan>onf<tspan x="649.985px " y="365.203px ">g</tspan>.json</text>
+                <text x="124.447px" y="195.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">This mod need to be installed on a dedicated server and is not required on client,</text>
+                <text x="124.447px" y="212.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">but recommended for some special feature like custom sounds when player reach price,</text>
+                <text x="124.447px" y="229.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">etc.</text>
             </g>
         </g>
         <g transform="matrix(1,0,0,1,-84.4468,1581.56)">
-            <text x="124.447px" y="200.972px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:30px;fill:rgb(9,228,231);">Other features</text>
+            <text x="124.447px" y="200.972px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:30px;fill:rgb(9,228,231);">On wich side this mod works ?</text>
         </g>
     </g>
-    <g id="The-shop-feature" serif:id="The shop feature" transform="matrix(1,0,0,1,0,-24.7423)">
+    <g id="Commands" transform="matrix(1,0,0,1,4.79616e-13,884.897)">
+        <g transform="matrix(1,0,0,1,-84.4468,1644.37)">
+            <g id="other-feature-desc1" serif:id="other feature desc">
+                <text x="124.447px" y="195.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">Find below a list of available commands</text>
+                <text x="144.447px" y="229.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">-</text>
+                <text x="161.678px" y="229.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,20,109);">UpdateMoneyFromDatabase</text>
+                <text x="161.678px" y="246.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">Description:</text>
+                <text x="184.447px" y="263.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);"><tspan x="184.447px " y="263.203px ">T</tspan>his command allow you to update the money of players to the running mod from</text>
+                <text x="184.447px" y="280.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);"><tspan x="184.447px " y="280.203px ">t</tspan>he database. It&apos;s mostly useful for dev and debugging</text>
+                <text x="161.678px" y="297.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">Permission level: 4</text>
+            </g>
+        </g>
+        <g transform="matrix(1,0,0,1,-84.4468,1581.56)">
+            <text x="124.447px" y="200.972px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:30px;fill:rgb(9,228,231);">Commands</text>
+        </g>
+    </g>
+    <g id="Loss-money-dying" serif:id="Loss money dying" transform="matrix(1,0,0,1,5.08038e-13,694.134)">
+        <g transform="matrix(1,0,0,1,-84.4468,1644.37)">
+            <g id="other-feature-desc2" serif:id="other feature desc">
+                <text x="124.447px" y="195.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">Player will loss an amount of money after dying</text>
+                <g transform="matrix(14,0,0,14,193.37,229.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,288.139,229.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
+                </g>
+                <text x="124.447px" y="229.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">The conf<tspan x="201.985px " y="229.203px ">g</tspan>uration f<tspan x="296.754px " y="229.203px ">l</tspan>e for this feature is located like below:</text>
+                <g transform="matrix(14,0,0,14,184.754,246.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(255,212,59);fill-rule:nonzero;"/>
+                </g>
+                <text x="150.293px" y="246.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,212,59);">conf<tspan x="193.37px " y="246.203px ">g</tspan></text>
+                <text x="201.985px" y="246.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(8,239,76);">/</text>
+                <text x="210.601px" y="246.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,212,59);">tinyeconomyrenewed</text>
+                <text x="365.678px" y="246.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(8,239,76);">/</text>
+                <g transform="matrix(14,0,0,14,408.754,246.203)">
+                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,460.447,246.203)">
+                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,512.139,246.203)">
+                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,555.216,246.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <text x="374.293px" y="246.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,20,109);">loss<tspan x="417.37px " y="246.203px ">m</tspan>oney<tspan x="469.062px " y="246.203px ">d</tspan>ying<tspan x="520.754px " y="246.203px ">c</tspan>onf<tspan x="563.831px " y="246.203px ">g</tspan>.json</text>
+            </g>
+        </g>
+        <g transform="matrix(1,0,0,1,-84.4468,1581.56)">
+            <text x="124.447px" y="200.972px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:30px;fill:rgb(9,228,231);">Loss money dying feature</text>
+        </g>
+    </g>
+    <g id="Earn-money-login" serif:id="Earn money login" transform="matrix(1,0,0,1,2.23821e-13,503.302)">
+        <g transform="matrix(1,0,0,1,-84.4468,1644.37)">
+            <g id="other-feature-desc3" serif:id="other feature desc">
+                <g transform="matrix(14,0,0,14,494.908,195.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
+                </g>
+                <text x="124.447px" y="195.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">Player can earn money after login for the f<tspan x="503.524px " y="195.203px ">r</tspan>st time of the day</text>
+                <g transform="matrix(14,0,0,14,193.37,229.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,288.139,229.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
+                </g>
+                <text x="124.447px" y="229.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">The conf<tspan x="201.985px " y="229.203px ">g</tspan>uration f<tspan x="296.754px " y="229.203px ">l</tspan>e for this feature is located like below:</text>
+                <g transform="matrix(14,0,0,14,184.754,246.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(255,212,59);fill-rule:nonzero;"/>
+                </g>
+                <text x="150.293px" y="246.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,212,59);">conf<tspan x="193.37px " y="246.203px ">g</tspan></text>
+                <text x="201.985px" y="246.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(8,239,76);">/</text>
+                <text x="210.601px" y="246.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,212,59);">tinyeconomyrenewed</text>
+                <text x="365.678px" y="246.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(8,239,76);">/</text>
+                <g transform="matrix(14,0,0,14,408.754,246.203)">
+                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,460.447,246.203)">
+                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,512.139,246.203)">
+                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,555.216,246.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <text x="374.293px" y="246.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,20,109);">earn<tspan x="417.37px " y="246.203px ">m</tspan>oney<tspan x="469.062px " y="246.203px ">l</tspan>ogin<tspan x="520.754px " y="246.203px ">c</tspan>onf<tspan x="563.831px " y="246.203px ">g</tspan>.json</text>
+            </g>
+        </g>
+        <g transform="matrix(1,0,0,1,-84.4468,1581.56)">
+            <text x="124.447px" y="200.972px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:30px;fill:rgb(9,228,231);">Earn money login feature</text>
+        </g>
+    </g>
+    <g id="The-money-earned-reward-feature" serif:id="The money earned reward feature" transform="matrix(1,0,0,1,1.66978e-13,261.496)">
+        <g transform="matrix(1,0,0,1,-84.4468,1644.37)">
+            <g id="other-feature-desc4" serif:id="other feature desc">
+                <g transform="matrix(14,0,0,14,813.678,195.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
+                </g>
+                <text x="124.447px" y="195.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">You can set up award prizes. When a player reaches one of these prizes for the f<tspan x="822.293px " y="195.203px ">r</tspan>st</text>
+                <g transform="matrix(14,0,0,14,503.524,212.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
+                </g>
+                <text x="124.447px" y="212.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">time, he can earn experience and items (conf<tspan x="512.139px " y="212.203px ">g</tspan>urable). If the player is currently</text>
+                <text x="124.447px" y="229.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">not logged in and has just earned money because another player bought items from his</text>
+                <text x="124.447px" y="246.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">shop, he will receive the reward when he logs in again.</text>
+                <g transform="matrix(14,0,0,14,193.37,280.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,288.139,280.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
+                </g>
+                <text x="124.447px" y="280.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">The conf<tspan x="201.985px " y="280.203px ">g</tspan>uration f<tspan x="296.754px " y="280.203px ">l</tspan>e for this feature is located like below:</text>
+                <g transform="matrix(14,0,0,14,184.754,297.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(255,212,59);fill-rule:nonzero;"/>
+                </g>
+                <text x="150.293px" y="297.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,212,59);">conf<tspan x="193.37px " y="297.203px ">g</tspan></text>
+                <text x="201.985px" y="297.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(8,239,76);">/</text>
+                <text x="210.601px" y="297.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,212,59);">tinyeconomyrenewed</text>
+                <text x="365.678px" y="297.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(8,239,76);">/</text>
+                <g transform="matrix(14,0,0,14,417.37,297.203)">
+                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,477.678,297.203)">
+                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,537.985,297.203)">
+                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,581.062,297.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <text x="374.293px" y="297.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,20,109);">money<tspan x="425.985px " y="297.203px ">e</tspan>arned<tspan x="486.293px " y="297.203px ">r</tspan>eward<tspan x="546.601px " y="297.203px ">c</tspan>onf<tspan x="589.678px " y="297.203px ">g</tspan>.json</text>
+            </g>
+        </g>
+        <g transform="matrix(1,0,0,1,-84.4468,1581.56)">
+            <text x="124.447px" y="200.972px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:30px;fill:rgb(9,228,231);">Money earned reward feature</text>
+        </g>
+    </g>
+    <g id="The-villager-trade-cost-money-feature" serif:id="The villager trade cost money feature" transform="matrix(1,0,0,1,-3.55271e-15,2.7)">
+        <g transform="matrix(1,0,0,1,-84.4468,1644.37)">
+            <g id="other-feature-desc5" serif:id="other feature desc">
+                <text x="124.447px" y="195.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">Trade with a villager requires a price.</text>
+                <text x="124.447px" y="212.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">This feature can be usefull if for example you have a mod like</text>
+                <g transform="matrix(14,0,0,14,150.293,229.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
+                </g>
+                <text x="124.447px" y="229.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">Inf<tspan x="158.908px " y="229.203px ">n</tspan>ityVillagerTrading in your modded server.</text>
+                <g transform="matrix(14,0,0,14,658.601,246.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
+                </g>
+                <text x="124.447px" y="246.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">You like the fact that you can trade endlessly, but you also f<tspan x="667.216px " y="246.203px ">n</tspan>d it too balanced.</text>
+                <text x="124.447px" y="263.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">Then you can ask for a cost to nerf this a bit</text>
+                <g transform="matrix(14,0,0,14,193.37,297.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,288.139,297.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(25,124,250);fill-rule:nonzero;"/>
+                </g>
+                <text x="124.447px" y="297.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">The conf<tspan x="201.985px " y="297.203px ">g</tspan>uration f<tspan x="296.754px " y="297.203px ">l</tspan>e for this feature is located like below:</text>
+                <g transform="matrix(14,0,0,14,184.754,314.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(255,212,59);fill-rule:nonzero;"/>
+                </g>
+                <text x="150.293px" y="314.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,212,59);">conf<tspan x="193.37px " y="314.203px ">g</tspan></text>
+                <text x="201.985px" y="314.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(8,239,76);">/</text>
+                <text x="210.601px" y="314.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,212,59);">tinyeconomyrenewed</text>
+                <text x="365.678px" y="314.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(8,239,76);">/</text>
+                <g transform="matrix(14,0,0,14,443.216,314.203)">
+                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,494.908,314.203)">
+                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,546.601,314.203)">
+                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,598.293,314.203)">
+                    <rect x="0.096" y="-0.327" width="0.424" height="0.094" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(14,0,0,14,641.37,314.203)">
+                    <path d="M0.307,-0.774C0.33,-0.774 0.348,-0.767 0.362,-0.753C0.376,-0.739 0.383,-0.722 0.383,-0.702C0.383,-0.681 0.376,-0.664 0.362,-0.65C0.348,-0.636 0.33,-0.629 0.307,-0.629C0.285,-0.629 0.267,-0.636 0.253,-0.65C0.239,-0.664 0.232,-0.681 0.232,-0.702C0.232,-0.722 0.239,-0.739 0.253,-0.753C0.267,-0.767 0.285,-0.774 0.307,-0.774ZM0.387,-0.503L0.387,-0.084L0.534,-0.084L0.534,-0L0.11,-0L0.11,-0.084L0.272,-0.084L0.272,-0.418L0.115,-0.418L0.115,-0.503L0.387,-0.503Z" style="fill:rgb(255,20,109);fill-rule:nonzero;"/>
+                </g>
+                <text x="374.293px" y="314.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(255,20,109);">villager<tspan x="451.831px " y="314.203px ">t</tspan>rade<tspan x="503.524px " y="314.203px ">c</tspan>osts<tspan x="555.216px " y="314.203px ">m</tspan>oney<tspan x="606.908px " y="314.203px ">c</tspan>onf<tspan x="649.985px " y="314.203px ">g</tspan>.json</text>
+            </g>
+        </g>
+        <g transform="matrix(1,0,0,1,-84.4468,1581.56)">
+            <text x="124.447px" y="200.972px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:30px;fill:rgb(9,228,231);">Villager trade cost money feature</text>
+        </g>
+    </g>
+    <g id="The-shop-feature" serif:id="The shop feature" transform="matrix(1,0,0,1,-3.55271e-15,-24.7423)">
         <g transform="matrix(0.273209,0,0,0.266094,300.072,1248.38)">
             <clipPath id="_clip1">
                 <rect x="100.914" y="25.83" width="603.934" height="507.34"/>
@@ -224,12 +367,12 @@
             <text x="124.447px" y="314.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">indicate the price</text>
         </g>
         <g transform="matrix(1,0,0,1,-84.4468,793.851)">
-            <text x="124.447px" y="200.972px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:30px;fill:rgb(9,228,231);">The shop feature</text>
+            <text x="124.447px" y="200.972px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:30px;fill:rgb(9,228,231);">Shop feature</text>
         </g>
     </g>
     <g id="The-reward-feature" serif:id="The reward feature">
         <g transform="matrix(1,0,0,1,-84.4468,413.182)">
-            <text x="124.447px" y="200.972px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:30px;fill:rgb(9,228,231);">The reward feature</text>
+            <text x="124.447px" y="200.972px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:30px;fill:rgb(9,228,231);">Earn money feature</text>
         </g>
         <g transform="matrix(1,0,0,1,-84.4468,485.065)">
             <text x="124.447px" y="194.203px" style="font-family:'FiraCode-Medium', 'Fira Code';font-weight:500;font-size:14px;fill:rgb(25,124,250);">Players can earn monney by doing the following things:</text>

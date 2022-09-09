@@ -1,6 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.mixin;
 
-import ch.skyfy.tinyeconomyrenewed.callbacks.HopperCallback;
+import ch.skyfy.tinyeconomyrenewed.server.callbacks.HopperCallback;
 import net.minecraft.entity.vehicle.HopperMinecartEntity;
 import net.minecraft.util.ActionResult;
 import org.spongepowered.asm.mixin.Mixin;
