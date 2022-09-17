@@ -3,7 +3,6 @@ package ch.skyfy.tinyeconomyrenewed.server.features
 import ch.skyfy.tinyeconomyrenewed.both.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.server.Economy
 import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedInitializer.Companion.LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE
-import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedModServer
 import ch.skyfy.tinyeconomyrenewed.server.callbacks.CreateExplosionCallback
 import ch.skyfy.tinyeconomyrenewed.server.callbacks.HopperCallback
 import ch.skyfy.tinyeconomyrenewed.server.callbacks.PlayerInsertItemsCallback
@@ -71,7 +70,7 @@ class ShopFeature(private val databaseManager: DatabaseManager, private val econ
         createFire: Boolean,
         destructionType: Explosion.DestructionType,
     ) {
-        val sc = Configs.SHOP_CONFIG.`data`
+        val sc = Configs.SHOP_CONFIG.serializableData
 
         // If this setting is set to true
         // No kind of explosion can destroy a shop

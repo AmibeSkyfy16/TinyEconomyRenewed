@@ -74,7 +74,7 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
     }
 
     init {
-        val (url, user, password) = Configs.DB_CONFIG.`data`
+        val (url, user, password) = Configs.DB_CONFIG.serializableData
         createDatabase() // Create a new database called TinyEconomyRenewed (if it is not already exist)
         db = Database.connect("$url/TinyEconomyRenewed", "org.mariadb.jdbc.Driver", user, password) // Connect to it
         initDatabase() // Then create tables and populate it with data
@@ -103,7 +103,7 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
 
     @Suppress("SqlNoDataSourceInspection", "SqlDialectInspection")
     private fun createDatabase() {
-        val (url, user, password) = Configs.DB_CONFIG.`data`
+        val (url, user, password) = Configs.DB_CONFIG.serializableData
         Database.connect(url, "org.mariadb.jdbc.Driver", user, password).useConnection { conn ->
             val sql = "create database if not exists `TinyEconomyRenewed`;"
             conn.prepareStatement(sql).use { statement -> statement.executeQuery() }
@@ -145,7 +145,7 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
 
             if (retrievedData.blocks.contains(blockTranslationKey)) { // Now, if the current itemTranslationKey is also a block, we repeat the same process, but for minedBlockReward table
                 val minedBlockReward = db.minedBlockRewards.find { it.blockId eq block.id }
-                val amountFromConfig = Configs.MINED_BLOCK_REWARD_CONFIG.`data`.map[blockTranslationKey]!!
+                val amountFromConfig = Configs.MINED_BLOCK_REWARD_CONFIG.serializableData.map[blockTranslationKey]!!
                 if (minedBlockReward == null) {
                     db.minedBlockRewards.add(MinedBlockReward {
                         amount = amountFromConfig
@@ -166,7 +166,7 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
                 db.entities.add(entity)
             }
             val entityKilledReward = db.entityKilledRewards.find { it.entity.id eq entity.id }
-            val amountFromConfig = Configs.ENTITY_KILLED_REWARD_CONFIG.data.map[entityTranslationKey]!!
+            val amountFromConfig = Configs.ENTITY_KILLED_REWARD_CONFIG.serializableData.map[entityTranslationKey]!!
             if (entityKilledReward == null) {
                 db.entityKilledRewards.add(EntityKilledReward {
                     amount = amountFromConfig
@@ -191,7 +191,7 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
                 db.advancements.add(advancement)
             }
             val advancementReward = db.advancementRewards.find { it.advancement.id eq advancement.id }
-            val amountFromConfig = Configs.ADVANCEMENT_REWARD_CONFIG.data.map[advancementObj.advancementId]!!
+            val amountFromConfig = Configs.ADVANCEMENT_REWARD_CONFIG.serializableData.map[advancementObj.advancementId]!!
             if (advancementReward == null) {
                 db.advancementRewards.add(AdvancementReward {
                     amount = amountFromConfig

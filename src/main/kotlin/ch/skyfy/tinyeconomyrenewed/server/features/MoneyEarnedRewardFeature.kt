@@ -1,10 +1,11 @@
 package ch.skyfy.tinyeconomyrenewed.server.features
 
-import ch.skyfy.jsonconfiglib.ConfigManager
+import ch.skyfy.jsonconfiglib.updateMap
 import ch.skyfy.tinyeconomyrenewed.both.CustomSounds
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
 import ch.skyfy.tinyeconomyrenewed.server.config.MoneyEarnReward
-import ch.skyfy.tinyeconomyrenewed.server.persisent.Persistents
+import ch.skyfy.tinyeconomyrenewed.server.persisent.MoneyEarnedRewardDone
+import ch.skyfy.tinyeconomyrenewed.server.persisent.Persistents.MONEY_EARNED_REWARD_DONE
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.item.ItemStack
 import net.minecraft.server.network.ServerPlayerEntity
@@ -16,7 +17,7 @@ import net.minecraft.util.registry.Registry
 
 class MoneyEarnedRewardFeature {
 
-    private val persistentData= Persistents.MONEY_EARNED_REWARD_DONE.`data`
+    private val persistentData = MONEY_EARNED_REWARD_DONE.serializableData
 
     init {
         ServerPlayConnectionEvents.JOIN.register { handler, _, _ ->
@@ -24,13 +25,14 @@ class MoneyEarnedRewardFeature {
             val player = handler.player
 
             // If the player received some money when he wasn't connected. We will have to get it back to earned rewards now !
-            Persistents.MONEY_EARNED_REWARD_DONE.`data`.earnedRewardDone[player.uuidAsString]?.let { list ->
+            MONEY_EARNED_REWARD_DONE.serializableData.earnedRewardDone[player.uuidAsString]?.let { list ->
 
-                if (list.size >= 1)
-                    player.world.playSound(null, player.blockPos, CustomSounds.DOGECOIN_EVENT, SoundCategory.MASTER, 1f, 1f)
+                if (list.size >= 1) player.world.playSound(null, player.blockPos, CustomSounds.DOGECOIN_EVENT, SoundCategory.MASTER, 1f, 1f)
 
-                list.forEach { step ->
-                    Configs.MONEY_EARNED_REWARD_CONFIG.`data`.step[step]?.let { moneyEarnReward ->
+                val iterator = list.iterator()
+                while (iterator.hasNext()) {
+                    val step = iterator.next()
+                    Configs.MONEY_EARNED_REWARD_CONFIG.serializableData.step[step]?.let { moneyEarnReward ->
 
                         player.sendMessage(Text.literal(""))
 
@@ -53,13 +55,50 @@ class MoneyEarnedRewardFeature {
 
                         player.sendMessage(Text.literal(""))
 
-                        persistentData.earnedRewardDone.remove(player.uuidAsString)
-                        persistentData.earnedRewardDoneAndReceived[player.uuidAsString] = list.toMutableList()
-                        ConfigManager.save(Persistents.MONEY_EARNED_REWARD_DONE)
+
+                        MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDone, persistentData.earnedRewardDone) { iterator.remove() }
+                        MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDoneAndReceived, persistentData.earnedRewardDoneAndReceived) { it[player.uuidAsString] = list.toMutableList() }
+//                        persistentData.earnedRewardDone.remove(player.uuidAsString)
+//                        persistentData.earnedRewardDoneAndReceived[player.uuidAsString] = list.toMutableList()
+//                        ConfigManager.save(MONEY_EARNED_REWARD_DONE)
                     }
                 }
-            }
 
+                if(list.isEmpty()) MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDone, persistentData.earnedRewardDone) { it.remove(player.uuidAsString) }
+
+//                list.forEach { step ->
+//                    Configs.MONEY_EARNED_REWARD_CONFIG.serializableData.step[step]?.let { moneyEarnReward ->
+//
+//                        player.sendMessage(Text.literal(""))
+//
+//                        player.sendMessage(
+//                            Text.literal("You received money when you wasn't connected on the server !")
+//                                .setStyle(Style.EMPTY.withColor(Formatting.GREEN))
+//                        )
+//                        player.sendMessage(
+//                            Text.literal("Congratulations ! Your money amount reach $step !")
+//                                .setStyle(Style.EMPTY.withColor(Formatting.GREEN))
+//                        )
+//
+//                        player.sendMessage(
+//                            Text.literal("You earn ${moneyEarnReward.xpAmount} of experience")
+//                                .setStyle(Style.EMPTY.withColor(Formatting.GOLD))
+//                        )
+//
+//                        player.addExperience(moneyEarnReward.xpAmount)
+//                        dropItem(player, moneyEarnReward)
+//
+//                        player.sendMessage(Text.literal(""))
+//
+//
+//                        MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDone, persistentData.earnedRewardDone){it.remove(player.uuidAsString)}
+//                        MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDoneAndReceived, persistentData.earnedRewardDoneAndReceived){it[player.uuidAsString] = list.toMutableList()}
+////                        persistentData.earnedRewardDone.remove(player.uuidAsString)
+////                        persistentData.earnedRewardDoneAndReceived[player.uuidAsString] = list.toMutableList()
+////                        ConfigManager.save(MONEY_EARNED_REWARD_DONE)
+//                    }
+//                }
+            }
         }
     }
 
@@ -70,13 +109,13 @@ class MoneyEarnedRewardFeature {
                 else if (!listOfStepDone.contains(correctStep.key)) listOfStepDone.add(correctStep.key)
                 return@compute listOfStepDone
             }
-            ConfigManager.save(Persistents.MONEY_EARNED_REWARD_DONE)
+//            ConfigManager.save(MONEY_EARNED_REWARD_DONE)
         }
 
         // Every time a player earn money, we will check if he reaches a specific step (1000$, 10000$, etc.) and then give them some reward
         // But if the player is not connected, reward will be give to them the next time he connects
 
-        val correctStep = Configs.MONEY_EARNED_REWARD_CONFIG.`data`.step
+        val correctStep = Configs.MONEY_EARNED_REWARD_CONFIG.serializableData.step
             .toList().sortedBy { (key, _) -> key }.reversed().toMap()
             .firstNotNullOfOrNull { if (it.key <= amount) it else null }
 
@@ -108,8 +147,18 @@ class MoneyEarnedRewardFeature {
 
                 player.sendMessage(Text.literal(""))
 
-                computeAndSave(persistentData.earnedRewardDoneAndReceived, correctStep)
-            } else computeAndSave(persistentData.earnedRewardDone, correctStep)
+                MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDoneAndReceived, persistentData.earnedRewardDoneAndReceived) { computeAndSave(it, correctStep) }
+//                val compute: (MutableMap<String, MutableList<Float>>, Map.Entry<Float, MoneyEarnReward>)->Unit = {map, step ->
+//                    map.compute(uuid) { _, listOfStepDone ->
+//                        if (listOfStepDone == null) return@compute mutableListOf(step.key)
+//                        else if (!listOfStepDone.contains(step.key)) listOfStepDone.add(step.key)
+//                        return@compute listOfStepDone
+//                    }
+//                }
+//                tData.earnedRewardDone, correctStep)
+//                computeAndSave(persistentData.earnedRewardDoneAndReceived, correctStep)
+            } else MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDone, persistentData.earnedRewardDone) { computeAndSave(it, correctStep) }
+
         }
 
     }

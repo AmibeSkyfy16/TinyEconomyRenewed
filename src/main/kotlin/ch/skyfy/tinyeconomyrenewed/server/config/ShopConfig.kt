@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package ch.skyfy.tinyeconomyrenewed.server.config
 
 import ch.skyfy.jsonconfiglib.Defaultable

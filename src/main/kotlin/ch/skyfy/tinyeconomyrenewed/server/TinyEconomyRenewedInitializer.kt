@@ -1,8 +1,15 @@
 package ch.skyfy.tinyeconomyrenewed.server
 
 import ch.skyfy.jsonconfiglib.ConfigManager
+import ch.skyfy.jsonconfiglib.updateMap
 import ch.skyfy.tinyeconomyrenewed.both.TinyEconomyRenewedMod
+import ch.skyfy.tinyeconomyrenewed.server.config.AdvancementRewardConfig
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
+import ch.skyfy.tinyeconomyrenewed.server.config.Configs.ADVANCEMENT_REWARD_CONFIG
+import ch.skyfy.tinyeconomyrenewed.server.config.Configs.ENTITY_KILLED_REWARD_CONFIG
+import ch.skyfy.tinyeconomyrenewed.server.config.Configs.MINED_BLOCK_REWARD_CONFIG
+import ch.skyfy.tinyeconomyrenewed.server.config.EntityKilledRewardConfig
+import ch.skyfy.tinyeconomyrenewed.server.config.MinedBlockRewardConfig
 import ch.skyfy.tinyeconomyrenewed.server.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.server.logic.Game
 import ch.skyfy.tinyeconomyrenewed.server.utils.setupConfigDirectory
@@ -131,12 +138,21 @@ class TinyEconomyRenewedInitializer(private val optGameRef: AtomicReference<Opti
         )
 
         // Populating with default value
-        retrievedData.advancements.forEach { Configs.ADVANCEMENT_REWARD_CONFIG.`data`.map.putIfAbsent(it.advancementId, 100f) }
-        retrievedData.entities.forEach { Configs.ENTITY_KILLED_REWARD_CONFIG.`data`.map.putIfAbsent(it, 2f) }
-        retrievedData.blocks.forEach { Configs.MINED_BLOCK_REWARD_CONFIG.`data`.map.putIfAbsent(it, 0.5f) }
-        ConfigManager.save(Configs.ADVANCEMENT_REWARD_CONFIG)
-        ConfigManager.save(Configs.ENTITY_KILLED_REWARD_CONFIG)
-        ConfigManager.save(Configs.MINED_BLOCK_REWARD_CONFIG)
+        retrievedData.advancements.forEach { advancement ->
+//            Configs.ADVANCEMENT_REWARD_CONFIG.`data`.map.putIfAbsent(advancement.advancementId, 100f)
+            ADVANCEMENT_REWARD_CONFIG.updateMap(AdvancementRewardConfig::map, ADVANCEMENT_REWARD_CONFIG.serializableData.map) { it.putIfAbsent(advancement.advancementId, 100f) }
+        }
+        retrievedData.entities.forEach { translationKey ->
+//            Configs.ENTITY_KILLED_REWARD_CONFIG.`data`.map.putIfAbsent(it, 2f)
+            ENTITY_KILLED_REWARD_CONFIG.updateMap(EntityKilledRewardConfig::map, ENTITY_KILLED_REWARD_CONFIG.serializableData.map) { it.putIfAbsent(translationKey, 2f) }
+        }
+        retrievedData.blocks.forEach { translationKey ->
+//            Configs.MINED_BLOCK_REWARD_CONFIG.`data`.map.putIfAbsent(it, 0.5f)
+            MINED_BLOCK_REWARD_CONFIG.updateMap(MinedBlockRewardConfig::map, MINED_BLOCK_REWARD_CONFIG.serializableData.map){it.putIfAbsent(translationKey, 0.5f)}
+        }
+//        ConfigManager.save(Configs.ADVANCEMENT_REWARD_CONFIG)
+//        ConfigManager.save(Configs.ENTITY_KILLED_REWARD_CONFIG)
+//        ConfigManager.save(Configs.MINED_BLOCK_REWARD_CONFIG)
 
         return retrievedData
     }

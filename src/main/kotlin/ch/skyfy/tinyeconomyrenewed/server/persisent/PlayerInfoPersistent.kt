@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 data class PlayerInfosPersistent(val infos: MutableList<PlayerInfo>) : Validatable
 
 @Serializable
-data class PlayerInfo(val uuid: String, var lastLoginDate: String)
+data class PlayerInfo(val uuid: String, var lastLoginDate: String) : Validatable
 
 class DefaultPlayerInfosPersistent : Defaultable<PlayerInfosPersistent> {
     override fun getDefault() = PlayerInfosPersistent(mutableListOf())

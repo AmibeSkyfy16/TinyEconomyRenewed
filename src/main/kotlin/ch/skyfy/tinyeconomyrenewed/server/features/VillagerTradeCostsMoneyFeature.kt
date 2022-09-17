@@ -16,7 +16,7 @@ class VillagerTradeCostsMoneyFeature(private val databaseManager: DatabaseManage
     init { VillagerTradeCallback.EVENT.register(this::trade) }
 
     private fun trade(sellItem: ItemStack, serverPlayerEntity: ServerPlayerEntity): ActionResult {
-        val config = Configs.VILLAGER_TRADE_COSTS_MONEY_CONFIG.`data`
+        val config = Configs.VILLAGER_TRADE_COSTS_MONEY_CONFIG.serializableData
         if (!config.enabled) return ActionResult.PASS
 
         val priceToPay: Float = sellItem.count * config.price / config.amount
