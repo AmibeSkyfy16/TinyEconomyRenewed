@@ -15,4 +15,5 @@ object Configs {
     val MONEY_EARNED_REWARD_CONFIG = ConfigData<MoneyEarnedRewardConfig, DefaultMoneyEarnedRewardConfig>(CONFIG_DIRECTORY.resolve("money-earned-reward-config.json"), true)
     val EARN_MONEY_LOGIN_CONFIG = ConfigData<EarnMoneyLoginConfig, DefaultEarnMoneyLoginConfig>(CONFIG_DIRECTORY.resolve("earn-money-login-config.json"), true)
     val LOSS_MONEY_DYING_CONFIG = ConfigData<LossMoneyDyingConfig, DefaultLossMoneyDyingConfig>(CONFIG_DIRECTORY.resolve("loss-money-dying-config.json"), true)
+    val EARN_MONEY_BY_KILLING_PLAYERS_CONFIG = ConfigData<EarnMoneyByKillingPlayersConfig, DefaultEarnMoneyByKillingPlayersConfig>(CONFIG_DIRECTORY.resolve("earn-money-by-killing-players-config.json"), true)
 }

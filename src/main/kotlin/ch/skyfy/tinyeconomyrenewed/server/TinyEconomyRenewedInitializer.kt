@@ -139,21 +139,14 @@ class TinyEconomyRenewedInitializer(private val optGameRef: AtomicReference<Opti
 
         // Populating with default value
         retrievedData.advancements.forEach { advancement ->
-//            Configs.ADVANCEMENT_REWARD_CONFIG.`data`.map.putIfAbsent(advancement.advancementId, 100f)
-            ADVANCEMENT_REWARD_CONFIG.updateMap(AdvancementRewardConfig::map, ADVANCEMENT_REWARD_CONFIG.serializableData.map) { it.putIfAbsent(advancement.advancementId, 100f) }
+            ADVANCEMENT_REWARD_CONFIG.updateMap(AdvancementRewardConfig::map) { it.putIfAbsent(advancement.advancementId, 100f) }
         }
         retrievedData.entities.forEach { translationKey ->
-//            Configs.ENTITY_KILLED_REWARD_CONFIG.`data`.map.putIfAbsent(it, 2f)
-            ENTITY_KILLED_REWARD_CONFIG.updateMap(EntityKilledRewardConfig::map, ENTITY_KILLED_REWARD_CONFIG.serializableData.map) { it.putIfAbsent(translationKey, 2f) }
+            ENTITY_KILLED_REWARD_CONFIG.updateMap(EntityKilledRewardConfig::map) { it.putIfAbsent(translationKey, 2f) }
         }
         retrievedData.blocks.forEach { translationKey ->
-//            Configs.MINED_BLOCK_REWARD_CONFIG.`data`.map.putIfAbsent(it, 0.5f)
-            MINED_BLOCK_REWARD_CONFIG.updateMap(MinedBlockRewardConfig::map, MINED_BLOCK_REWARD_CONFIG.serializableData.map){it.putIfAbsent(translationKey, 0.5f)}
+            MINED_BLOCK_REWARD_CONFIG.updateMap(MinedBlockRewardConfig::map) { it.putIfAbsent(translationKey, 0.5f) }
         }
-//        ConfigManager.save(Configs.ADVANCEMENT_REWARD_CONFIG)
-//        ConfigManager.save(Configs.ENTITY_KILLED_REWARD_CONFIG)
-//        ConfigManager.save(Configs.MINED_BLOCK_REWARD_CONFIG)
-
         return retrievedData
     }
 

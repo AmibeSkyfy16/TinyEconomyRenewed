@@ -35,6 +35,7 @@ class Game(val databaseManager: DatabaseManager, minecraftServer: MinecraftServe
     init {
         LossMoneyDyingFeature(economy)
         EarnMoneyLoginFeature(economy)
+        EarnMoneyByKillingPlayers(economy)
         EarnMoneyFeature(databaseManager, economy)
         ShopFeature(databaseManager, economy, minecraftServer)
         VillagerTradeCostsMoneyFeature(databaseManager, economy)

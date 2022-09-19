@@ -56,48 +56,12 @@ class MoneyEarnedRewardFeature {
                         player.sendMessage(Text.literal(""))
 
 
-                        MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDone, persistentData.earnedRewardDone) { iterator.remove() }
-                        MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDoneAndReceived, persistentData.earnedRewardDoneAndReceived) { it[player.uuidAsString] = list.toMutableList() }
-//                        persistentData.earnedRewardDone.remove(player.uuidAsString)
-//                        persistentData.earnedRewardDoneAndReceived[player.uuidAsString] = list.toMutableList()
-//                        ConfigManager.save(MONEY_EARNED_REWARD_DONE)
+                        MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDone) { iterator.remove() }
+                        MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDoneAndReceived) { it[player.uuidAsString] = list.toMutableList() }
                     }
                 }
 
-                if(list.isEmpty()) MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDone, persistentData.earnedRewardDone) { it.remove(player.uuidAsString) }
-
-//                list.forEach { step ->
-//                    Configs.MONEY_EARNED_REWARD_CONFIG.serializableData.step[step]?.let { moneyEarnReward ->
-//
-//                        player.sendMessage(Text.literal(""))
-//
-//                        player.sendMessage(
-//                            Text.literal("You received money when you wasn't connected on the server !")
-//                                .setStyle(Style.EMPTY.withColor(Formatting.GREEN))
-//                        )
-//                        player.sendMessage(
-//                            Text.literal("Congratulations ! Your money amount reach $step !")
-//                                .setStyle(Style.EMPTY.withColor(Formatting.GREEN))
-//                        )
-//
-//                        player.sendMessage(
-//                            Text.literal("You earn ${moneyEarnReward.xpAmount} of experience")
-//                                .setStyle(Style.EMPTY.withColor(Formatting.GOLD))
-//                        )
-//
-//                        player.addExperience(moneyEarnReward.xpAmount)
-//                        dropItem(player, moneyEarnReward)
-//
-//                        player.sendMessage(Text.literal(""))
-//
-//
-//                        MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDone, persistentData.earnedRewardDone){it.remove(player.uuidAsString)}
-//                        MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDoneAndReceived, persistentData.earnedRewardDoneAndReceived){it[player.uuidAsString] = list.toMutableList()}
-////                        persistentData.earnedRewardDone.remove(player.uuidAsString)
-////                        persistentData.earnedRewardDoneAndReceived[player.uuidAsString] = list.toMutableList()
-////                        ConfigManager.save(MONEY_EARNED_REWARD_DONE)
-//                    }
-//                }
+                if(list.isEmpty()) MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDone) { it.remove(player.uuidAsString) }
             }
         }
     }
@@ -109,7 +73,6 @@ class MoneyEarnedRewardFeature {
                 else if (!listOfStepDone.contains(correctStep.key)) listOfStepDone.add(correctStep.key)
                 return@compute listOfStepDone
             }
-//            ConfigManager.save(MONEY_EARNED_REWARD_DONE)
         }
 
         // Every time a player earn money, we will check if he reaches a specific step (1000$, 10000$, etc.) and then give them some reward
@@ -147,17 +110,8 @@ class MoneyEarnedRewardFeature {
 
                 player.sendMessage(Text.literal(""))
 
-                MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDoneAndReceived, persistentData.earnedRewardDoneAndReceived) { computeAndSave(it, correctStep) }
-//                val compute: (MutableMap<String, MutableList<Float>>, Map.Entry<Float, MoneyEarnReward>)->Unit = {map, step ->
-//                    map.compute(uuid) { _, listOfStepDone ->
-//                        if (listOfStepDone == null) return@compute mutableListOf(step.key)
-//                        else if (!listOfStepDone.contains(step.key)) listOfStepDone.add(step.key)
-//                        return@compute listOfStepDone
-//                    }
-//                }
-//                tData.earnedRewardDone, correctStep)
-//                computeAndSave(persistentData.earnedRewardDoneAndReceived, correctStep)
-            } else MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDone, persistentData.earnedRewardDone) { computeAndSave(it, correctStep) }
+                MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDoneAndReceived) { computeAndSave(it, correctStep) }
+            } else MONEY_EARNED_REWARD_DONE.updateMap(MoneyEarnedRewardDone::earnedRewardDone) { computeAndSave(it, correctStep) }
 
         }
 

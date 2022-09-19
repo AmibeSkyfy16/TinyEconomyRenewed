@@ -11,7 +11,6 @@ class LossMoneyDyingFeature(private val economy: Economy) {
 
     init {
         ServerPlayerEvents.ALLOW_DEATH.register{ player, _, _ ->
-            println("player death")
             val amount = Configs.LOSS_MONEY_DYING_CONFIG.serializableData.amount
             player.sendMessage(Text.literal("You are dead ! You loss $amount of your money").setStyle(Style.EMPTY.withColor(Formatting.GREEN)))
             economy.withdraw(player.uuidAsString, amount)

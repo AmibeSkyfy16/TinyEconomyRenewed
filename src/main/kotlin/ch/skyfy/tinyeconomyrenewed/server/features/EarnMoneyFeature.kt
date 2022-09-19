@@ -98,18 +98,15 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
             if (last.key - entry.key >= 1 * 30 * 1000) {
 
                 // If player kill 20 or more entities without moving in the last one minute, we nerf
-                if (index >= minAmount1 && !isPlayerMove)
-                    return true
+                if (index >= minAmount1 && !isPlayerMove) return true
 
                 // If player kill 40 or more entities while moving in the last one minute, we nerf
-                if (index >= minAmount2)
-                    return true
+                if (index >= minAmount2) return true
 
                 break
             } else if (!ite.hasNext()) {
                 // If player kill more than 15 entities in last few seconds
-                if (index >= minAmount3)
-                    return true
+                if (index >= minAmount3) return true
             }
         }
         return false

@@ -1,6 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.server.features
 
-import ch.skyfy.jsonconfiglib.updateList
+import ch.skyfy.jsonconfiglib.updateIterable
 import ch.skyfy.jsonconfiglib.updateNested
 import ch.skyfy.tinyeconomyrenewed.server.Economy
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
@@ -39,12 +39,8 @@ class EarnMoneyLoginFeature(private val economy: Economy) {
         player.sendMessage(Text.literal("First login for today ! You've just earn $amount").setStyle(Style.EMPTY.withColor(Formatting.GREEN)))
         economy.deposit(player, player.uuidAsString) { amount }
 
-        if (playerInfo == null) PLAYER_INFOS.updateList(PlayerInfosPersistent::infos, PLAYER_INFOS.serializableData.infos) { it.add(PlayerInfo(player.uuidAsString, formatter.format(zonedDateTime))) }
+        if (playerInfo == null) PLAYER_INFOS.updateIterable(PlayerInfosPersistent::infos) { it.add(PlayerInfo(player.uuidAsString, formatter.format(zonedDateTime))) }
         else PLAYER_INFOS.updateNested(PlayerInfo::lastLoginDate, playerInfo, formatter.format(zonedDateTime))
-
-//        if(playerInfo == null) Persistents.PLAYER_INFOS.serializableData.infos.add(PlayerInfo(player.uuidAsString, formatter.format(zonedDateTime)))
-//        else playerInfo.lastLoginDate = formatter.format(zonedDateTime)
-//        ConfigManager.save(Persistents.PLAYER_INFOS)
     }
 
 }
