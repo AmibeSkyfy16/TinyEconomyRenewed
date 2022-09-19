@@ -1,6 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.mixin;
 
-import ch.skyfy.tinyeconomyrenewed.callbacks.HopperCallback;
+import ch.skyfy.tinyeconomyrenewed.server.callbacks.HopperCallback;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.util.ActionResult;

@@ -16,5 +16,5 @@
 12. Type this command: cd 'C:\Program Files\MariaDB 10.8.3\bin'
 13. Now we can use mariadb.exe to enter in the database server. Type this command: .\mariadb.exe --user='root' --password='Pa$$w0rd' --port='3307'
 14. You can leave by typing this command: exit
- 
+
 15. Now, if you want to stop the MariaDB server, type this command: .\mariadb-admin.exe --user='root' --password='Pa$$w0rd' --port='3307' shutdown

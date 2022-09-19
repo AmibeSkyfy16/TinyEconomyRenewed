@@ -1,6 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.mixin;
 
-import ch.skyfy.tinyeconomyrenewed.callbacks.AdvancementCompletedCallback;
+import ch.skyfy.tinyeconomyrenewed.server.callbacks.AdvancementCompletedCallback;
 import net.minecraft.advancement.Advancement;
 import net.minecraft.advancement.PlayerAdvancementTracker;
 import net.minecraft.server.network.ServerPlayerEntity;

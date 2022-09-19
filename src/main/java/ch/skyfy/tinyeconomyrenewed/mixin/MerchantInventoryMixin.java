@@ -1,6 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.mixin;
 
-import ch.skyfy.tinyeconomyrenewed.callbacks.VillagerTradeCallback;
+import ch.skyfy.tinyeconomyrenewed.server.callbacks.VillagerTradeCallback;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;

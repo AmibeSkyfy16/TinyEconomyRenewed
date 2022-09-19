@@ -10,16 +10,25 @@
   "contact": {},
   "license": "MIT",
   "icon": "assets/tinyeconomyrenewed/icon.png",
-  "environment": "server",
+  "environment": "*",
   "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "ch.skyfy.tinyeconomyrenewed.both.TinyEconomyRenewedMod"
+      }
+    ],
     "server": [
       {
         "adapter": "kotlin",
-        "value": "ch.skyfy.tinyeconomyrenewed.TinyEconomyRenewedMod"
+        "value": "ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedModServer"
       }
     ],
-    "main": [
-      
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "ch.skyfy.tinyeconomyrenewed.client.TinyEconomyRenewedModClient"
+      }
     ]
   },
   "mixins": [

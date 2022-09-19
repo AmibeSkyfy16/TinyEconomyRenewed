@@ -1,10 +1,9 @@
 package ch.skyfy.tinyeconomyrenewed.mixin;
 
-import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerJoinCallback;
+import ch.skyfy.tinyeconomyrenewed.server.callbacks.PlayerJoinCallback;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.stat.Stats;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

@@ -52,8 +52,8 @@ dependencies {
     transitiveInclude(implementation("org.ktorm:ktorm-core:3.5.0")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.5.0")!!)
     transitiveInclude(implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")!!)
-    transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.1")!!)
-    transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.0")!!)
+    transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.2")!!)
+    transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.9")!!)
 
     handleIncludes(project, transitiveInclude)
 
@@ -116,7 +116,8 @@ tasks {
 
     val copyJarToTestServer = register("copyJarToTestServer") {
         println("copy to server")
-        copyFile("build/libs/TinyEconomyRenewed-1.0.4+1.19.2.jar", project.property("testServerModsFolder") as String)
+        copyFile("build/libs/TinyEconomyRenewed-${project.properties["mod_version"]}.jar", project.property("testServerModsFolder") as String)
+        copyFile("build/libs/TinyEconomyRenewed-${project.properties["mod_version"]}.jar", project.property("curseforge_test_profile") as String)
     }
 
     build {

@@ -1,6 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.mixin;
 
-import ch.skyfy.tinyeconomyrenewed.callbacks.PlayerInsertItemsCallback;
+import ch.skyfy.tinyeconomyrenewed.server.callbacks.PlayerInsertItemsCallback;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
