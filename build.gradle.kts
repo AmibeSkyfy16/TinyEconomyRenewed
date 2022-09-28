@@ -205,7 +205,6 @@ fun DependencyHandlerScope.handleIncludes(project: Project, configuration: Confi
     includeTransitive(
         null,
         configuration.resolvedConfiguration.firstLevelModuleDependencies,
-        project.configurations.getByName("modImplementation").resolvedConfiguration.firstLevelModuleDependencies
-            .first { it.moduleGroup == "net.fabricmc" && it.moduleName == "fabric-language-kotlin" }
+        project.configurations.getByName("modImplementation").resolvedConfiguration.firstLevelModuleDependencies.first { it.moduleGroup == "net.fabricmc" && it.moduleName == "fabric-language-kotlin" }
     )
 }

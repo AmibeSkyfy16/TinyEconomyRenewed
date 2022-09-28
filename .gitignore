@@ -1,6 +1,5 @@
-# Project exclude paths
-/.gradle/
+/testServer/
+/testClient/
 /build/
-/libs/
-/run/
-/logs/
+/.gradle/
+/.idea/
