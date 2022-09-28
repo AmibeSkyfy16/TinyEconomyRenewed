@@ -42,7 +42,6 @@ class ScoreboardManager(private val databaseManager: DatabaseManager) {
 
     fun updatePlayerMoney(uuid: String, amount: Float) = sideboards.find { it.uuid == uuid }?.updatableLine?.launchUpdate("Money: $amount".literal)
 
-    @OptIn(DelicateSilkApi::class)
     private fun initialize() {
         ServerPlayConnectionEvents.DISCONNECT.register { handler, _ -> sideboards.removeIf { it.uuid == handler.player.uuidAsString } }
 
