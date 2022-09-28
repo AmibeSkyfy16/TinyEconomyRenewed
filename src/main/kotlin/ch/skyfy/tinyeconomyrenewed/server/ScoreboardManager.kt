@@ -50,7 +50,7 @@ class ScoreboardManager(private val databaseManager: DatabaseManager) {
 
             val playerUUID = player.uuidAsString
 
-            LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
+//            LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
                 if (sideboards.none { it.uuid == playerUUID }) {
                     val moneyLine = SideboardLine.Updatable("Money: -1.0".literal)
                     val mySideboard = sideboard("<< Main Board >>".literal) {
@@ -60,14 +60,13 @@ class ScoreboardManager(private val databaseManager: DatabaseManager) {
                     mySideboard.displayToPlayer(player)
                     sideboards.add(PlayerSideboard(playerUUID, mySideboard, moneyLine))
 
-                    // TODO repair this
                     updatePlayerMoney(playerUUID)
 //                    silkCoroutineScope.launch {
 //                        delay(1000)
 //                        updatePlayerMoney(playerUUID)
 //                    }
                 }
-            }
+//            }
         }
     }
 }
