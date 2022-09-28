@@ -39,6 +39,6 @@
     "fabric": "*",
     "minecraft": "1.19.2",
     "fabric-language-kotlin": ">=1.8.3+kotlin.1.7.10",
-    "silk-all": ">=1.9.2"
+    "silk-game": ">=1.9.2"
   }
 }

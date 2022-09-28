@@ -1,6 +1,7 @@
 package ch.skyfy.tinyeconomyrenewed.both
 
 import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedModServer
+import ch.skyfy.tinyeconomyrenewed.server.utils.setupConfigDirectory
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.util.registry.Registry
@@ -16,6 +17,8 @@ class TinyEconomyRenewedMod : ModInitializer {
         val PERSISTENT_DIRECTORY: Path = CONFIG_DIRECTORY.resolve("persistent")
         val LOGGER: Logger = LogManager.getLogger(TinyEconomyRenewedModServer::class.java)
     }
+
+    init { setupConfigDirectory() }
 
     override fun onInitialize() { Registry.register(Registry.SOUND_EVENT, CustomSounds.DOGECOIN_ID, CustomSounds.DOGECOIN_EVENT) }
 

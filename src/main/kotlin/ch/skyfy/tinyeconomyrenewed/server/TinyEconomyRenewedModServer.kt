@@ -1,6 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.server
 
-import ch.skyfy.tinyeconomyrenewed.commands.UpdateMoneyFromDatabase
+import ch.skyfy.tinyeconomyrenewed.server.commands.UpdateMoneyFromDatabase
 import ch.skyfy.tinyeconomyrenewed.server.logic.Game
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback

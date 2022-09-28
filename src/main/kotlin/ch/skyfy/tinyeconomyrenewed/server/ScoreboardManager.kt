@@ -5,12 +5,10 @@ import ch.skyfy.tinyeconomyrenewed.server.callbacks.PlayerJoinCallback
 import ch.skyfy.tinyeconomyrenewed.server.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.server.db.Player
 import ch.skyfy.tinyeconomyrenewed.server.logic.Game.Companion.PLAYER_JOIN_CALLBACK_SECOND
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.text.Text
 import net.silkmc.silk.core.annotations.DelicateSilkApi
-import net.silkmc.silk.core.task.silkCoroutineScope
 import net.silkmc.silk.core.text.literal
 import net.silkmc.silk.game.sideboard.Sideboard
 import net.silkmc.silk.game.sideboard.SideboardLine
@@ -61,10 +59,13 @@ class ScoreboardManager(private val databaseManager: DatabaseManager) {
                     }
                     mySideboard.displayToPlayer(player)
                     sideboards.add(PlayerSideboard(playerUUID, mySideboard, moneyLine))
-                    silkCoroutineScope.launch {
-                        delay(1000)
-                        updatePlayerMoney(playerUUID)
-                    }
+
+                    // TODO repair this
+                    updatePlayerMoney(playerUUID)
+//                    silkCoroutineScope.launch {
+//                        delay(1000)
+//                        updatePlayerMoney(playerUUID)
+//                    }
                 }
             }
         }

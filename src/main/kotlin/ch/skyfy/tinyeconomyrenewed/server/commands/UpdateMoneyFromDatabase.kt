@@ -1,4 +1,4 @@
-package ch.skyfy.tinyeconomyrenewed.commands
+package ch.skyfy.tinyeconomyrenewed.server.commands
 
 
 import ch.skyfy.tinyeconomyrenewed.both.TinyEconomyRenewedMod.Companion.LOGGER

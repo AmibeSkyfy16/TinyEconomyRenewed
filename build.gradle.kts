@@ -60,11 +60,65 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.7.10")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
 }
+
 tasks {
 
     val javaVersion = JavaVersion.VERSION_17
 
-    processResources {
+    val copyJarToTestServer = register("copyJarToTestServer") {
+        println("copying jar to test server")
+//        copyFile("build/libs/${archivesName}-$version.jar", project.property("testServerModsFolder") as String)
+//        copyFile("build/libs/${archivesName}-$version.jar", project.property("testClientModsFolder") as String)
+    }
+
+    loom {
+
+        runs {
+
+            this.getByName("client"){
+                runDir = "testClient"
+
+                // Copy some default files to the test client
+                copy {
+                    from("dev/prepared_client/.")
+                    into("testClient")
+                    include("options.txt") // options.txt with my favorite settings
+                }
+            }
+
+            this.getByName("server"){
+                runDir = "testServer"
+
+                // Copy some default files to the test server
+                copy {
+                    from("dev/prepared_server/.")
+                    into("testServer")
+                    include("eula.txt") // Accepted eula
+                    include("server.properties") // server.properties configured with usefully settings
+                    include("world/**") // A flat world, fast to load
+                }
+            }
+        }
+
+    }
+
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(javaVersion.toString()))
+            vendor.set(JvmVendorSpec.BELLSOFT)
+        }
+
+        withSourcesJar()
+        withJavadocJar()
+    }
+
+    named<Wrapper>("wrapper") {
+        gradleVersion = "7.5.1"
+        distributionType = Wrapper.DistributionType.BIN
+    }
+
+    @Suppress("UnstableApiUsage")
+    named<ProcessResources>("processResources") {
         inputs.property("version", project.version)
         filteringCharset = "UTF-8"
         filesMatching("fabric.mod.json") {
@@ -72,13 +126,8 @@ tasks {
         }
     }
 
-    java {
-        withSourcesJar()
-    }
-
-    named<Wrapper>("wrapper") {
-        gradleVersion = "7.5.1"
-        distributionType = Wrapper.DistributionType.ALL
+    named<Javadoc>("javadoc") {
+        options.quiet() // Ignore javadoc error message
     }
 
     named<KotlinCompile>("compileKotlin") {
@@ -112,12 +161,6 @@ tasks {
             println("\tshowCauses: ${testLogging.showCauses}")
             println("\tshowStandardStreams: ${testLogging.showStandardStreams}")
         }
-    }
-
-    val copyJarToTestServer = register("copyJarToTestServer") {
-        println("copy to server")
-        copyFile("build/libs/TinyEconomyRenewed-${project.properties["mod_version"]}.jar", project.property("testServerModsFolder") as String)
-        copyFile("build/libs/TinyEconomyRenewed-${project.properties["mod_version"]}.jar", project.property("curseforge_test_profile") as String)
     }
 
     build {
