@@ -1,7 +1,7 @@
 package ch.skyfy.tinyeconomyrenewed.server.config
 
-import ch.skyfy.jsonconfiglib.Defaultable
-import ch.skyfy.jsonconfiglib.Validatable
+import ch.skyfy.json5configlib.Defaultable
+import ch.skyfy.json5configlib.Validatable
 import kotlinx.serialization.Serializable
 
 @Serializable

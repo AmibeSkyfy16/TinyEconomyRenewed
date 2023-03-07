@@ -12,15 +12,15 @@
 
 @file:Suppress("GradlePackageVersionRange")
 
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.archivesName
+
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val transitiveInclude: Configuration by configurations.creating
 
 plugins {
-    id("fabric-loom") version "1.0-SNAPSHOT"
-    id("org.jetbrains.kotlin.jvm") version "1.7.10"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.10"
+    id("fabric-loom") version "1.1-SNAPSHOT"
+    id("org.jetbrains.kotlin.jvm") version "1.8.10"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.10"
     idea
 }
 
@@ -33,10 +33,10 @@ base {
 repositories {
     mavenCentral()
     mavenLocal()
-    maven("https://maven.bymartrixx.me")
+//    maven("https://maven.bymartrixx.me")
     maven("https://jitpack.io")
     maven("https://maven.nucleoid.xyz")
-    maven("https://repo.repsy.io/mvn/amibeskyfy16/repo") // Use for my JsonConfig lib
+    maven("https://repo.repsy.io/mvn/amibeskyfy16/repo") // Use for my json5Config lib
 }
 
 dependencies {
@@ -48,16 +48,16 @@ dependencies {
     modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
     modImplementation("net.silkmc:silk-game:${properties["silk_version"]}")
 
-    transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.0.7")!!)
-    transitiveInclude(implementation("org.ktorm:ktorm-core:3.5.0")!!)
-    transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.5.0")!!)
+    transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.1.2")!!)
+    transitiveInclude(implementation("org.ktorm:ktorm-core:3.6.0")!!)
+    transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.6.0")!!)
     transitiveInclude(implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")!!)
     transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.2")!!)
-    transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.9")!!)
+    transitiveInclude(implementation("ch.skyfy.json5configlib:json5-config-lib:1.0.22")!!)
 
     handleIncludes(project, transitiveInclude)
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.7.10")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.10")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
 }
 
@@ -67,7 +67,7 @@ tasks {
 
     val copyJarToTestServer = register("copyJarToTestServer") {
         println("copying jar to test server")
-//        copyFile("build/libs/${archivesName}-$version.jar", project.property("testServerModsFolder") as String)
+        copyFile("build/libs/${base.archivesName.get()}-$version.jar", project.property("testServerModsFolder") as String)
 //        copyFile("build/libs/${archivesName}-$version.jar", project.property("testClientModsFolder") as String)
     }
 
@@ -104,8 +104,8 @@ tasks {
 
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(javaVersion.toString()))
-            vendor.set(JvmVendorSpec.BELLSOFT)
+//            languageVersion.set(JavaLanguageVersion.of(javaVersion.toString()))
+//            vendor.set(JvmVendorSpec.BELLSOFT)
         }
 
         withSourcesJar()
@@ -121,7 +121,7 @@ tasks {
     named<ProcessResources>("processResources") {
         inputs.property("version", project.version)
         filteringCharset = "UTF-8"
-        filesMatching("fabric.mod.json") {
+        filesMatching("fabric.mod.json5") {
             expand(mutableMapOf("version" to project.version))
         }
     }
@@ -142,7 +142,7 @@ tasks {
 
     named<Jar>("jar") {
         from("LICENSE") {
-            rename { "${it}_${archivesName}" }
+            rename { "${it}_${base.archivesName.get()}" }
         }
     }
 

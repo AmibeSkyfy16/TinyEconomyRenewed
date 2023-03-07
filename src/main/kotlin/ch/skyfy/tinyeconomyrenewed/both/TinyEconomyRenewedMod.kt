@@ -4,7 +4,8 @@ import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedModServer
 import ch.skyfy.tinyeconomyrenewed.server.utils.setupConfigDirectory
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
-import net.minecraft.util.registry.Registry
+import net.minecraft.registry.Registries
+import net.minecraft.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.nio.file.Path
@@ -20,7 +21,9 @@ class TinyEconomyRenewedMod : ModInitializer {
 
     init { setupConfigDirectory() }
 
-    override fun onInitialize() { Registry.register(Registry.SOUND_EVENT, CustomSounds.DOGECOIN_ID, CustomSounds.DOGECOIN_EVENT) }
+    override fun onInitialize() {
+        Registry.register(Registries.SOUND_EVENT, CustomSounds.DOGECOIN_ID, CustomSounds.DOGECOIN_EVENT)
+    }
 
 
 }

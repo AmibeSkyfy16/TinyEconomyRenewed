@@ -84,7 +84,7 @@ tasks {
     processResources {
         inputs.property("version", project.version)
         filteringCharset = "UTF-8"
-        filesMatching("fabric.mod.json") {
+        filesMatching("fabric.mod.json5") {
             expand(mutableMapOf("version" to project.version))
         }
     }

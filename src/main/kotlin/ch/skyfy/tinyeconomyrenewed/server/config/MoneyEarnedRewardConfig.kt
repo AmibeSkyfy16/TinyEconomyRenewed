@@ -1,7 +1,8 @@
 package ch.skyfy.tinyeconomyrenewed.server.config
 
-import ch.skyfy.jsonconfiglib.Defaultable
-import ch.skyfy.jsonconfiglib.Validatable
+import ch.skyfy.json5configlib.Defaultable
+import ch.skyfy.json5configlib.Validatable
+import kotlinx.serialization.Serializable
 
 @kotlinx.serialization.Serializable
 data class MoneyEarnedRewardConfig(
@@ -17,7 +18,7 @@ data class MoneyEarnedRewardConfig(
     }
 }
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class MoneyEarnReward(
     val xpAmount: Int,
     val earnedItems: Map<String, Int>

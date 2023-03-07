@@ -1,6 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.server.features
 
-import ch.skyfy.jsonconfiglib.updateMap
+import ch.skyfy.json5configlib.updateMap
 import ch.skyfy.tinyeconomyrenewed.both.CustomSounds
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
 import ch.skyfy.tinyeconomyrenewed.server.config.MoneyEarnReward
@@ -8,12 +8,12 @@ import ch.skyfy.tinyeconomyrenewed.server.persisent.MoneyEarnedRewardDone
 import ch.skyfy.tinyeconomyrenewed.server.persisent.Persistents.MONEY_EARNED_REWARD_DONE
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.item.ItemStack
+import net.minecraft.registry.Registries
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
-import net.minecraft.util.registry.Registry
 
 class MoneyEarnedRewardFeature {
 
@@ -121,7 +121,7 @@ class MoneyEarnedRewardFeature {
         player.server.execute {
             player.sendMessage(Text.literal("You earned the following item (dropping on the ground now)").setStyle(Style.EMPTY.withColor(Formatting.GREEN)))
             moneyEarnReward.earnedItems.forEach { earnedItem ->
-                val item = Registry.ITEM.find { it.translationKey == earnedItem.key } ?: return@execute
+                val item = Registries.ITEM.find { it.translationKey == earnedItem.key } ?: return@execute
                 player.sendMessage(Text.literal("    - ${item.name.string} ${earnedItem.value}x").setStyle(Style.EMPTY.withColor(Formatting.GOLD)))
                 for (i in 0..earnedItem.value) player.dropItem(ItemStack(item, 1), true, false)
             }

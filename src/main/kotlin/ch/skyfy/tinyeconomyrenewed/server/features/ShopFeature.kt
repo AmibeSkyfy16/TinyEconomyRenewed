@@ -39,6 +39,7 @@ import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.world.World
+import net.minecraft.world.World.ExplosionSourceType
 import net.minecraft.world.explosion.Explosion
 import net.minecraft.world.explosion.ExplosionBehavior
 
@@ -56,7 +57,7 @@ class ShopFeature(private val databaseManager: DatabaseManager, private val econ
         HopperCallback.EVENT.register(this::cancelHopperFromStealingAShop)
     }
 
-    @Suppress("UNUSED_PARAMETER")
+    //    @Suppress("UNUSED_PARAMETER")
     private fun manageShopExplosion(
         explosion: Explosion,
         serverWorld: ServerWorld,
@@ -68,7 +69,7 @@ class ShopFeature(private val databaseManager: DatabaseManager, private val econ
         z: Double,
         power: Float,
         createFire: Boolean,
-        destructionType: Explosion.DestructionType,
+        explosionSourceType: ExplosionSourceType,
     ) {
         val sc = Configs.SHOP_CONFIG.serializableData
 
@@ -88,11 +89,11 @@ class ShopFeature(private val databaseManager: DatabaseManager, private val econ
 
         sc.allowShopsToBeDestroyedByAnExplosion.forEach { (explosionType, value) ->
             if (entity != null) {
-                if (explosionType.id == entity.type.translationKey && !value)
+                if (explosionType!!.id == entity.type.translationKey && !value!!)
                     return cancelShopToBeDestroyed(explosion, serverWorld)
             }
             if (damageSource != null) {
-                if (damageSource.name == explosionType.id && !value) // bed in nether or respawn anchor
+                if (damageSource.name == explosionType!!.id && !value!!) // bed in nether or respawn anchor
                     cancelShopToBeDestroyed(explosion, serverWorld)
             }
         }
@@ -286,7 +287,7 @@ class ShopFeature(private val databaseManager: DatabaseManager, private val econ
         val vendorName = sign.getTextOnRow(0, false).string
 
         // TODO this code, can potentially stuck the minecraft server thread
-        databaseManager.cachePlayers.find { player: Player ->  player.name == vendorName } ?: return null
+        databaseManager.cachePlayers.find { player: Player -> player.name == vendorName } ?: return null
 
         val args = sign.getTextOnRow(2, false).string.split(" ")
         if (args.count() != 3) return null

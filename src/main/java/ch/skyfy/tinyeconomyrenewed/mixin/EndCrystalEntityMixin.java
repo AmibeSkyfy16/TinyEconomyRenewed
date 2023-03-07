@@ -1,9 +1,11 @@
 package ch.skyfy.tinyeconomyrenewed.mixin;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.explosion.ExplosionBehavior;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -15,11 +17,11 @@ public class EndCrystalEntityMixin {
             method = "damage",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/World;createExplosion(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/world/explosion/Explosion$DestructionType;)Lnet/minecraft/world/explosion/Explosion;"
+                    target = "Lnet/minecraft/world/World;createExplosion(Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/damage/DamageSource;Lnet/minecraft/world/explosion/ExplosionBehavior;DDDFZLnet/minecraft/world/World$ExplosionSourceType;)Lnet/minecraft/world/explosion/Explosion;"
             )
     )
-    public Explosion damage(World instance, Entity entity, double x, double y, double z, float power, Explosion.DestructionType destructionType){
+    public Explosion damage(World instance, Entity entity, DamageSource damageSource, ExplosionBehavior behavior, double x, double y, double z, float power, boolean createFire, World.ExplosionSourceType explosionSourceType){
         var obj = (EndCrystalEntity)(Object)this;
-        return instance.createExplosion(obj, obj.getX(), obj.getY(), obj.getZ(), 6.0F, Explosion.DestructionType.DESTROY);
+        return instance.createExplosion(obj, obj.getX(), obj.getY(), obj.getZ(), 6.0F, explosionSourceType);
     }
 }

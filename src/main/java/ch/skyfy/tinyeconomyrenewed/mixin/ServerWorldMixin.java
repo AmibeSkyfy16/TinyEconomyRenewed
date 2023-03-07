@@ -13,18 +13,18 @@ import org.spongepowered.asm.mixin.injection.*;
 @Mixin(ServerWorld.class)
 public abstract class ServerWorldMixin {
 
-    @ModifyVariable(
-            method = "createExplosion",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/explosion/Explosion;collectBlocksAndDamageEntities()V",
-                    shift = At.Shift.AFTER
-            )
-    )
-    public Explosion createExplosion(Explosion explosion, @Nullable Entity entity, @Nullable DamageSource damageSource, @Nullable ExplosionBehavior behavior, double x, double y, double z, float power, boolean createFire, Explosion.DestructionType destructionType) {
-        explosion.collectBlocksAndDamageEntities();
-        CreateExplosionCallback.EVENT.invoker().createExplosion(explosion, (ServerWorld) (Object)this, entity, damageSource, behavior,x,y,z,power,createFire, destructionType);
-        return explosion;
-    }
+//    @ModifyVariable(
+//            method = "createExplosion",
+//            at = @At(
+//                    value = "INVOKE",
+//                    target = "Lnet/minecraft/world/explosion/Explosion;collectBlocksAndDamageEntities()V",
+//                    shift = At.Shift.AFTER
+//            )
+//    )
+//    public Explosion createExplosion(Explosion explosion, @Nullable Entity entity, @Nullable DamageSource damageSource, @Nullable ExplosionBehavior behavior, double x, double y, double z, float power, boolean createFire, Explosion.DestructionType destructionType) {
+//        explosion.collectBlocksAndDamageEntities();
+//        CreateExplosionCallback.EVENT.invoker().createExplosion(explosion, (ServerWorld) (Object)this, entity, damageSource, behavior,x,y,z,power,createFire, destructionType);
+//        return explosion;
+//    }
 
 }

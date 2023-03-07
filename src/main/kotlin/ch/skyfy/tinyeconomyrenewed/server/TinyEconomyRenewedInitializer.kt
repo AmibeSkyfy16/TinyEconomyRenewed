@@ -1,7 +1,7 @@
 package ch.skyfy.tinyeconomyrenewed.server
 
-import ch.skyfy.jsonconfiglib.ConfigManager
-import ch.skyfy.jsonconfiglib.updateMap
+import ch.skyfy.json5configlib.ConfigManager
+import ch.skyfy.json5configlib.updateMap
 import ch.skyfy.tinyeconomyrenewed.both.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.server.config.AdvancementRewardConfig
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
@@ -20,12 +20,12 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.lingala.zip4j.ZipFile
+import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.Language
-import net.minecraft.util.registry.Registry
 import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
@@ -91,7 +91,7 @@ class TinyEconomyRenewedInitializer(private val optGameRef: AtomicReference<Opti
 
     /**
      * This fun will retrieve data like all available advancement, all items, etc.
-     * Once all data retrieved, it will update some JSON configuration files that have been created earlier with data and default value
+     * Once all data retrieved, it will update some json5 configuration files that have been created earlier with data and default value
      *
      * @param minecraftServer A [MinecraftServer] object used to retrieve some data
      * @return A [RetrievedData] object representing the data that have been retrieved
@@ -112,7 +112,7 @@ class TinyEconomyRenewedInitializer(private val optGameRef: AtomicReference<Opti
                     val mods = FabricLoader.getInstance().allMods
                     val filtered = mods.filter { mod -> mod.metadata.id == it.id.namespace }
                     if (filtered.isNotEmpty()) {
-                        val fileLocation = "assets/${it.id.namespace}/lang/en_us.json"
+                        val fileLocation = "assets/${it.id.namespace}/lang/en_us.json5"
 
                         if (!extractedFiles.contains(fileLocation)) {
                             ZipFile(filtered[0].origin.paths[0].toFile()).extractFile(fileLocation, TinyEconomyRenewedMod.CONFIG_DIRECTORY.resolve("extracted").absolutePathString())
@@ -132,9 +132,9 @@ class TinyEconomyRenewedInitializer(private val optGameRef: AtomicReference<Opti
             }
             Advancement(it.id.toString(), it.display?.frame.toString(), title, description)
         }.sortedWith(compareBy { it.advancementId }),
-            Registry.ITEM.ids.map { "item.${it.toTranslationKey()}" }.sortedWith(compareBy { it }),
-            Registry.BLOCK.ids.map { "block.${it.toTranslationKey()}" }.sortedWith(compareBy { it }),
-            Registry.ENTITY_TYPE.ids.map { "entity.${it.toTranslationKey()}" }.sortedWith(compareBy { it })
+            Registries.ITEM.ids.map { "item.${it.toTranslationKey()}" }.sortedWith(compareBy { it }),
+            Registries.BLOCK.ids.map { "block.${it.toTranslationKey()}" }.sortedWith(compareBy { it }),
+            Registries.ENTITY_TYPE.ids.map { "entity.${it.toTranslationKey()}" }.sortedWith(compareBy { it })
         )
 
         // Populating with default value

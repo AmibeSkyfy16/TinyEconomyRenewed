@@ -35,10 +35,10 @@
     "tinyeconomyrenewed.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.14.9",
+    "fabricloader": ">=0.14.17",
     "fabric": "*",
-    "minecraft": "1.19.2",
-    "fabric-language-kotlin": ">=1.8.3+kotlin.1.7.10",
-    "silk-game": ">=1.9.2"
+    "minecraft": "1.19.3",
+    "fabric-language-kotlin": ">=1.9.1+kotlin.1.8.10",
+    "silk-game": ">=1.9.6"
   }
 }
