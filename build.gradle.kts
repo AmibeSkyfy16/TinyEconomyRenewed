@@ -53,7 +53,17 @@ dependencies {
     transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.6.0")!!)
     transitiveInclude(implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")!!)
     transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.2")!!)
-    transitiveInclude(implementation("ch.skyfy.json5configlib:json5-config-lib:1.0.22")!!)
+    transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.14")!!)
+    transitiveInclude(implementation("org.knowm.xchange:xchange-core:5.1.0")!!)
+    transitiveInclude(implementation("org.knowm.xchange:xchange-binance:5.1.0")!!)
+    transitiveInclude(implementation("org.knowm.xchange:xchange-stream-binance:5.1.0")!!)
+    transitiveInclude(implementation("org.knowm.xchange:xchange-stream-gemini:5.1.0")!!)
+    transitiveInclude(implementation("org.knowm.xchange:xchange-stream-gemini:5.1.0")!!)
+    transitiveInclude(implementation("org.knowm.xchange:xchange-stream-bitfinex:5.1.0")!!)
+    transitiveInclude(implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.11")!!)
+    transitiveInclude(implementation("com.jayway.jsonpath:json-path:2.7.0")!!)
+    transitiveInclude(implementation("io.github.binance:binance-connector-java:2.0.0rc2")!!)
+//    transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json5-config-lib:1.0.22")!!)
 
     handleIncludes(project, transitiveInclude)
 
@@ -75,9 +85,10 @@ tasks {
 
         runs {
 
-            this.getByName("client"){
+            this.getByName("client") {
                 runDir = "testClient"
 
+                println("copying to client")
                 // Copy some default files to the test client
                 copy {
                     from("dev/prepared_client/.")
@@ -86,10 +97,11 @@ tasks {
                 }
             }
 
-            this.getByName("server"){
+            this.getByName("server") {
                 runDir = "testServer"
 
                 // Copy some default files to the test server
+                println("copying to server")
                 copy {
                     from("dev/prepared_server/.")
                     into("testServer")
@@ -113,7 +125,7 @@ tasks {
     }
 
     named<Wrapper>("wrapper") {
-        gradleVersion = "7.5.1"
+        gradleVersion = "8.0.2"
         distributionType = Wrapper.DistributionType.BIN
     }
 

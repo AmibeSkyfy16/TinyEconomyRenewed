@@ -145,16 +145,18 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
 
             if (retrievedData.blocks.contains(blockTranslationKey)) { // Now, if the current itemTranslationKey is also a block, we repeat the same process, but for minedBlockReward table
                 val minedBlockReward = db.minedBlockRewards.find { it.blockId eq block.id }
-                val amountFromConfig = Configs.MINED_BLOCK_REWARD_CONFIG.serializableData.map[blockTranslationKey]!!
-                if (minedBlockReward == null) {
-                    db.minedBlockRewards.add(MinedBlockReward {
-                        amount = amountFromConfig
-                        this.block = block
-                    })
-                } else {
-                    if (minedBlockReward.amount != amountFromConfig) minedBlockReward.amount = amountFromConfig
-                    db.minedBlockRewards.update(minedBlockReward)
-                }
+                // TODO update table minedBlockReward to match with MINED_BLOCK_REWARD_CONFIG
+//                val amountFromConfig = Configs.MINED_BLOCK_REWARD_CONFIG.serializableData.map[blockTranslationKey]!!
+//                val amountFromConfig = Configs.MINED_BLOCK_REWARD_CONFIG.serializableData.list.first { it.translationKey == blockTranslationKey }.
+//                if (minedBlockReward == null) {
+//                    db.minedBlockRewards.add(MinedBlockReward {
+//                        amount = amountFromConfig
+//                        this.block = block
+//                    })
+//                } else {
+//                    if (minedBlockReward.amount != amountFromConfig) minedBlockReward.amount = amountFromConfig
+//                    db.minedBlockRewards.update(minedBlockReward)
+//                }
             }
         }
 

@@ -3,6 +3,7 @@ package ch.skyfy.tinyeconomyrenewed.server.features
 import ch.skyfy.tinyeconomyrenewed.server.Economy
 import ch.skyfy.tinyeconomyrenewed.server.callbacks.AdvancementCompletedCallback
 import ch.skyfy.tinyeconomyrenewed.server.callbacks.EntityDamageCallback
+import ch.skyfy.tinyeconomyrenewed.server.config.Configs
 import ch.skyfy.tinyeconomyrenewed.server.db.DatabaseManager
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.minecraft.advancement.Advancement
@@ -21,7 +22,9 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
 
     private val nerfBlocksRewards: MutableMap<Long, Pair<String, BlockPos>> = mutableMapOf()
 
-    init { registerEvents() }
+    init {
+        registerEvents()
+    }
 
     private fun registerEvents() {
         PlayerBlockBreakEvents.BEFORE.register(this::onPlayerBlockBreakEvent)
@@ -32,13 +35,72 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
     @Suppress("UNUSED_PARAMETER")
     private fun onPlayerBlockBreakEvent(world: World, player: PlayerEntity, pos: BlockPos, state: BlockState, blockEntity: BlockEntity?): Boolean {
 
-        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards, 2, 2, 60, 500, 100)) return true
+//        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards, 2, 2, 60, 500, 100)) return true
 
+        val price = getPrice(world, player, pos, state)
         economy.deposit(player as ServerPlayerEntity?, player.uuidAsString) {
-            databaseManager.cacheMinedBlockRewards.find { it.block.translationKey == state.block.translationKey }?.amount ?: 0f
+            price
+//            databaseManager.cacheMinedBlockRewards.find { it.block.translationKey == state.block.translationKey }?.amount ?: 0f
         }
 
         return true
+    }
+
+    val playersMiningAverage = mutableMapOf<String, MutableMap<Long, BlockPos>>()
+
+    private fun getPrice(world: World, player: PlayerEntity, pos: BlockPos, state: BlockState): Double {
+        val blockTranslationKey = state.block.translationKey
+
+        val minedBlockReward = Configs.MINED_BLOCK_REWARD_CONFIG.serializableData.list.first { it.translationKey == blockTranslationKey }
+
+        if (!playersMiningAverage.containsKey(player.uuidAsString)) playersMiningAverage[player.uuidAsString] = mutableMapOf()
+
+        val averageMap = playersMiningAverage[player.uuidAsString]!!
+
+        averageMap[System.currentTimeMillis()] = pos
+
+        val elapsedTimeInMillis = averageMap.keys.last() - averageMap.keys.first()
+        val elapsedTimeInMinute = elapsedTimeInMillis / 1000.0 / 60.0
+        val minedBlockPerMinute = if (elapsedTimeInMinute <= 1) averageMap.size * elapsedTimeInMinute else averageMap.size / elapsedTimeInMinute
+
+        if (minedBlockPerMinute <= minedBlockReward.average.numberPerMinute) {
+
+            if (minedBlockPerMinute == 0.0) return minedBlockReward.currentPrice
+            val diff = minedBlockReward.average.numberPerMinute - minedBlockPerMinute
+            val percent = 100.0 * diff / minedBlockReward.average.numberPerMinute
+            val price = minedBlockReward.currentPrice * (percent / 100)
+            println("price: $price")
+            return price
+
+            // --------- Solution #1 ---------
+            val doSolutionOne = false
+            if(doSolutionOne) {
+                // 100 % of currentPrice so currentPrice
+                if (minedBlockPerMinute == minedBlockReward.average.numberPerMinute) {
+                    return minedBlockReward.currentPrice
+                }
+                val diff = minedBlockReward.average.numberPerMinute - minedBlockPerMinute
+                val newPrice = diff * minedBlockReward.currentPrice / 100
+                println("price: $newPrice")
+                return newPrice
+            }
+            // --------- Solution #1 ---------
+
+
+//            println("price: $newPrice")
+//            return newPrice
+//            val diffPercent = 100.0 * diff / minedBlockReward.average.numberPerMinute // 20 is 40% of 50
+
+
+//            val newPrice = (100.0 + diffPercent) * (minedBlockReward.average.numberPerMinute) / 100.0 // More my blockPerMinuteAverage is getting closer to default average, less is my price. I will get 100 + 40 = 140% of currentPrice (50 here)
+
+//            val price = minedBlockReward.currentPrice * minedBlockPerMinute / minedBlockReward.average.numberPerMinute
+        } else {
+            val diff = minedBlockPerMinute - minedBlockReward.average.numberPerMinute
+            println("player average is greater price will be 0")
+            return 0.0
+        }
+
     }
 
     private fun onEntityDamaged(livingEntity: LivingEntity, damageSource: DamageSource, @Suppress("UNUSED_PARAMETER") amount: Float) {
@@ -49,7 +111,7 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
             if (shouldNerf(attacker.uuidAsString, attacker.blockPos, nerfEntitiesRewards, 10, 10, 40, 80, 15)) return
 
             economy.deposit(attacker as ServerPlayerEntity?, attacker.uuidAsString) {
-                databaseManager.cacheEntityKilledRewards.find { it.entity.translationKey == livingEntity.type.translationKey }?.amount ?: 0f
+                databaseManager.cacheEntityKilledRewards.find { it.entity.translationKey == livingEntity.type.translationKey }?.amount ?: 0.0
             }
         }
     }
@@ -57,7 +119,7 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
     @Suppress("SameParameterValue")
     private fun onAdvancementCompleted(serverPlayerEntity: ServerPlayerEntity, advancement: Advancement, @Suppress("UNUSED_PARAMETER") criterionName: String) {
         economy.deposit(serverPlayerEntity, serverPlayerEntity.uuidAsString) {
-            databaseManager.cacheAdvancementRewards.find { it.advancement.identifier == advancement.id.toString() }?.amount ?: 0f
+            databaseManager.cacheAdvancementRewards.find { it.advancement.identifier == advancement.id.toString() }?.amount ?: 0.0
         }
     }
 
@@ -111,5 +173,6 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
         }
         return false
     }
+
 
 }

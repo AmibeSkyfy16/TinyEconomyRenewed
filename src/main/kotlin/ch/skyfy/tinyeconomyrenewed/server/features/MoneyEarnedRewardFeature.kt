@@ -1,6 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.server.features
 
-import ch.skyfy.json5configlib.updateMap
+import ch.skyfy.jsonconfiglib.updateMap
 import ch.skyfy.tinyeconomyrenewed.both.CustomSounds
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
 import ch.skyfy.tinyeconomyrenewed.server.config.MoneyEarnReward
@@ -66,8 +66,9 @@ class MoneyEarnedRewardFeature {
         }
     }
 
-    fun rewardPlayer(player: ServerPlayerEntity?, uuid: String, amount: Float) {
-        fun computeAndSave(map: MutableMap<String, MutableList<Float>>, correctStep: Map.Entry<Float, MoneyEarnReward>) {
+    fun rewardPlayer(player: ServerPlayerEntity?, uuid: String, amount: Double) {
+        // TODO not sure, but maybe produce an error
+        fun computeAndSave(map: MutableMap<String, MutableList<Double>>, correctStep: Map.Entry<Double, MoneyEarnReward>) {
             map.compute(uuid) { _, listOfStepDone ->
                 if (listOfStepDone == null) return@compute mutableListOf(correctStep.key)
                 else if (!listOfStepDone.contains(correctStep.key)) listOfStepDone.add(correctStep.key)

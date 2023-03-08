@@ -1,7 +1,7 @@
 package ch.skyfy.tinyeconomyrenewed.server.features
 
-import ch.skyfy.json5configlib.updateIterable
-import ch.skyfy.json5configlib.updateNested
+import ch.skyfy.jsonconfiglib.updateIterable
+import ch.skyfy.jsonconfiglib.updateNested
 import ch.skyfy.tinyeconomyrenewed.server.Economy
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
 import ch.skyfy.tinyeconomyrenewed.server.persisent.Persistents.PLAYER_INFOS

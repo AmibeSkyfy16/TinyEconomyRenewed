@@ -1,6 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.server.persisent
 
-import ch.skyfy.json5configlib.ConfigData
+import ch.skyfy.jsonconfiglib.ConfigData
 import ch.skyfy.tinyeconomyrenewed.both.TinyEconomyRenewedMod
 
 object Persistents {

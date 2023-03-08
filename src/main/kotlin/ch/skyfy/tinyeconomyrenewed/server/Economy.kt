@@ -18,7 +18,7 @@ class Economy(private val databaseManager: DatabaseManager, private val scoreboa
      * @param uuid A [String] object that represent the player uuid to whom the money must be deposited
      * @param block A code that will return the amount earned by the player
      */
-    fun deposit(player: ServerPlayerEntity?, uuid: String, block: () -> Float) {
+    fun deposit(player: ServerPlayerEntity?, uuid: String, block: () -> Double) {
         LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
             databaseManager.modifyPlayers {
                 databaseManager.cachePlayers.find { player: Player -> player.uuid == uuid }?.let { cachePlayer ->
@@ -31,12 +31,12 @@ class Economy(private val databaseManager: DatabaseManager, private val scoreboa
         }
     }
 
-    private fun deposit(player: Player, amount: Float): Float {
+    private fun deposit(player: Player, amount: Double): Double {
         player.money += amount
         return player.money
     }
 
-    fun withdraw(uuid: String, amount: Float) {
+    fun withdraw(uuid: String, amount: Double) {
         LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
             databaseManager.modifyPlayers {
                 databaseManager.cachePlayers.find { it.uuid == uuid }?.let {
@@ -46,7 +46,7 @@ class Economy(private val databaseManager: DatabaseManager, private val scoreboa
         }
     }
 
-    private fun withdraw(player: Player, amount: Float): Float {
+    private fun withdraw(player: Player, amount: Double): Double {
         player.money -= amount
         return player.money
     }

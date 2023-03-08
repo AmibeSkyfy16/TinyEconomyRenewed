@@ -1,11 +1,11 @@
 package ch.skyfy.tinyeconomyrenewed.server.config
 
-import ch.skyfy.json5configlib.Defaultable
-import ch.skyfy.json5configlib.Validatable
+import ch.skyfy.jsonconfiglib.Defaultable
+import ch.skyfy.jsonconfiglib.Validatable
 
 @kotlinx.serialization.Serializable
 data class AdvancementRewardConfig(
-    val map: MutableMap<String, Float>
+    val map: MutableMap<String, Double>
 ) : Validatable
 
 class DefaultAdvancementRewardConfig : Defaultable<AdvancementRewardConfig> {

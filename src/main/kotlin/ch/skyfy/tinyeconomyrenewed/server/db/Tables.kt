@@ -2,10 +2,7 @@
 
 package ch.skyfy.tinyeconomyrenewed.server.db
 
-import org.ktorm.schema.Table
-import org.ktorm.schema.float
-import org.ktorm.schema.int
-import org.ktorm.schema.varchar
+import org.ktorm.schema.*
 
 interface Player : org.ktorm.entity.Entity<Player> {
     companion object : org.ktorm.entity.Entity.Factory<Player>()
@@ -13,7 +10,7 @@ interface Player : org.ktorm.entity.Entity<Player> {
     val id: Int
     var uuid: String
     var name: String
-    var money: Float
+    var money: Double
 }
 
 interface Item : org.ktorm.entity.Entity<Item> {
@@ -51,7 +48,7 @@ interface MinedBlockReward : org.ktorm.entity.Entity<MinedBlockReward> {
     companion object : org.ktorm.entity.Entity.Factory<MinedBlockReward>()
 
     val id: Int
-    var amount: Float
+    var amount: Double
     var block: Block
 }
 
@@ -59,7 +56,7 @@ interface EntityKilledReward : org.ktorm.entity.Entity<EntityKilledReward> {
     companion object : org.ktorm.entity.Entity.Factory<EntityKilledReward>()
 
     val id: Int
-    var amount: Float
+    var amount: Double
     var entity: Entity
 }
 
@@ -67,7 +64,7 @@ interface AdvancementReward : org.ktorm.entity.Entity<AdvancementReward> {
     companion object : org.ktorm.entity.Entity.Factory<AdvancementReward>()
 
     val id: Int
-    var amount: Float
+    var amount: Double
     var advancement: Advancement
 }
 
@@ -78,7 +75,7 @@ open class Players(alias: String?) : Table<Player>("player", alias) {
     val id = int("id").primaryKey().bindTo { it.id }
     val uuid = varchar("uuid").bindTo { it.uuid }
     val name = varchar("name").bindTo { it.name }
-    val money = float("money").bindTo { it.money }
+    val money = double("money").bindTo { it.money }
 }
 open class Items(alias: String?) : Table<Item>("item", alias) {
     companion object : Items(null)
@@ -121,7 +118,7 @@ open class MinedBlockRewards(alias: String?) : Table<MinedBlockReward>("mined_bl
     override fun aliased(alias: String) = MinedBlockRewards(alias)
 
     val id = int("id").primaryKey().bindTo { it.id }
-    val amount = float("amount").bindTo { it.amount }
+    val amount = double("amount").bindTo { it.amount }
     val blockId = int("block_id").references(Blocks) { it.block }
     val block get() = blockId.referenceTable as Blocks
 }
@@ -131,7 +128,7 @@ open class EntityKilledRewards(alias: String?) : Table<EntityKilledReward>("enti
     override fun aliased(alias: String) = EntityKilledRewards(alias)
 
     val id = int("id").primaryKey().bindTo { it.id }
-    val amount = float("amount").bindTo { it.amount }
+    val amount = double("amount").bindTo { it.amount }
     val entityId = int("entity_id").references(Entities) { it.entity }
     val entity get() = entityId.referenceTable as Entities
 }
@@ -141,7 +138,7 @@ open class AdvancementRewards(alias: String?) : Table<AdvancementReward>("advanc
     override fun aliased(alias: String) = AdvancementRewards(alias)
 
     val id = int("id").primaryKey().bindTo { it.id }
-    val amount = float("amount").bindTo { it.amount }
+    val amount = double("amount").bindTo { it.amount }
     val advancementId = int("advancement_id").references(Advancements) { it.advancement }
     val advancement get() = advancementId.referenceTable as Advancements
 }

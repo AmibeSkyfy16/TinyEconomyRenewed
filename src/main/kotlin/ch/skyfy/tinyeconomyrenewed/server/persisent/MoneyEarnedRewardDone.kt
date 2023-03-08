@@ -1,13 +1,13 @@
 package ch.skyfy.tinyeconomyrenewed.server.persisent
 
-import ch.skyfy.json5configlib.Defaultable
-import ch.skyfy.json5configlib.Validatable
+import ch.skyfy.jsonconfiglib.Defaultable
+import ch.skyfy.jsonconfiglib.Validatable
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class MoneyEarnedRewardDone(
-    val earnedRewardDone: MutableMap<String, MutableList<Float>>,
-    val earnedRewardDoneAndReceived: MutableMap<String, MutableList<Float>>
+    val earnedRewardDone: MutableMap<String, MutableList<Double>>,
+    val earnedRewardDoneAndReceived: MutableMap<String, MutableList<Double>>
 ) : Validatable
 
 class DefaultMoneyEarnedRewardDone : Defaultable<MoneyEarnedRewardDone> {

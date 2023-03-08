@@ -2,8 +2,8 @@
 
 package ch.skyfy.tinyeconomyrenewed.server.config
 
-import ch.skyfy.json5configlib.Defaultable
-import ch.skyfy.json5configlib.Validatable
+import ch.skyfy.jsonconfiglib.Defaultable
+import ch.skyfy.jsonconfiglib.Validatable
 
 @kotlinx.serialization.Serializable
 data class ShopConfig(
@@ -23,10 +23,15 @@ enum class ExplosionType(val id: String) {
 
 class DefaultShopConfig : Defaultable<ShopConfig> {
     override fun getDefault(): ShopConfig {
-
-        val map = mutableMapOf<ExplosionType?, Boolean?>()
-//        map.mapValues { it.value ?: false }
-
+//        val map = HashMap<ExplosionType, Boolean>()
+//        map.putAll(arrayOf(
+//            Pair(ExplosionType.WITHER, false),
+//            Pair(ExplosionType.END_CRYSTAL, false),
+//            Pair(ExplosionType.CREEPER, false),
+//            Pair(ExplosionType.FIREBALL, false),
+//            Pair(ExplosionType.TNT, false),
+//            Pair(ExplosionType.BAD_RESPAWN_POINT, false),
+//        ))
         return ShopConfig(
             mutableMapOf(
                 ExplosionType.WITHER to false,

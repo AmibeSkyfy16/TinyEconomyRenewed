@@ -19,7 +19,7 @@ class VillagerTradeCostsMoneyFeature(private val databaseManager: DatabaseManage
         val config = Configs.VILLAGER_TRADE_COSTS_MONEY_CONFIG.serializableData
         if (!config.enabled) return ActionResult.PASS
 
-        val priceToPay: Float = sellItem.count * config.price / config.amount
+        val priceToPay: Double = sellItem.count * config.price / config.amount
 
         val player = databaseManager.cachePlayers.find { it.uuid == serverPlayerEntity.uuidAsString }
 

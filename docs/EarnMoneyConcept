@@ -1,0 +1,56 @@
+
+
+FRENCH TRANSLATION
+
+
+Players will earn money when they mine blocks.
+
+When a player starts mining, the average number of blocks mined per minute is calculated.
+The amount of money the player will earn will depend on the average number of blocks mined and the maximum average
+number of blocks mined assigned in the config file for the type of block broken. For example for a dirt block,
+the value is 600. If the average of mined blocks per minute of the player exceeds 600, then he won't win anything anymore.
+ He wins money from 0.0 to 600
+
+
+FRENCH TRANSLATION
+
+La fonctionnalité des gains d'argent permet aux joueurs de gagner de l'argent par plusieurs façons.
+
+    1. En tuant des mobs
+    2. En cassant des blocs
+    3. En accomplissant des advancements
+    4. En se connectant une fois par jour sur le serveur
+
+
+Les gains pour le minage de blocs
+
+Lorsqu'un joueur se met a miner, on calcule sa moyenne de blocs miner par minute.
+
+Chaque type de bloc possède une configuration comportant une valeur maximum en blocs miner par minute et un prix de base.
+Voici un exemple:
+    Un bloc de Dirt possède une valeur maximum en blocs miner par minute de 600 et un prix de base de 10$
+    Si le joueur se connecte pour la première fois sur le serveur et commence de miner, sa moyenne de blocs miner
+    sera de 0.0 pour le premier bloc qu'il détruira et donc le prix qu'il recevra sera de 10$.
+    Ensuite, s'il attend une minute et casse un deuxième bloc, sa moyenne de blocs miner sera de 1.0.
+    Le calcule du prix sera donc le suivant:
+        difference: 600 - 1 = 599
+        pourcentage: 100 * 599 / 600 = 99,83
+        prix: 10 * (99,83 / 100) = 9,983
+
+    Plus le joueur minera rapidement dans un lapse de temps donné, moins les gains seront grand,
+    ce qui permet de trouver un équilibre entre les différents joueurs et cela évitera que certains
+    minent pendant 5h de temps non-stop juste pour faire du fric.
+
+    // TODO
+    Détection des joueurs essayant d'automatiser du cassage de blocs
+        Si cela fait entre 5-10 minute qu'un joueur à cassé au moins plus de 50 blocs/minute et que le périmètre
+        dans lequel il se trouve n'est pas plus grand qu'une zone rectangulaire de 10-20 blocs, il sera détecté comme afk
+        et ne recevra plus rien.
+
+
+    Aussi chose importante à savoir, le prix de base pour chaque type de blocs pourra varié, comme le font les cryptomonnaies.
+    Par exemple pour la Dirt, son prix de base est 10$ et il sera adhérer à la crypto NEOUSDT.
+    Example: le NEOUSDT grimpe de 3% en 1 heure, alors le prix de la dirt suivra et prendra aussi 3%.
+    Sauf que ce n'ai pas tous à fait ça, l'algorithme comprends un multiplicateur qui peut-être configurer (5 par défaut).
+    Donc si le NEOUSDT grimpe de 3%, le prix de la Dirt grimpera de 3 * 5, soit 15%, cela permet d'avoir un impact un peu plus fort sur le prix des blocs
+

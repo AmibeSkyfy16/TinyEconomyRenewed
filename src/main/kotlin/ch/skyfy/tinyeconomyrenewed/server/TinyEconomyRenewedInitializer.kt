@@ -1,15 +1,13 @@
 package ch.skyfy.tinyeconomyrenewed.server
 
-import ch.skyfy.json5configlib.ConfigManager
-import ch.skyfy.json5configlib.updateMap
+import ch.skyfy.jsonconfiglib.ConfigManager
+import ch.skyfy.jsonconfiglib.updateIterable
+import ch.skyfy.jsonconfiglib.updateMap
 import ch.skyfy.tinyeconomyrenewed.both.TinyEconomyRenewedMod
-import ch.skyfy.tinyeconomyrenewed.server.config.AdvancementRewardConfig
-import ch.skyfy.tinyeconomyrenewed.server.config.Configs
+import ch.skyfy.tinyeconomyrenewed.server.config.*
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs.ADVANCEMENT_REWARD_CONFIG
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs.ENTITY_KILLED_REWARD_CONFIG
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs.MINED_BLOCK_REWARD_CONFIG
-import ch.skyfy.tinyeconomyrenewed.server.config.EntityKilledRewardConfig
-import ch.skyfy.tinyeconomyrenewed.server.config.MinedBlockRewardConfig
 import ch.skyfy.tinyeconomyrenewed.server.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.server.logic.Game
 import ch.skyfy.tinyeconomyrenewed.server.utils.setupConfigDirectory
@@ -26,6 +24,7 @@ import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.Language
+import org.ktorm.dsl.min
 import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
@@ -139,13 +138,24 @@ class TinyEconomyRenewedInitializer(private val optGameRef: AtomicReference<Opti
 
         // Populating with default value
         retrievedData.advancements.forEach { advancement ->
-            ADVANCEMENT_REWARD_CONFIG.updateMap(AdvancementRewardConfig::map) { it.putIfAbsent(advancement.advancementId, 100f) }
+            ADVANCEMENT_REWARD_CONFIG.updateMap(AdvancementRewardConfig::map) { it.putIfAbsent(advancement.advancementId, 100.0) }
         }
         retrievedData.entities.forEach { translationKey ->
-            ENTITY_KILLED_REWARD_CONFIG.updateMap(EntityKilledRewardConfig::map) { it.putIfAbsent(translationKey, 2f) }
+            ENTITY_KILLED_REWARD_CONFIG.updateMap(EntityKilledRewardConfig::map) { it.putIfAbsent(translationKey, 2.0) }
         }
         retrievedData.blocks.forEach { translationKey ->
-            MINED_BLOCK_REWARD_CONFIG.updateMap(MinedBlockRewardConfig::map) { it.putIfAbsent(translationKey, 0.5f) }
+            if (MINED_BLOCK_REWARD_CONFIG.serializableData.list.none { minedBlockReward -> minedBlockReward.translationKey == translationKey }) {
+                MINED_BLOCK_REWARD_CONFIG.updateIterable(MinedBlockRewardConfig::list) {
+                    // I test in survival with eff 5 and haste, in one mn I got 1000 sand
+                    it.add(MinedBlockReward(translationKey, Average(1.0, 600.0),10.0, "RENUSDT", -1.0, 150, 30))
+                }
+            }
+//            MINED_BLOCK_REWARD_CONFIG.updateIterable(MinedBlockRewardConfig::list){
+//                if(it.none { minedBlockReward -> minedBlockReward.translationKey == translationKey }){
+//                    it.add(MinedBlockReward(translationKey, Average(50f, 100f, 50f), 150, 30))
+//                }
+//            }
+//            MINED_BLOCK_REWARD_CONFIG.updateMap(MinedBlockRewardConfig::map) { it.putIfAbsent(translationKey, 0.5f) }
         }
         return retrievedData
     }

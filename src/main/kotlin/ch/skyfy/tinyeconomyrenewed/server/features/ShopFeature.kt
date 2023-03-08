@@ -46,7 +46,7 @@ import net.minecraft.world.explosion.ExplosionBehavior
 class ShopFeature(private val databaseManager: DatabaseManager, private val economy: Economy, private val minecraftServer: MinecraftServer) {
 
     data class Shop(val barrelBlockEntity: BarrelBlockEntity, val signBlockEntities: MutableList<SignBlockEntity>, val signData: SignData)
-    data class SignData(val vendorName: String, val itemAmount: Int, val price: Float)
+    data class SignData(val vendorName: String, val itemAmount: Int, val price: Double)
 
     init {
         UseBlockCallback.EVENT.register(this::useBlockCallback)
@@ -89,11 +89,11 @@ class ShopFeature(private val databaseManager: DatabaseManager, private val econ
 
         sc.allowShopsToBeDestroyedByAnExplosion.forEach { (explosionType, value) ->
             if (entity != null) {
-                if (explosionType!!.id == entity.type.translationKey && !value!!)
+                if (explosionType.id == entity.type.translationKey && !value)
                     return cancelShopToBeDestroyed(explosion, serverWorld)
             }
             if (damageSource != null) {
-                if (damageSource.name == explosionType!!.id && !value!!) // bed in nether or respawn anchor
+                if (damageSource.name == explosionType.id && !value) // bed in nether or respawn anchor
                     cancelShopToBeDestroyed(explosion, serverWorld)
             }
         }
@@ -293,7 +293,7 @@ class ShopFeature(private val databaseManager: DatabaseManager, private val econ
         if (args.count() != 3) return null
         return try {
             val itemAmount = args[0].toInt()
-            val price = args[2].toFloat()
+            val price = args[2].toDouble()
             SignData(vendorName, itemAmount, price)
         } catch (e: java.lang.Exception) {
             null

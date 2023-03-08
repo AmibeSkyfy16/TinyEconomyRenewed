@@ -39,6 +39,7 @@ class Game(val databaseManager: DatabaseManager, minecraftServer: MinecraftServe
         EarnMoneyFeature(databaseManager, economy)
         ShopFeature(databaseManager, economy, minecraftServer)
         VillagerTradeCostsMoneyFeature(databaseManager, economy)
+        MarketPriceUpdaterFeature()
         registerEvents()
     }
 
