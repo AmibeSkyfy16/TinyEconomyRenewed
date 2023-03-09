@@ -48,7 +48,10 @@ interface MinedBlockReward : org.ktorm.entity.Entity<MinedBlockReward> {
     companion object : org.ktorm.entity.Entity.Factory<MinedBlockReward>()
 
     val id: Int
-    var amount: Double
+    var currentPrice: Double
+    var maximumMinedBlockPerMinute: Double
+    var cryptoCurrencyName: String
+    var lastCryptoPrice: Double
     var block: Block
 }
 
@@ -56,7 +59,10 @@ interface EntityKilledReward : org.ktorm.entity.Entity<EntityKilledReward> {
     companion object : org.ktorm.entity.Entity.Factory<EntityKilledReward>()
 
     val id: Int
-    var amount: Double
+    var currentPrice: Double
+    var maximumEntityKilledPerMinute: Double
+    var cryptoCurrencyName: String
+    var lastCryptoPrice: Double
     var entity: Entity
 }
 
@@ -66,6 +72,15 @@ interface AdvancementReward : org.ktorm.entity.Entity<AdvancementReward> {
     val id: Int
     var amount: Double
     var advancement: Advancement
+}
+
+interface BlackListedPlacedBlock : org.ktorm.entity.Entity<BlackListedPlacedBlock> {
+    companion object : org.ktorm.entity.Entity.Factory<BlackListedPlacedBlock>()
+
+    val id: Int
+    var x: Int
+    var y: Int
+    var z: Int
 }
 
 open class Players(alias: String?) : Table<Player>("player", alias) {
@@ -118,7 +133,10 @@ open class MinedBlockRewards(alias: String?) : Table<MinedBlockReward>("mined_bl
     override fun aliased(alias: String) = MinedBlockRewards(alias)
 
     val id = int("id").primaryKey().bindTo { it.id }
-    val amount = double("amount").bindTo { it.amount }
+    val currentPrice = double("current_price").bindTo { it.currentPrice }
+    val maximumMinedBlockPerMinute = double("maximum_mined_block_per_minute").bindTo { it.maximumMinedBlockPerMinute }
+    val cryptoCurrencyName = varchar("crypto_currency_name").bindTo { it.cryptoCurrencyName }
+    val lastCryptoPrice = double("last_crypto_price").bindTo { it.lastCryptoPrice }
     val blockId = int("block_id").references(Blocks) { it.block }
     val block get() = blockId.referenceTable as Blocks
 }
@@ -128,7 +146,10 @@ open class EntityKilledRewards(alias: String?) : Table<EntityKilledReward>("enti
     override fun aliased(alias: String) = EntityKilledRewards(alias)
 
     val id = int("id").primaryKey().bindTo { it.id }
-    val amount = double("amount").bindTo { it.amount }
+    val currentPrice = double("current_price").bindTo { it.currentPrice }
+    val maximumMinedBlockPerMinute = double("maximum_entity_killed_per_minute").bindTo { it.maximumEntityKilledPerMinute }
+    val cryptoCurrencyName = varchar("crypto_currency_name").bindTo { it.cryptoCurrencyName }
+    val lastCryptoPrice = double("last_crypto_price").bindTo { it.lastCryptoPrice }
     val entityId = int("entity_id").references(Entities) { it.entity }
     val entity get() = entityId.referenceTable as Entities
 }
@@ -142,3 +163,16 @@ open class AdvancementRewards(alias: String?) : Table<AdvancementReward>("advanc
     val advancementId = int("advancement_id").references(Advancements) { it.advancement }
     val advancement get() = advancementId.referenceTable as Advancements
 }
+
+open class BlackListedPlacedBlocks(alias: String?) : Table<BlackListedPlacedBlock>("blacklisted_placed_block", alias) {
+    companion object : BlackListedPlacedBlocks(null)
+
+    override fun aliased(alias: String) = BlackListedPlacedBlocks(alias)
+
+    val id = int("id").primaryKey().bindTo { it.id }
+    val x = int("x").bindTo { it.x }
+    val y = int("y").bindTo { it.y }
+    val z = int("z").bindTo { it.z }
+
+}
+

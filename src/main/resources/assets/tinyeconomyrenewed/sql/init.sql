@@ -42,7 +42,10 @@ create table if not exists mined_block_reward
 (
     id int auto_increment primary key,
     block_id int not null,
-    amount double null,
+    current_price double not null,
+    maximum_mined_block_per_minute double not null,
+    crypto_currency_name varchar(32) not null,
+    last_crypto_price double not null,
     constraint mined_block_reward_block__fk foreign key (block_id) references block (id),
     constraint mined_block_reward_block_id_uindex unique (block_id)
 );
@@ -51,7 +54,10 @@ create table if not exists entity_killed_reward
 (
     id int auto_increment primary key,
     entity_id int not null,
-    amount double null,
+    current_price double not null,
+    maximum_entity_killed_per_minute double not null,
+    crypto_currency_name varchar(32) not null,
+    last_crypto_price double not null,
     constraint entity_killed_reward_entity__fk foreign key (entity_id) references entity (id),
     constraint entity_killed_reward_entity_id_uindex unique (entity_id)
 );
@@ -63,4 +69,12 @@ create table if not exists advancement_reward
     amount double null,
     constraint advancement_reward_advancement__fk foreign key (advancement_id) references advancement (id),
     constraint advancement_reward_advancement_id_uindex unique (advancement_id)
+);
+
+create table if not exists blacklisted_placed_block
+(
+    id int auto_increment primary key,
+    x int not null,
+    y int not null,
+    z int not null
 );

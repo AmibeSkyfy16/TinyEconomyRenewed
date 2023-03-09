@@ -4,6 +4,7 @@
   "package": "ch.skyfy.tinyeconomyrenewed.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "BlockItemMixin",
     "WorldMixin"
   ],
   "server": [

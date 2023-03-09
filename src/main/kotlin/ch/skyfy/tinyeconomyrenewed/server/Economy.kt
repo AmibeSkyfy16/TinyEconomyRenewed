@@ -6,6 +6,7 @@ import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedInitializer.Companio
 import ch.skyfy.tinyeconomyrenewed.server.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.server.db.Player
 import ch.skyfy.tinyeconomyrenewed.server.features.MoneyEarnedRewardFeature
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import net.minecraft.server.network.ServerPlayerEntity
 
@@ -18,17 +19,18 @@ class Economy(private val databaseManager: DatabaseManager, private val scoreboa
      * @param uuid A [String] object that represent the player uuid to whom the money must be deposited
      * @param block A code that will return the amount earned by the player
      */
-    fun deposit(player: ServerPlayerEntity?, uuid: String, block: () -> Double) {
-        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
-            databaseManager.modifyPlayers {
-                databaseManager.cachePlayers.find { player: Player -> player.uuid == uuid }?.let { cachePlayer ->
+    fun deposit(spe: ServerPlayerEntity?, uuid: String, block: () -> Double) {
+//        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
+            databaseManager.modifyPlayers {cachePlayers ->
+                cachePlayers.find { player: Player -> player.uuid == uuid }?.let { player ->
                     val earnedAmount = block.invoke()
-                    val totalAmount = deposit(cachePlayer, earnedAmount)
-                    moneyEarnedRewardFeature.rewardPlayer(player, uuid, totalAmount)
+                    val totalAmount = deposit(player, earnedAmount)
+                    moneyEarnedRewardFeature.rewardPlayer(spe, uuid, totalAmount)
                     scoreboardManager.updatePlayerMoney(uuid, totalAmount)
                 }
+
             }
-        }
+//        }
     }
 
     private fun deposit(player: Player, amount: Double): Double {
@@ -37,13 +39,13 @@ class Economy(private val databaseManager: DatabaseManager, private val scoreboa
     }
 
     fun withdraw(uuid: String, amount: Double) {
-        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
-            databaseManager.modifyPlayers {
-                databaseManager.cachePlayers.find { it.uuid == uuid }?.let {
-                    scoreboardManager.updatePlayerMoney(uuid, withdraw(it, amount))
+//        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
+            databaseManager.modifyPlayers {cachePlayers ->
+                cachePlayers.find { p -> p.uuid == uuid }?.let { p ->
+                    scoreboardManager.updatePlayerMoney(uuid, withdraw(p, amount))
                 }
             }
-        }
+//        }
     }
 
     private fun withdraw(player: Player, amount: Double): Double {

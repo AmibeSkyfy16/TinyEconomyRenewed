@@ -13,9 +13,9 @@ data class MinedBlockRewardConfig(
 @Serializable
 data class MinedBlockReward(
     val translationKey: String,
-    val maximumNumberPerMinute: Double,
     var currentPrice: Double,
-    var basedCryptoCurrencyName: String,
+    val maximumMinedBlockPerMinute: Double,
+    var cryptoCurrencyName: String,
     var lastCryptoPrice: Double
 ) : Validatable
 

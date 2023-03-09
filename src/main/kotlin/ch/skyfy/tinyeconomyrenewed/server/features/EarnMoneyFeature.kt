@@ -2,8 +2,11 @@ package ch.skyfy.tinyeconomyrenewed.server.features
 
 import ch.skyfy.tinyeconomyrenewed.server.Economy
 import ch.skyfy.tinyeconomyrenewed.server.callbacks.AdvancementCompletedCallback
+import ch.skyfy.tinyeconomyrenewed.server.callbacks.BlockPlacedCallback
 import ch.skyfy.tinyeconomyrenewed.server.callbacks.EntityDamageCallback
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
+import ch.skyfy.tinyeconomyrenewed.server.config.data.BlockPosition
+import ch.skyfy.tinyeconomyrenewed.server.db.BlackListedPlacedBlock
 import ch.skyfy.tinyeconomyrenewed.server.db.DatabaseManager
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.minecraft.advancement.Advancement
@@ -12,20 +15,24 @@ import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.BlockItem
+import net.minecraft.item.ItemPlacementContext
 import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.util.ActionResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val economy: Economy) {
 
-    enum class RewardType{
+    enum class RewardType {
         MINED_BLOCK,
         KILLED_ENTITY;
     }
 
     private val nerfEntitiesRewards: MutableMap<Long, Pair<String, BlockPos>> = mutableMapOf()
-
     private val nerfBlocksRewards: MutableMap<Long, Pair<String, BlockPos>> = mutableMapOf()
+
+    private val blacklistedBlock: MutableList<BlockPosition> = mutableListOf()
 
     init {
         registerEvents()
@@ -35,35 +42,46 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
         PlayerBlockBreakEvents.BEFORE.register(this::onPlayerBlockBreakEvent)
         EntityDamageCallback.EVENT.register(this::onEntityDamaged)
         AdvancementCompletedCallback.EVENT.register(this::onAdvancementCompleted)
+        BlockPlacedCallback.EVENT.register(::onPlayerPlaceBlockEvent)
+    }
+
+    private fun onPlayerPlaceBlockEvent(blockItem: BlockItem, itemPlacementContext: ItemPlacementContext, actionResult: ActionResult){
+        if(actionResult != ActionResult.CONSUME)return
+        val b = itemPlacementContext.blockPos
+        databaseManager.cacheBlackListedPlacedBlocks
+        if (databaseManager.cacheBlackListedPlacedBlocks.none { it.x == b.x && it.y == b.y && it.z == b.z })
+//            databaseManager.modifyBlackListedPlacedBlocks {  }
+            databaseManager.cacheBlackListedPlacedBlocks.add(BlackListedPlacedBlock{ x = b.x; y = b.y; z = b.z })
     }
 
     @Suppress("UNUSED_PARAMETER")
     private fun onPlayerBlockBreakEvent(world: World, player: PlayerEntity, pos: BlockPos, state: BlockState, blockEntity: BlockEntity?): Boolean {
+        if(databaseManager.cacheBlackListedPlacedBlocks.any { it.x == pos.x && it.y == pos.y && it.z == pos.z }) return true
+
         val minedBlockReward = Configs.MINED_BLOCK_REWARD_CONFIG.serializableData.list.first { it.translationKey == state.block.translationKey }
         economy.deposit(player as ServerPlayerEntity?, player.uuidAsString) {
-            getPrice(
+            getPrice2(
                 player,
                 pos,
-                minedBlockReward.maximumNumberPerMinute,
+                state.block.translationKey,
+                minedBlockReward.maximumMinedBlockPerMinute,
                 minedBlockReward.currentPrice,
                 playersMiningAverage,
                 RewardType.MINED_BLOCK
             )
         }
         return true
-//        if (shouldNerf(player.uuidAsString, player.blockPos, nerfBlocksRewards, 2, 2, 60, 500, 100)) return true
-//            databaseManager.cacheMinedBlockRewards.find { it.block.translationKey == state.block.translationKey }?.amount ?: 0f
     }
 
-    private val playersMiningAverage = mutableMapOf<String, MutableMap<Long, BlockPos>>()
-    val playersKillingAverage = mutableMapOf<String, MutableMap<Long, BlockPos>>()
+    private val playersMiningAverage = mutableMapOf<String, MutableMap<Long, Pair<String, BlockPos>>>()
+    private val playersKillingAverage = mutableMapOf<String, MutableMap<Long, Pair<String, BlockPos>>>()
 
     private fun isAFKDetected(averageMap: Map<Long, BlockPos>, rewardType: RewardType): Boolean {
         // AFK CHECK
         val d = Configs.EARN_MONEY_FEATURE_CONFIG.serializableData
-        val lastXXXSeconds = if(rewardType == RewardType.MINED_BLOCK) d.minedBlockRewardNerfer.lastXXXSeconds else d.entityKilledRewardNerfer.lastXXXSeconds
-        val surfaceThatShouldNotBeExceeded = if(rewardType == RewardType.MINED_BLOCK) d.minedBlockRewardNerfer.surfaceThatShouldNotBeExceeded else d.entityKilledRewardNerfer.surfaceThatShouldNotBeExceeded
-        val maximumPerMinute = if(rewardType == RewardType.MINED_BLOCK) d.minedBlockRewardNerfer.maximumBlockPerMinute else d.entityKilledRewardNerfer.maximumEntityKilledPerMinute
+        val lastXXXSeconds = if (rewardType == RewardType.MINED_BLOCK) d.minedBlockRewardNerfer.lastXXXSeconds else d.entityKilledRewardNerfer.lastXXXSeconds
+        val surfaceThatShouldNotBeExceeded = if (rewardType == RewardType.MINED_BLOCK) d.minedBlockRewardNerfer.surfaceThatShouldNotBeExceeded else d.entityKilledRewardNerfer.surfaceThatShouldNotBeExceeded
+        val maximumPerMinute = if (rewardType == RewardType.MINED_BLOCK) d.minedBlockRewardNerfer.maximumBlockPerMinute else d.entityKilledRewardNerfer.maximumEntityKilledPerMinute
 
         val lastEntry = averageMap.entries.last()
         // Getting all entries in the last 5 mn
@@ -83,8 +101,8 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
         if (elapsedTimeInSeconds2 >= lastXXXSeconds - 20 && elapsedTimeInSeconds2 <= lastXXXSeconds) {
             if (perMinuteForLast5Mn > maximumPerMinute) {
 //                if (surface <= surfaceThatShouldNotBeExceeded) {
-                    println("afk detected price will be 0")
-                    return true
+                println("afk detected price will be 0")
+                return true
 //                }
             }
         }
@@ -95,6 +113,7 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
         return false
     }
 
+    @Deprecated("use getPrice2")
     private fun getPrice(
         player: PlayerEntity,
         pos: BlockPos,
@@ -148,6 +167,38 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
         return 0.0
     }
 
+    private fun getPrice2(
+        player: PlayerEntity,
+        pos: BlockPos,
+        translationKey: String,
+        maximumNumberPerMinute: Double,
+        currentPrice: Double,
+        map: MutableMap<String, MutableMap<Long, Pair<String, BlockPos>>>,
+        rewardType: RewardType
+    ): Double {
+        map.computeIfAbsent(player.uuidAsString) { mutableMapOf(System.currentTimeMillis() to Pair(translationKey, pos)) }
+        val timeMap = map.computeIfPresent(player.uuidAsString) { _, v -> v[System.currentTimeMillis()] = Pair(translationKey, pos); v }!!
+
+        // Getting all broken block in the last 5 minutes
+        val lastEntry = timeMap.entries.last()
+        val entries = timeMap.filter { ((lastEntry.key - it.key) / 1000.0) <= 300.0 && it.value.first == translationKey }.entries
+        val elapsedTimeInMillis = entries.last().key - entries.first().key
+        val elapsedTimeInSeconds = elapsedTimeInMillis / 1000.0
+        val elapsedTimeInMinute = elapsedTimeInSeconds / 60.0
+        val perMinuteForLast5Mn = if (elapsedTimeInMinute <= 1) entries.size * elapsedTimeInMinute else entries.size / elapsedTimeInMinute
+
+        if (perMinuteForLast5Mn <= maximumNumberPerMinute) {
+            if (perMinuteForLast5Mn == 0.0) return currentPrice
+            val diff = maximumNumberPerMinute - perMinuteForLast5Mn
+            val percent = 100.0 * diff / maximumNumberPerMinute
+            val price = currentPrice * (percent / 100)
+            println("price: $price")
+            return price
+        }
+
+        return 0.0
+    }
+
     private fun onEntityDamaged(livingEntity: LivingEntity, damageSource: DamageSource, @Suppress("UNUSED_PARAMETER") amount: Float) {
         val attacker = damageSource.attacker
         if (attacker !is PlayerEntity) return
@@ -157,9 +208,10 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
 
             val entityKilledReward = Configs.ENTITY_KILLED_REWARD_CONFIG.serializableData.list.first { it.translationKey == livingEntity.type.translationKey }
             economy.deposit(attacker as ServerPlayerEntity?, attacker.uuidAsString) {
-                getPrice(
+                getPrice2(
                     attacker,
                     attacker.blockPos,
+                    livingEntity.type.translationKey,
                     entityKilledReward.maximumEntityKilledPerMinute,
                     entityKilledReward.currentPrice,
                     playersKillingAverage,
@@ -177,6 +229,7 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
         }
     }
 
+    @Deprecated("An old fun")
     @Suppress("SameParameterValue")
     private fun shouldNerf(
         uuid: String,

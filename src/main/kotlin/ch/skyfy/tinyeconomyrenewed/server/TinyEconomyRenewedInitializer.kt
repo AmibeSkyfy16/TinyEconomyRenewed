@@ -143,13 +143,13 @@ class TinyEconomyRenewedInitializer(private val optGameRef: AtomicReference<Opti
         }
         retrievedData.entities.forEach { translationKey ->
             if (ENTITY_KILLED_REWARD_CONFIG.serializableData.list.none { entityKilledReward -> entityKilledReward.translationKey == translationKey }) {
-                ENTITY_KILLED_REWARD_CONFIG.serializableData.list.add(EntityKilledReward(translationKey, 50.0, 1.5, "RENUSDT", -1.0))
+                ENTITY_KILLED_REWARD_CONFIG.serializableData.list.add(EntityKilledReward(translationKey, 0.8,100.0, "RENUSDT", -1.0))
             }
 //            ENTITY_KILLED_REWARD_CONFIG.updateMap(EntityKilledRewardConfig::map) { it.putIfAbsent(translationKey, 2.0) }
         }
         retrievedData.blocks.forEach { translationKey ->
             if (MINED_BLOCK_REWARD_CONFIG.serializableData.list.none { minedBlockReward -> minedBlockReward.translationKey == translationKey }) {
-                MINED_BLOCK_REWARD_CONFIG.serializableData.list.add(MinedBlockReward(translationKey, 100.0, 2.0, "RENUSDT", -1.0))
+                MINED_BLOCK_REWARD_CONFIG.serializableData.list.add(MinedBlockReward(translationKey, 0.5, 800.0, "RENUSDT", -1.0))
 //                MINED_BLOCK_REWARD_CONFIG.updateIterable(MinedBlockRewardConfig::list) {
 //                    // I test in survival with effi. 5 and haste 2, in one mn I got 1000 sand
 //                    it.add(MinedBlockReward(translationKey, 100.0, 2.0, "RENUSDT", -1.0))

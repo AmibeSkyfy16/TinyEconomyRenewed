@@ -3,27 +3,15 @@ package ch.skyfy.tinyeconomyrenewed.server.features
 import ch.skyfy.jsonconfiglib.ConfigManager
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
 import ch.skyfy.tinyeconomyrenewed.server.config.MinedBlockReward
+import ch.skyfy.tinyeconomyrenewed.server.db.DatabaseManager
 import com.binance.connector.client.impl.WebsocketStreamClientImpl
 import com.binance.connector.client.utils.WebSocketCallback
 import com.jayway.jsonpath.JsonPath
-import info.bitrich.xchangestream.binance.BinanceStreamingExchange
-import info.bitrich.xchangestream.bitfinex.BitfinexStreamingExchange
-import info.bitrich.xchangestream.core.StreamingExchange
-import info.bitrich.xchangestream.core.StreamingExchangeFactory
 import kotlinx.coroutines.*
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.silkmc.silk.core.task.infiniteMcCoroutineTask
-import net.silkmc.silk.core.task.silkCoroutineScope
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.knowm.xchange.currency.CurrencyPair
-import org.ktorm.dsl.min
-import java.math.BigDecimal
-import java.time.Duration
 import kotlin.coroutines.CoroutineContext
-import kotlin.random.Random
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 
 /**
@@ -40,13 +28,9 @@ import kotlin.time.Duration.Companion.seconds
  *
  */
 class MarketPriceUpdaterFeature @OptIn(DelicateCoroutinesApi::class) constructor(
+    val databaseManager: DatabaseManager,
     override val coroutineContext: CoroutineContext = newSingleThreadContext("MyOwnThread")
 ) : CoroutineScope {
-
-
-    companion object {
-//        private var lastPrice: BigDecimal = BigDecimal(-1)
-    }
 
     private val wss: MutableList<WebsocketStreamClientImpl> = mutableListOf()
 
@@ -66,8 +50,8 @@ class MarketPriceUpdaterFeature @OptIn(DelicateCoroutinesApi::class) constructor
 
         val map = mutableMapOf<String, MutableList<MinedBlockReward>>()
         Configs.MINED_BLOCK_REWARD_CONFIG.serializableData.list.forEach {
-            if (!map.containsKey(it.basedCryptoCurrencyName)) map[it.basedCryptoCurrencyName] = mutableListOf(it)
-            else map[it.basedCryptoCurrencyName]!!.add(it)
+            if (!map.containsKey(it.cryptoCurrencyName)) map[it.cryptoCurrencyName] = mutableListOf(it)
+            else map[it.cryptoCurrencyName]!!.add(it)
         }
 
         map.forEach { (key, list) ->

@@ -17,18 +17,15 @@ import net.minecraft.util.Identifier
 class Game(val databaseManager: DatabaseManager, minecraftServer: MinecraftServer) {
 
     companion object {
-
         val PLAYER_JOIN_CALLBACK_FIRST = Identifier("fabric", "player_join_callback_first")
         val PLAYER_JOIN_CALLBACK_SECOND = Identifier("fabric", "player_join_callback_second")
 
         init { setUpEventPhaseOrdering() }
 
-        private fun setUpEventPhaseOrdering() {
-            PlayerJoinCallback.EVENT.addPhaseOrdering(PLAYER_JOIN_CALLBACK_FIRST, PLAYER_JOIN_CALLBACK_SECOND)
-        }
+        private fun setUpEventPhaseOrdering() { PlayerJoinCallback.EVENT.addPhaseOrdering(PLAYER_JOIN_CALLBACK_FIRST, PLAYER_JOIN_CALLBACK_SECOND) }
     }
 
-    val scoreboardManager: ScoreboardManager = ScoreboardManager(databaseManager)
+    private val scoreboardManager: ScoreboardManager = ScoreboardManager(databaseManager)
     private val moneyEarnedRewardFeature: MoneyEarnedRewardFeature = MoneyEarnedRewardFeature()
     private val economy: Economy = Economy(databaseManager, scoreboardManager, moneyEarnedRewardFeature)
 
@@ -39,7 +36,7 @@ class Game(val databaseManager: DatabaseManager, minecraftServer: MinecraftServe
         EarnMoneyFeature(databaseManager, economy)
         ShopFeature(databaseManager, economy, minecraftServer)
         VillagerTradeCostsMoneyFeature(databaseManager, economy)
-        MarketPriceUpdaterFeature()
+        MarketPriceUpdaterFeature(databaseManager)
         registerEvents()
     }
 
@@ -51,17 +48,20 @@ class Game(val databaseManager: DatabaseManager, minecraftServer: MinecraftServe
         val playerUUID = serverPlayerEntity.uuidAsString
         val playerName = serverPlayerEntity.name.string
 
-        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
+//        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
             var player = databaseManager.cachePlayers.find { it.uuid == playerUUID }
             if (player == null) {
                 player = Player { uuid = playerUUID; name = playerName }
-                databaseManager.modifyPlayers { databaseManager.cachePlayers.add(player) }
-                databaseManager.addPlayer(player)
+                databaseManager.modifyPlayers { cachePlayers -> cachePlayers.add(player); databaseManager.addPlayer(player) }
             } else if (player.name != playerName) { // If a player changed his name, we have to update it in the database
-                    TinyEconomyRenewedMod.LOGGER.info("Player ${player.name} has changed his name to $playerName")
-                    player.name = playerName
-                    databaseManager.updatePlayers(player)
+                databaseManager.modifyPlayers { player.name = playerName; databaseManager.updatePlayers(player) }
+                TinyEconomyRenewedMod.LOGGER.info("Player ${player.name} has changed his name to $playerName")
+//                player.name = playerName
+//                databaseManager.updatePlayers(player)
             }
-        }
+//        }
     }
+
+    fun updateScoreBoard(uuid: String) = scoreboardManager.updatePlayerMoney(uuid)
+
 }

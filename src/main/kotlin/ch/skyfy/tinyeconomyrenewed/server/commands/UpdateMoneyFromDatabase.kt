@@ -16,6 +16,7 @@ import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * Allow an Administrator to modify the money of a player from the database, the update it to this mod
@@ -23,31 +24,30 @@ import java.util.concurrent.atomic.AtomicReference
 class UpdateMoneyFromDatabase(private val optGameRef: AtomicReference<Optional<Game>>) : Command<ServerCommandSource> {
 
     fun register(dispatcher: CommandDispatcher<ServerCommandSource>) {
-        val command = literal("updateMoneyFromDatabase").executes(UpdateMoneyFromDatabase(optGameRef))
+        val command = literal("updateMoneyFromDatabase").requires { it.hasPermissionLevel(4) }.executes(UpdateMoneyFromDatabase(optGameRef))
         dispatcher.register(command)
     }
 
     override fun run(context: CommandContext<ServerCommandSource>): Int {
-        if (optGameRef.get().isEmpty) return Command.SINGLE_SUCCESS
+        val game = optGameRef.get().getOrNull() ?: return Command.SINGLE_SUCCESS
 
-        var player: ServerPlayerEntity? = null
+        var spe: ServerPlayerEntity? = null
         if (context.source.entity is ServerPlayerEntity) {
-            player = context.source.entity as ServerPlayerEntity
-            if (!player.hasPermissionLevel(4)) {
-                player.sendMessage(Text.literal("Only administrator can use this command").setStyle(Style.EMPTY.withColor(Formatting.RED)))
-                return Command.SINGLE_SUCCESS
-            }
+            spe = context.source.entity as ServerPlayerEntity
+//            if (!spe.hasPermissionLevel(4)) {
+//                spe.sendMessage(Text.literal("Only administrator can use this command").setStyle(Style.EMPTY.withColor(Formatting.RED)))
+//                return Command.SINGLE_SUCCESS
+//            }
         }
 
-        val game = optGameRef.get().get()
-        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
-            game.databaseManager.modifyPlayers {
-                game.databaseManager.cachePlayers.clear()
-                game.databaseManager.cachePlayers.addAll(game.databaseManager.getAllPlayersAsMutableList())
-                if(player != null) game.scoreboardManager.updatePlayerMoney(player.uuidAsString)
+//        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
+            game.databaseManager.modifyPlayers {cachePlayers ->
+                cachePlayers.clear()
+                cachePlayers.addAll(game.databaseManager.getAllPlayersAsMutableList())
+                if(spe != null) game.updateScoreBoard(spe.uuidAsString)
                 LOGGER.info("Command: updateMoneyFromDatabase executed, players data from database has been update to the code")
             }
-        }
+//        }
 
         return Command.SINGLE_SUCCESS
     }
