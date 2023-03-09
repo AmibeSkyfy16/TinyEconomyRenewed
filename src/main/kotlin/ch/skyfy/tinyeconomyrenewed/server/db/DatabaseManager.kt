@@ -167,17 +167,17 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
                 entity = Entity { translationKey = entityTranslationKey }
                 db.entities.add(entity)
             }
-            val entityKilledReward = db.entityKilledRewards.find { it.entity.id eq entity.id }
-            val amountFromConfig = Configs.ENTITY_KILLED_REWARD_CONFIG.serializableData.map[entityTranslationKey]!!
-            if (entityKilledReward == null) {
-                db.entityKilledRewards.add(EntityKilledReward {
-                    amount = amountFromConfig
-                    this.entity = entity
-                })
-            } else {
-                if (entityKilledReward.amount != amountFromConfig) entityKilledReward.amount = amountFromConfig
-                db.entityKilledRewards.update(entityKilledReward)
-            }
+//            val entityKilledReward = db.entityKilledRewards.find { it.entity.id eq entity.id }
+//            val amountFromConfig = Configs.ENTITY_KILLED_REWARD_CONFIG.serializableData.map[entityTranslationKey]!!
+//            if (entityKilledReward == null) {
+//                db.entityKilledRewards.add(EntityKilledReward {
+//                    amount = amountFromConfig
+//                    this.entity = entity
+//                })
+//            } else {
+//                if (entityKilledReward.amount != amountFromConfig) entityKilledReward.amount = amountFromConfig
+//                db.entityKilledRewards.update(entityKilledReward)
+//            }
         }
 
         // Iterate through all minecraft advancement

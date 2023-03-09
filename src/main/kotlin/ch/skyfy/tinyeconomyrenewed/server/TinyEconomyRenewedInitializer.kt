@@ -138,17 +138,22 @@ class TinyEconomyRenewedInitializer(private val optGameRef: AtomicReference<Opti
 
         // Populating with default value
         retrievedData.advancements.forEach { advancement ->
-            ADVANCEMENT_REWARD_CONFIG.updateMap(AdvancementRewardConfig::map) { it.putIfAbsent(advancement.advancementId, 100.0) }
+            ADVANCEMENT_REWARD_CONFIG.serializableData.map.putIfAbsent(advancement.advancementId, 500.0)
+//            ADVANCEMENT_REWARD_CONFIG.updateMap(AdvancementRewardConfig::map) { it.putIfAbsent(advancement.advancementId, 100.0) }
         }
         retrievedData.entities.forEach { translationKey ->
-            ENTITY_KILLED_REWARD_CONFIG.updateMap(EntityKilledRewardConfig::map) { it.putIfAbsent(translationKey, 2.0) }
+            if (ENTITY_KILLED_REWARD_CONFIG.serializableData.list.none { entityKilledReward -> entityKilledReward.translationKey == translationKey }) {
+                ENTITY_KILLED_REWARD_CONFIG.serializableData.list.add(EntityKilledReward(translationKey, 50.0, 1.5, "RENUSDT", -1.0))
+            }
+//            ENTITY_KILLED_REWARD_CONFIG.updateMap(EntityKilledRewardConfig::map) { it.putIfAbsent(translationKey, 2.0) }
         }
         retrievedData.blocks.forEach { translationKey ->
             if (MINED_BLOCK_REWARD_CONFIG.serializableData.list.none { minedBlockReward -> minedBlockReward.translationKey == translationKey }) {
-                MINED_BLOCK_REWARD_CONFIG.updateIterable(MinedBlockRewardConfig::list) {
-                    // I test in survival with eff 5 and haste, in one mn I got 1000 sand
-                    it.add(MinedBlockReward(translationKey, Average(1.0, 600.0),10.0, "RENUSDT", -1.0, 150, 30))
-                }
+                MINED_BLOCK_REWARD_CONFIG.serializableData.list.add(MinedBlockReward(translationKey, 100.0, 2.0, "RENUSDT", -1.0))
+//                MINED_BLOCK_REWARD_CONFIG.updateIterable(MinedBlockRewardConfig::list) {
+//                    // I test in survival with effi. 5 and haste 2, in one mn I got 1000 sand
+//                    it.add(MinedBlockReward(translationKey, 100.0, 2.0, "RENUSDT", -1.0))
+//                }
             }
 //            MINED_BLOCK_REWARD_CONFIG.updateIterable(MinedBlockRewardConfig::list){
 //                if(it.none { minedBlockReward -> minedBlockReward.translationKey == translationKey }){
@@ -157,6 +162,9 @@ class TinyEconomyRenewedInitializer(private val optGameRef: AtomicReference<Opti
 //            }
 //            MINED_BLOCK_REWARD_CONFIG.updateMap(MinedBlockRewardConfig::map) { it.putIfAbsent(translationKey, 0.5f) }
         }
+        ConfigManager.save(ADVANCEMENT_REWARD_CONFIG)
+        ConfigManager.save(ENTITY_KILLED_REWARD_CONFIG)
+        ConfigManager.save(MINED_BLOCK_REWARD_CONFIG)
         return retrievedData
     }
 

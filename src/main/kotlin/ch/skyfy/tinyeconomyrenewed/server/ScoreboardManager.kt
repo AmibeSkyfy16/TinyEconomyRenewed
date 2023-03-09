@@ -113,7 +113,6 @@ class ScoreboardManager(private val databaseManager: DatabaseManager) {
                 silkCoroutineScope.launch {
                     delay(2000)
                     mySideboard.displayToPlayer(player)
-//                        updatePlayerMoney(playerUUID)
                 }
             }
         }

@@ -91,9 +91,9 @@ tasks {
                 println("copying to client")
                 // Copy some default files to the test client
                 copy {
-                    from("dev/prepared_client/.")
-                    into("testClient")
-                    include("options.txt") // options.txt with my favorite settings
+//                    from("dev/prepared_client/.")
+//                    into("testClient")
+//                    include("options.txt") // options.txt with my favorite settings
                 }
             }
 
@@ -103,11 +103,11 @@ tasks {
                 // Copy some default files to the test server
                 println("copying to server")
                 copy {
-                    from("dev/prepared_server/.")
-                    into("testServer")
-                    include("eula.txt") // Accepted eula
-                    include("server.properties") // server.properties configured with usefully settings
-                    include("world/**") // A flat world, fast to load
+//                    from("dev/prepared_server/.")
+//                    into("testServer")
+//                    include("eula.txt") // Accepted eula
+//                    include("server.properties") // server.properties configured with usefully settings
+//                    include("world/**") // A flat world, fast to load
                 }
             }
         }

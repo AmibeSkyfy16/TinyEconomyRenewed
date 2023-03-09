@@ -43,9 +43,9 @@ Voici un exemple:
 
     // TODO
     Détection des joueurs essayant d'automatiser du cassage de blocs
-        Si cela fait entre 5-10 minute qu'un joueur à cassé au moins plus de 50 blocs/minute et que le périmètre
-        dans lequel il se trouve n'est pas plus grand qu'une zone rectangulaire de 10-20 blocs, il sera détecté comme afk
-        et ne recevra plus rien.
+        Si cela fait entre 5-10 minute qu'un joueur à cassé au moins plus de 100 blocs/minute et que l'air du périmètre
+        dans lequel il se trouve n'est pas plus grand que 50 blocs², il sera détecté comme afk
+        et ne recevra plus d'argent.
 
 
     Aussi chose importante à savoir, le prix de base pour chaque type de blocs pourra varié, comme le font les cryptomonnaies.

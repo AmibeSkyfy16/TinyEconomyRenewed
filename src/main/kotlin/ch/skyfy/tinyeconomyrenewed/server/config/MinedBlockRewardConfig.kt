@@ -13,19 +13,13 @@ data class MinedBlockRewardConfig(
 @Serializable
 data class MinedBlockReward(
     val translationKey: String,
-    val average: Average,
+    val maximumNumberPerMinute: Double,
     var currentPrice: Double,
     var basedCryptoCurrencyName: String,
-    var lastCryptoPrice: Double,
-    val percentUp: Int,
-    val percentDown: Int,
+    var lastCryptoPrice: Double
 ) : Validatable
 
-@Serializable
-data class Average(
-    val defaultPrice: Double,
-    val numberPerMinute: Double,
-) : Validatable
+
 
 class DefaultMinedBlockRewardConfig : Defaultable<MinedBlockRewardConfig>{
 //    override fun getDefault() = MinedBlockRewardConfig(mutableMapOf())
