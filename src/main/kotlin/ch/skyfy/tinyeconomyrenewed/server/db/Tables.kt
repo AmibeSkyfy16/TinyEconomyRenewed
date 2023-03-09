@@ -4,6 +4,16 @@ package ch.skyfy.tinyeconomyrenewed.server.db
 
 import org.ktorm.schema.*
 
+fun MinedBlockReward.toMinedBlockRewardData(): ch.skyfy.tinyeconomyrenewed.server.config.MinedBlockReward {
+    return ch.skyfy.tinyeconomyrenewed.server.config.MinedBlockReward(
+        translationKey = this.block.translationKey,
+        currentPrice = this.currentPrice,
+        maximumMinedBlockPerMinute = this.maximumMinedBlockPerMinute,
+        cryptoCurrencyName = this.cryptoCurrencyName,
+        lastCryptoPrice = this.lastCryptoPrice
+    )
+}
+
 interface Player : org.ktorm.entity.Entity<Player> {
     companion object : org.ktorm.entity.Entity.Factory<Player>()
 
@@ -53,6 +63,7 @@ interface MinedBlockReward : org.ktorm.entity.Entity<MinedBlockReward> {
     var cryptoCurrencyName: String
     var lastCryptoPrice: Double
     var block: Block
+
 }
 
 interface EntityKilledReward : org.ktorm.entity.Entity<EntityKilledReward> {
@@ -85,6 +96,7 @@ interface BlackListedPlacedBlock : org.ktorm.entity.Entity<BlackListedPlacedBloc
 
 open class Players(alias: String?) : Table<Player>("player", alias) {
     companion object : Players(null)
+
     override fun aliased(alias: String) = Players(alias)
 
     val id = int("id").primaryKey().bindTo { it.id }
@@ -92,6 +104,7 @@ open class Players(alias: String?) : Table<Player>("player", alias) {
     val name = varchar("name").bindTo { it.name }
     val money = double("money").bindTo { it.money }
 }
+
 open class Items(alias: String?) : Table<Item>("item", alias) {
     companion object : Items(null)
 
@@ -100,6 +113,7 @@ open class Items(alias: String?) : Table<Item>("item", alias) {
     val id = int("id").primaryKey().bindTo { it.id }
     val translationKey = varchar("translation_key").bindTo { it.translationKey }
 }
+
 open class Blocks(alias: String?) : Table<Block>("block", alias) {
     companion object : Blocks(null)
 
@@ -108,15 +122,19 @@ open class Blocks(alias: String?) : Table<Block>("block", alias) {
     val id = int("id").primaryKey().bindTo { it.id }
     val translationKey = varchar("translation_key").bindTo { it.translationKey }
 }
+
 open class Entities(alias: String?) : Table<Entity>("entity", alias) {
     companion object : Entities(null)
+
     override fun aliased(alias: String) = Entities(alias)
 
     val id = int("id").primaryKey().bindTo { it.id }
     val translationKey = varchar("translation_key").bindTo { it.translationKey }
 }
+
 open class Advancements(alias: String?) : Table<Advancement>("advancement", alias) {
     companion object : Advancements(null)
+
     override fun aliased(alias: String) = Advancements(alias)
 
     val id = int("id").primaryKey().bindTo { it.id }
@@ -140,6 +158,7 @@ open class MinedBlockRewards(alias: String?) : Table<MinedBlockReward>("mined_bl
     val blockId = int("block_id").references(Blocks) { it.block }
     val block get() = blockId.referenceTable as Blocks
 }
+
 open class EntityKilledRewards(alias: String?) : Table<EntityKilledReward>("entity_killed_reward", alias) {
     companion object : EntityKilledRewards(null)
 
@@ -153,6 +172,7 @@ open class EntityKilledRewards(alias: String?) : Table<EntityKilledReward>("enti
     val entityId = int("entity_id").references(Entities) { it.entity }
     val entity get() = entityId.referenceTable as Entities
 }
+
 open class AdvancementRewards(alias: String?) : Table<AdvancementReward>("advancement_reward", alias) {
     companion object : AdvancementRewards(null)
 

@@ -5,11 +5,15 @@ import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedInitializer
 import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedInitializer.Companion.LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT
 import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedInitializer.Companion.LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
+import net.minecraft.server.MinecraftServer
 import net.silkmc.silk.core.task.infiniteMcCoroutineTask
 import org.ktorm.database.Database
 import org.ktorm.dsl.and
@@ -50,8 +54,8 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
     private val cacheBlackListedPlacedBlocksMutex: Mutex
 
     val cachePlayers: MutableList<Player>
-    private val cacheMinedBlockRewards: List<MinedBlockReward>
-    private val cacheEntityKilledRewards: List<EntityKilledReward>
+    val cacheMinedBlockRewards: List<MinedBlockReward>
+    val cacheEntityKilledRewards: List<EntityKilledReward>
     val cacheAdvancementRewards: List<AdvancementReward>
     val cacheBlackListedPlacedBlocks: MutableList<BlackListedPlacedBlock>
 
@@ -69,8 +73,10 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
         }
     }
 
-    suspend fun modifyMinedBlockRewards(block: List<MinedBlockReward>.() -> Unit) {
-        cacheMinedBlockRewardsMutex.withLock { cacheMinedBlockRewards.block() }
+    fun modifyMinedBlockRewards(block: List<MinedBlockReward>.() -> Unit) {
+        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
+            cacheMinedBlockRewardsMutex.withLock { cacheMinedBlockRewards.block() }
+        }
     }
 
     suspend fun modifyEntityKilledRewards(block: List<EntityKilledReward>.() -> Unit) {
@@ -90,6 +96,8 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
         createDatabase(url, user, password) // Create a new database called TinyEconomyRenewed (if it is not already exist)
         db = Database.connect("$url/TinyEconomyRenewed", "org.mariadb.jdbc.Driver", user, password) // Connect to it
         initDatabase() // Then create tables and populate it with data
+
+        registerEvents()
 
         cachePlayersMutex = Mutex()
         cacheMinedBlockRewardsMutex = Mutex()
@@ -112,21 +120,54 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
          * So instead of making so many frequent request to the database, we use cacheList of our database entity, and we update it to the database only every 2 minutes
          */
         infiniteMcCoroutineTask(sync = false, client = false, period = 2.minutes) {
-            val job = launch {
-                modifyPlayers { cachePlayers -> cachePlayers.forEach(db.players::update) }
-                modifyBlackListedPlacedBlocks { cacheBlackListedPlacedBlocks ->
-                    cacheBlackListedPlacedBlocks.forEach {
-                        if (db.blackListedPlacedBlocks.find { c -> c.x.eq(it.x).and(c.y.eq(it.y)).and(c.z.eq(it.z)) } == null)
-                            db.blackListedPlacedBlocks.add(it)
-                    }
+            updateDatabase()
+//            val job = launch {
+//                modifyPlayers { cachePlayers -> cachePlayers.forEach(db.players::update) }
+//                modifyBlackListedPlacedBlocks { cacheBlackListedPlacedBlocks ->
+//                    cacheBlackListedPlacedBlocks.forEach {
+//                        if (db.blackListedPlacedBlocks.find { c -> c.x.eq(it.x).and(c.y.eq(it.y)).and(c.z.eq(it.z)) } == null)
+//                            db.blackListedPlacedBlocks.add(it)
+//                    }
+//                }
+//                modifyMinedBlockRewards {
+//                    cacheMinedBlockRewards.forEach(db.minedBlockRewards::update)
+//                }
+//            }
+//            while (true) {
+//                if (job.isCompleted || job.isCancelled) break
+//            }
+        }
+    }
+
+    private fun registerEvents() {
+        ServerLifecycleEvents.SERVER_STOPPED.register(this::onServerStopped)
+    }
+
+    private fun onServerStopped(minecraftServer: MinecraftServer) {
+        TinyEconomyRenewedMod.LOGGER.info("Update cached data to the database")
+        updateDatabase()
+        TinyEconomyRenewedMod.LOGGER.info("Done, database updated !")
+    }
+
+    private fun updateDatabase() {
+        val job = LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
+            delay(2000) // A test
+            modifyPlayers { cachePlayers -> cachePlayers.forEach(db.players::update) }
+            modifyBlackListedPlacedBlocks { cacheBlackListedPlacedBlocks ->
+                cacheBlackListedPlacedBlocks.forEach {
+                    if (db.blackListedPlacedBlocks.find { c -> c.x.eq(it.x).and(c.y.eq(it.y)).and(c.z.eq(it.z)) } == null)
+                        db.blackListedPlacedBlocks.add(it)
                 }
             }
-            while (true) {
-                if (job.isCompleted || job.isCancelled) break
+            modifyMinedBlockRewards {
+                cacheMinedBlockRewards.forEach(db.minedBlockRewards::update)
             }
         }
-
+        while (true) {
+            if (job.isCompleted || job.isCancelled) break
+        }
     }
+
 
     @Suppress("SqlNoDataSourceInspection", "SqlDialectInspection")
     private fun createDatabase(url: String, user: String, password: String) {
@@ -184,7 +225,7 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
                     // We have to update value is database if the user modify some value in the json config file
                     if (minedBlockReward.currentPrice != minedBlockRewardData.currentPrice) minedBlockReward.currentPrice = minedBlockRewardData.currentPrice
                     if (minedBlockReward.maximumMinedBlockPerMinute != minedBlockRewardData.maximumMinedBlockPerMinute) minedBlockReward.maximumMinedBlockPerMinute = minedBlockRewardData.maximumMinedBlockPerMinute
-                    if (minedBlockReward.cryptoCurrencyName != minedBlockRewardData.cryptoCurrencyName){
+                    if (minedBlockReward.cryptoCurrencyName != minedBlockRewardData.cryptoCurrencyName) {
                         minedBlockReward.cryptoCurrencyName = minedBlockRewardData.cryptoCurrencyName
                         minedBlockReward.lastCryptoPrice = -1.0 // reset
                     }
@@ -214,7 +255,7 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
             } else {
                 if (entityKilledReward.currentPrice != entityKilledRewardData.currentPrice) entityKilledReward.currentPrice = entityKilledRewardData.currentPrice
                 if (entityKilledReward.maximumEntityKilledPerMinute != entityKilledRewardData.maximumEntityKilledPerMinute) entityKilledReward.maximumEntityKilledPerMinute = entityKilledRewardData.maximumEntityKilledPerMinute
-                if (entityKilledReward.cryptoCurrencyName != entityKilledRewardData.cryptoCurrencyName){
+                if (entityKilledReward.cryptoCurrencyName != entityKilledRewardData.cryptoCurrencyName) {
                     entityKilledReward.cryptoCurrencyName = entityKilledRewardData.cryptoCurrencyName
                     entityKilledReward.lastCryptoPrice = -1.0 // reset
                 }

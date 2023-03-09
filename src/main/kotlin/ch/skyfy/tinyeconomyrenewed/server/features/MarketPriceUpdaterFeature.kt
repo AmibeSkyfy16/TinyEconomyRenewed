@@ -2,7 +2,6 @@ package ch.skyfy.tinyeconomyrenewed.server.features
 
 import ch.skyfy.jsonconfiglib.ConfigManager
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
-import ch.skyfy.tinyeconomyrenewed.server.config.MinedBlockReward
 import ch.skyfy.tinyeconomyrenewed.server.db.DatabaseManager
 import com.binance.connector.client.impl.WebsocketStreamClientImpl
 import com.binance.connector.client.utils.WebSocketCallback
@@ -28,7 +27,7 @@ import kotlin.time.Duration.Companion.minutes
  *
  */
 class MarketPriceUpdaterFeature @OptIn(DelicateCoroutinesApi::class) constructor(
-    val databaseManager: DatabaseManager,
+    private val databaseManager: DatabaseManager,
     override val coroutineContext: CoroutineContext = newSingleThreadContext("MyOwnThread")
 ) : CoroutineScope {
 
@@ -48,8 +47,8 @@ class MarketPriceUpdaterFeature @OptIn(DelicateCoroutinesApi::class) constructor
             ConfigManager.save(Configs.MINED_BLOCK_REWARD_CONFIG)
         }
 
-        val map = mutableMapOf<String, MutableList<MinedBlockReward>>()
-        Configs.MINED_BLOCK_REWARD_CONFIG.serializableData.list.forEach {
+        val map = mutableMapOf<String, MutableList<ch.skyfy.tinyeconomyrenewed.server.db.MinedBlockReward>>()
+        databaseManager.cacheMinedBlockRewards.forEach {
             if (!map.containsKey(it.cryptoCurrencyName)) map[it.cryptoCurrencyName] = mutableListOf(it)
             else map[it.cryptoCurrencyName]!!.add(it)
         }
@@ -60,7 +59,6 @@ class MarketPriceUpdaterFeature @OptIn(DelicateCoroutinesApi::class) constructor
             launch {
                 ws.symbolTicker(key, WebSocketCallback {
                     val price = JsonPath.read<String>(it, "$['b']").toDouble()
-//                    println("updating minedBlockPrice based on NEO PRICE")
 
                     list.forEach { minedBlockReward ->
                         if (minedBlockReward.lastCryptoPrice != -1.0) {
@@ -69,19 +67,28 @@ class MarketPriceUpdaterFeature @OptIn(DelicateCoroutinesApi::class) constructor
                             var percentDiff = (price * 100.0 / minedBlockReward.lastCryptoPrice) - 100.0 // Get the percent changed between lastPrice and currentPrice
 
 
-                            if (percentDiff * 11.5 >= -80.0) {
-                                percentDiff *= 11.5 // Increase a bit
+                            if (percentDiff * 20 >= -90.0) {
+                                percentDiff *= 20 // Increase a bit
                             }
 
                             val previousPrice = minedBlockReward.currentPrice
-//                            minedBlockReward.currentPrice = (100.0 + (percentDiff)) * minedBlockReward.currentPrice / 100.0
+                            val newPrice = (100.0 + (percentDiff)) * minedBlockReward.currentPrice / 100.0
 
-                            if (minedBlockReward.translationKey == "block.minecraft.sandstone") {
-//                                println("                    \tprevious price was $previousPrice")
-//                                println("percent $percentDiff\tnew price is ${minedBlockReward.currentPrice}")
+                            databaseManager.modifyMinedBlockRewards {
+                                minedBlockReward.currentPrice = newPrice
+                            }
+                            if (minedBlockReward.block.translationKey == "block.minecraft.sandstone") {
+                                println("                    \tprevious price was $previousPrice")
+                                println("basic percent: ${percentDiff / 20.0}\tnew percent: $percentDiff\tnew price: ${newPrice}")
                             }
                         }
-                        minedBlockReward.lastCryptoPrice = price
+                        databaseManager.modifyMinedBlockRewards {
+                            minedBlockReward.lastCryptoPrice = price
+                        }
+                        // Also updating config
+                        val d = Configs.MINED_BLOCK_REWARD_CONFIG.serializableData.list.first {m -> m.translationKey  == minedBlockReward.block.translationKey }
+                        d.currentPrice = minedBlockReward.currentPrice
+                        d.lastCryptoPrice = minedBlockReward.lastCryptoPrice
                     }
                 })
             }

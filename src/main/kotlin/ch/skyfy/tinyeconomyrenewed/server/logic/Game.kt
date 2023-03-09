@@ -1,14 +1,17 @@
 package ch.skyfy.tinyeconomyrenewed.server.logic
 
+import ch.skyfy.jsonconfiglib.ConfigManager
 import ch.skyfy.tinyeconomyrenewed.both.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.server.Economy
 import ch.skyfy.tinyeconomyrenewed.server.ScoreboardManager
 import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedInitializer.Companion.LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE
 import ch.skyfy.tinyeconomyrenewed.server.callbacks.PlayerJoinCallback
+import ch.skyfy.tinyeconomyrenewed.server.config.Configs
 import ch.skyfy.tinyeconomyrenewed.server.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.server.db.Player
 import ch.skyfy.tinyeconomyrenewed.server.features.*
 import kotlinx.coroutines.launch
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.minecraft.network.ClientConnection
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
@@ -42,6 +45,7 @@ class Game(val databaseManager: DatabaseManager, minecraftServer: MinecraftServe
 
     private fun registerEvents() {
         PlayerJoinCallback.EVENT.register(PLAYER_JOIN_CALLBACK_FIRST, this::onPlayerJoin)
+        ServerLifecycleEvents.SERVER_STOPPED.register(::onServerStopped)
     }
 
     private fun onPlayerJoin(@Suppress("UNUSED_PARAMETER") connection: ClientConnection, serverPlayerEntity: ServerPlayerEntity) {
@@ -60,6 +64,17 @@ class Game(val databaseManager: DatabaseManager, minecraftServer: MinecraftServe
 //                databaseManager.updatePlayers(player)
             }
 //        }
+    }
+
+    private fun onServerStopped(minecraftServer: MinecraftServer){
+        saveConfig()
+    }
+
+    /**
+     * We have to save some config here, because they have been modified without save in some other place in the code
+     */
+    private fun saveConfig(){
+        ConfigManager.save(Configs.MINED_BLOCK_REWARD_CONFIG)
     }
 
     fun updateScoreBoard(uuid: String) = scoreboardManager.updatePlayerMoney(uuid)
