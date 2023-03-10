@@ -4,11 +4,21 @@ package ch.skyfy.tinyeconomyrenewed.server.db
 
 import org.ktorm.schema.*
 
-fun MinedBlockReward.toMinedBlockRewardData(): ch.skyfy.tinyeconomyrenewed.server.config.MinedBlockReward {
-    return ch.skyfy.tinyeconomyrenewed.server.config.MinedBlockReward(
+fun MinedBlockReward.toMinedBlockRewardData(): ch.skyfy.tinyeconomyrenewed.server.config.MinedBlockRewardData {
+    return ch.skyfy.tinyeconomyrenewed.server.config.MinedBlockRewardData(
         translationKey = this.block.translationKey,
         currentPrice = this.currentPrice,
-        maximumMinedBlockPerMinute = this.maximumMinedBlockPerMinute,
+        maximumPerMinute = this.maximumMinedBlockPerMinute,
+        cryptoCurrencyName = this.cryptoCurrencyName,
+        lastCryptoPrice = this.lastCryptoPrice
+    )
+}
+
+fun EntityKilledReward.toEntityKilledRewardData(): ch.skyfy.tinyeconomyrenewed.server.config.EntityKilledRewardData {
+    return ch.skyfy.tinyeconomyrenewed.server.config.EntityKilledRewardData(
+        translationKey = this.entity.translationKey,
+        currentPrice = this.currentPrice,
+        maximumPerMinute = this.maximumEntityKilledPerMinute,
         cryptoCurrencyName = this.cryptoCurrencyName,
         lastCryptoPrice = this.lastCryptoPrice
     )

@@ -1,8 +1,6 @@
 package ch.skyfy.tinyeconomyrenewed.server
 
 import ch.skyfy.jsonconfiglib.ConfigManager
-import ch.skyfy.jsonconfiglib.updateIterable
-import ch.skyfy.jsonconfiglib.updateMap
 import ch.skyfy.tinyeconomyrenewed.both.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.server.config.*
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs.ADVANCEMENT_REWARD_CONFIG
@@ -24,7 +22,6 @@ import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.Language
-import org.ktorm.dsl.min
 import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
@@ -143,13 +140,13 @@ class TinyEconomyRenewedInitializer(private val optGameRef: AtomicReference<Opti
         }
         retrievedData.entities.forEach { translationKey ->
             if (ENTITY_KILLED_REWARD_CONFIG.serializableData.list.none { entityKilledReward -> entityKilledReward.translationKey == translationKey }) {
-                ENTITY_KILLED_REWARD_CONFIG.serializableData.list.add(EntityKilledReward(translationKey, 0.8,100.0, "RENUSDT", -1.0))
+                ENTITY_KILLED_REWARD_CONFIG.serializableData.list.add(EntityKilledRewardData(translationKey, 0.8,100.0, "PERLUSDT", -1.0))
             }
 //            ENTITY_KILLED_REWARD_CONFIG.updateMap(EntityKilledRewardConfig::map) { it.putIfAbsent(translationKey, 2.0) }
         }
         retrievedData.blocks.forEach { translationKey ->
             if (MINED_BLOCK_REWARD_CONFIG.serializableData.list.none { minedBlockReward -> minedBlockReward.translationKey == translationKey }) {
-                MINED_BLOCK_REWARD_CONFIG.serializableData.list.add(MinedBlockReward(translationKey, 0.5, 800.0, "RENUSDT", -1.0))
+                MINED_BLOCK_REWARD_CONFIG.serializableData.list.add(MinedBlockRewardData(translationKey, 0.5, 800.0, "KAVAUSDT", -1.0))
 //                MINED_BLOCK_REWARD_CONFIG.updateIterable(MinedBlockRewardConfig::list) {
 //                    // I test in survival with effi. 5 and haste 2, in one mn I got 1000 sand
 //                    it.add(MinedBlockReward(translationKey, 100.0, 2.0, "RENUSDT", -1.0))

@@ -4,13 +4,11 @@ import ch.skyfy.jsonconfiglib.ConfigManager
 import ch.skyfy.tinyeconomyrenewed.both.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.server.Economy
 import ch.skyfy.tinyeconomyrenewed.server.ScoreboardManager
-import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedInitializer.Companion.LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE
 import ch.skyfy.tinyeconomyrenewed.server.callbacks.PlayerJoinCallback
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
 import ch.skyfy.tinyeconomyrenewed.server.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.server.db.Player
 import ch.skyfy.tinyeconomyrenewed.server.features.*
-import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.minecraft.network.ClientConnection
 import net.minecraft.server.MinecraftServer
@@ -56,9 +54,9 @@ class Game(val databaseManager: DatabaseManager, minecraftServer: MinecraftServe
             var player = databaseManager.cachePlayers.find { it.uuid == playerUUID }
             if (player == null) {
                 player = Player { uuid = playerUUID; name = playerName }
-                databaseManager.modifyPlayers { cachePlayers -> cachePlayers.add(player); databaseManager.addPlayer(player) }
+                databaseManager.lockPlayers { cachePlayers -> cachePlayers.add(player); databaseManager.addPlayer(player) }
             } else if (player.name != playerName) { // If a player changed his name, we have to update it in the database
-                databaseManager.modifyPlayers { player.name = playerName; databaseManager.updatePlayers(player) }
+                databaseManager.lockPlayers { player.name = playerName; databaseManager.updatePlayers(player) }
                 TinyEconomyRenewedMod.LOGGER.info("Player ${player.name} has changed his name to $playerName")
 //                player.name = playerName
 //                databaseManager.updatePlayers(player)
@@ -74,7 +72,12 @@ class Game(val databaseManager: DatabaseManager, minecraftServer: MinecraftServe
      * We have to save some config here, because they have been modified without save in some other place in the code
      */
     private fun saveConfig(){
-        ConfigManager.save(Configs.MINED_BLOCK_REWARD_CONFIG)
+        databaseManager.lockMinedBlockRewards {
+            ConfigManager.save(Configs.MINED_BLOCK_REWARD_CONFIG)
+        }
+        databaseManager.lockEntityKilledRewards {
+            ConfigManager.save(Configs.ENTITY_KILLED_REWARD_CONFIG)
+        }
     }
 
     fun updateScoreBoard(uuid: String) = scoreboardManager.updatePlayerMoney(uuid)

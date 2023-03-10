@@ -2,12 +2,9 @@
 
 package ch.skyfy.tinyeconomyrenewed.server
 
-import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedInitializer.Companion.LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE
 import ch.skyfy.tinyeconomyrenewed.server.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.server.db.Player
 import ch.skyfy.tinyeconomyrenewed.server.features.MoneyEarnedRewardFeature
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import net.minecraft.server.network.ServerPlayerEntity
 
 @Suppress("unused")
@@ -21,7 +18,7 @@ class Economy(private val databaseManager: DatabaseManager, private val scoreboa
      */
     fun deposit(spe: ServerPlayerEntity?, uuid: String, block: () -> Double) {
 //        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
-            databaseManager.modifyPlayers {cachePlayers ->
+            databaseManager.lockPlayers { cachePlayers ->
                 cachePlayers.find { player: Player -> player.uuid == uuid }?.let { player ->
                     val earnedAmount = block.invoke()
                     val totalAmount = deposit(player, earnedAmount)
@@ -40,7 +37,7 @@ class Economy(private val databaseManager: DatabaseManager, private val scoreboa
 
     fun withdraw(uuid: String, amount: Double) {
 //        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
-            databaseManager.modifyPlayers {cachePlayers ->
+            databaseManager.lockPlayers { cachePlayers ->
                 cachePlayers.find { p -> p.uuid == uuid }?.let { p ->
                     scoreboardManager.updatePlayerMoney(uuid, withdraw(p, amount))
                 }

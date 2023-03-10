@@ -2,18 +2,13 @@ package ch.skyfy.tinyeconomyrenewed.server.commands
 
 
 import ch.skyfy.tinyeconomyrenewed.both.TinyEconomyRenewedMod.Companion.LOGGER
-import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedInitializer.Companion.LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE
 import ch.skyfy.tinyeconomyrenewed.server.logic.Game
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.context.CommandContext
-import kotlinx.coroutines.launch
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.Style
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.jvm.optionals.getOrNull
@@ -41,7 +36,7 @@ class UpdateMoneyFromDatabase(private val optGameRef: AtomicReference<Optional<G
         }
 
 //        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
-            game.databaseManager.modifyPlayers {cachePlayers ->
+            game.databaseManager.lockPlayers { cachePlayers ->
                 cachePlayers.clear()
                 cachePlayers.addAll(game.databaseManager.getAllPlayersAsMutableList())
                 if(spe != null) game.updateScoreBoard(spe.uuidAsString)

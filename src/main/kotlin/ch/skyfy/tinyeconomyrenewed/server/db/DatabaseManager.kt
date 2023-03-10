@@ -5,7 +5,6 @@ import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedInitializer
 import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedInitializer.Companion.LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT
 import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedInitializer.Companion.LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -67,27 +66,29 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
 
     fun updatePlayers(player: Player) = db.players.update(player)
 
-    fun modifyPlayers(block: MutableList<Player>.(MutableList<Player>) -> Unit) {
+    fun lockPlayers(block: MutableList<Player>.(MutableList<Player>) -> Unit) {
         LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
             cachePlayersMutex.withLock { cachePlayers.block(cachePlayers) }
         }
     }
 
-    fun modifyMinedBlockRewards(block: List<MinedBlockReward>.() -> Unit) {
+    fun lockMinedBlockRewards(block: List<MinedBlockReward>.(List<MinedBlockReward>) -> Unit) {
         LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
-            cacheMinedBlockRewardsMutex.withLock { cacheMinedBlockRewards.block() }
+            cacheMinedBlockRewardsMutex.withLock { cacheMinedBlockRewards.block(cacheMinedBlockRewards) }
         }
     }
 
-    suspend fun modifyEntityKilledRewards(block: List<EntityKilledReward>.() -> Unit) {
-        cacheEntityKilledRewardsMutex.withLock { cacheEntityKilledRewards.block() }
+    fun lockEntityKilledRewards(block: List<EntityKilledReward>.(List<EntityKilledReward>) -> Unit) {
+        LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
+            cacheEntityKilledRewardsMutex.withLock { cacheEntityKilledRewards.block(cacheEntityKilledRewards) }
+        }
     }
 
-    suspend fun modifyAdvancementRewards(block: List<AdvancementReward>.() -> Unit) {
+    private suspend fun lockAdvancementRewards(block: List<AdvancementReward>.() -> Unit) {
         cacheAdvancementRewardsMutex.withLock { cacheAdvancementRewards.block() }
     }
 
-    private suspend fun modifyBlackListedPlacedBlocks(block: List<BlackListedPlacedBlock>.(MutableList<BlackListedPlacedBlock>) -> Unit) {
+    private suspend fun lockBlackListedPlacedBlocks(block: List<BlackListedPlacedBlock>.(MutableList<BlackListedPlacedBlock>) -> Unit) {
         cacheBlackListedPlacedBlocksMutex.withLock { cacheBlackListedPlacedBlocks.block(cacheBlackListedPlacedBlocks) }
     }
 
@@ -152,15 +153,18 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
     private fun updateDatabase() {
         val job = LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
             delay(2000) // A test
-            modifyPlayers { cachePlayers -> cachePlayers.forEach(db.players::update) }
-            modifyBlackListedPlacedBlocks { cacheBlackListedPlacedBlocks ->
+            lockPlayers { cachePlayers -> cachePlayers.forEach(db.players::update) }
+            lockBlackListedPlacedBlocks { cacheBlackListedPlacedBlocks ->
                 cacheBlackListedPlacedBlocks.forEach {
                     if (db.blackListedPlacedBlocks.find { c -> c.x.eq(it.x).and(c.y.eq(it.y)).and(c.z.eq(it.z)) } == null)
                         db.blackListedPlacedBlocks.add(it)
                 }
             }
-            modifyMinedBlockRewards {
+            lockMinedBlockRewards {
                 cacheMinedBlockRewards.forEach(db.minedBlockRewards::update)
+            }
+            lockEntityKilledRewards {
+                cacheEntityKilledRewards.forEach(db.entityKilledRewards::update)
             }
         }
         while (true) {
@@ -216,7 +220,7 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
                 if (minedBlockReward == null) {
                     db.minedBlockRewards.add(MinedBlockReward {
                         this.currentPrice = minedBlockRewardData.currentPrice
-                        this.maximumMinedBlockPerMinute = minedBlockRewardData.maximumMinedBlockPerMinute
+                        this.maximumMinedBlockPerMinute = minedBlockRewardData.maximumPerMinute
                         this.cryptoCurrencyName = minedBlockRewardData.cryptoCurrencyName
                         this.lastCryptoPrice = minedBlockRewardData.lastCryptoPrice
                         this.block = block
@@ -224,7 +228,7 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
                 } else {
                     // We have to update value is database if the user modify some value in the json config file
                     if (minedBlockReward.currentPrice != minedBlockRewardData.currentPrice) minedBlockReward.currentPrice = minedBlockRewardData.currentPrice
-                    if (minedBlockReward.maximumMinedBlockPerMinute != minedBlockRewardData.maximumMinedBlockPerMinute) minedBlockReward.maximumMinedBlockPerMinute = minedBlockRewardData.maximumMinedBlockPerMinute
+                    if (minedBlockReward.maximumMinedBlockPerMinute != minedBlockRewardData.maximumPerMinute) minedBlockReward.maximumMinedBlockPerMinute = minedBlockRewardData.maximumPerMinute
                     if (minedBlockReward.cryptoCurrencyName != minedBlockRewardData.cryptoCurrencyName) {
                         minedBlockReward.cryptoCurrencyName = minedBlockRewardData.cryptoCurrencyName
                         minedBlockReward.lastCryptoPrice = -1.0 // reset
@@ -247,14 +251,14 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
             if (entityKilledReward == null) {
                 db.entityKilledRewards.add(EntityKilledReward {
                     this.currentPrice = entityKilledRewardData.currentPrice
-                    this.maximumEntityKilledPerMinute = entityKilledRewardData.maximumEntityKilledPerMinute
+                    this.maximumEntityKilledPerMinute = entityKilledRewardData.maximumPerMinute
                     this.cryptoCurrencyName = entityKilledRewardData.cryptoCurrencyName
                     this.lastCryptoPrice = entityKilledRewardData.lastCryptoPrice
                     this.entity = entity
                 })
             } else {
                 if (entityKilledReward.currentPrice != entityKilledRewardData.currentPrice) entityKilledReward.currentPrice = entityKilledRewardData.currentPrice
-                if (entityKilledReward.maximumEntityKilledPerMinute != entityKilledRewardData.maximumEntityKilledPerMinute) entityKilledReward.maximumEntityKilledPerMinute = entityKilledRewardData.maximumEntityKilledPerMinute
+                if (entityKilledReward.maximumEntityKilledPerMinute != entityKilledRewardData.maximumPerMinute) entityKilledReward.maximumEntityKilledPerMinute = entityKilledRewardData.maximumPerMinute
                 if (entityKilledReward.cryptoCurrencyName != entityKilledRewardData.cryptoCurrencyName) {
                     entityKilledReward.cryptoCurrencyName = entityKilledRewardData.cryptoCurrencyName
                     entityKilledReward.lastCryptoPrice = -1.0 // reset
