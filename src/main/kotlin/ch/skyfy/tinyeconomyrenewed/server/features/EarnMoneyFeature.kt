@@ -105,7 +105,19 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
 
     private fun onEntityDamaged(livingEntity: LivingEntity, damageSource: DamageSource, @Suppress("UNUSED_PARAMETER") amount: Float) {
         val attacker = damageSource.attacker
-        if (attacker !is PlayerEntity) return
+        if (attacker !is ServerPlayerEntity) return
+
+        if(livingEntity is ServerPlayerEntity){
+            val serializableData = Configs.EARN_MONEY_BY_KILLING_PLAYERS_CONFIG.serializableData
+            val price = serializableData.amount
+            if(serializableData.shouldKilledPlayerLostMoneyToo) {
+                economy.withdraw(livingEntity.uuidAsString, price)
+                livingEntity.sendMessage(Text.literal("You have lost $price cause you have been killed by ${attacker.name.string}").setStyle(Style.EMPTY.withColor(Formatting.GOLD)))
+            }
+            economy.deposit(attacker, attacker.uuidAsString) { price }
+
+            attacker.sendMessage(Text.literal("You have earned $price cause you have killed ${livingEntity.name.string}").setStyle(Style.EMPTY.withColor(Formatting.GOLD)))
+        }
 
         if (livingEntity.health <= 0) {
 //            val entityKilledReward = Configs.ENTITY_KILLED_REWARD_CONFIG.serializableData.list.first { it.translationKey == livingEntity.type.translationKey }
