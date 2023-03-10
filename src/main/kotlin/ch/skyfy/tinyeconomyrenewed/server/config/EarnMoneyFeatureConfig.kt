@@ -6,7 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class EarnMoneyFeatureConfig(
     val minedBlockRewardNerfer: MinedBlockRewardNerfer = MinedBlockRewardNerfer(),
-    val entityKilledRewardNerfer: EntityKilledRewardNerfer = EntityKilledRewardNerfer()
+    val entityKilledRewardNerfer: EntityKilledRewardNerfer = EntityKilledRewardNerfer(),
+    val priceToEarnForFirstLoggingOfTheDay: Double = 500.0
 ) : Validatable
 
 /**
