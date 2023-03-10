@@ -4,7 +4,7 @@ import ch.skyfy.jsonconfiglib.ConfigManager
 import ch.skyfy.tinyeconomyrenewed.both.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.server.config.*
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs.ADVANCEMENT_REWARD_CONFIG
-import ch.skyfy.tinyeconomyrenewed.server.config.Configs.ENTITY_KILLED_REWARD_CONFIG
+import ch.skyfy.tinyeconomyrenewed.server.config.Configs.KILLED_ENTITY_REWARD_CONFIG
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs.MINED_BLOCK_REWARD_CONFIG
 import ch.skyfy.tinyeconomyrenewed.server.db.DatabaseManager
 import ch.skyfy.tinyeconomyrenewed.server.logic.Game
@@ -42,7 +42,6 @@ class TinyEconomyRenewedInitializer(private val optGameRef: AtomicReference<Opti
         val LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT = Dispatchers.Default
         val LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE = CoroutineScope(LEAVE_THE_MINECRAFT_THREAD_ALONE_CONTEXT)
     }
-
 
     private var isInitializationComplete = false
 
@@ -135,12 +134,12 @@ class TinyEconomyRenewedInitializer(private val optGameRef: AtomicReference<Opti
 
         // Populating with default value
         retrievedData.advancements.forEach { advancement ->
-            ADVANCEMENT_REWARD_CONFIG.serializableData.map.putIfAbsent(advancement.advancementId, 500.0)
+            ADVANCEMENT_REWARD_CONFIG.serializableData.map.putIfAbsent(advancement.advancementId, 1000.0)
 //            ADVANCEMENT_REWARD_CONFIG.updateMap(AdvancementRewardConfig::map) { it.putIfAbsent(advancement.advancementId, 100.0) }
         }
         retrievedData.entities.forEach { translationKey ->
-            if (ENTITY_KILLED_REWARD_CONFIG.serializableData.list.none { entityKilledReward -> entityKilledReward.translationKey == translationKey }) {
-                ENTITY_KILLED_REWARD_CONFIG.serializableData.list.add(EntityKilledRewardData(translationKey, 0.8,100.0, "PERLUSDT", -1.0))
+            if (KILLED_ENTITY_REWARD_CONFIG.serializableData.list.none { killedEntityReward -> killedEntityReward.translationKey == translationKey }) {
+                KILLED_ENTITY_REWARD_CONFIG.serializableData.list.add(KilledEntityRewardData(translationKey, 0.8,100.0, "PERLUSDT", -1.0))
             }
 //            ENTITY_KILLED_REWARD_CONFIG.updateMap(EntityKilledRewardConfig::map) { it.putIfAbsent(translationKey, 2.0) }
         }
@@ -160,7 +159,7 @@ class TinyEconomyRenewedInitializer(private val optGameRef: AtomicReference<Opti
 //            MINED_BLOCK_REWARD_CONFIG.updateMap(MinedBlockRewardConfig::map) { it.putIfAbsent(translationKey, 0.5f) }
         }
         ConfigManager.save(ADVANCEMENT_REWARD_CONFIG)
-        ConfigManager.save(ENTITY_KILLED_REWARD_CONFIG)
+        ConfigManager.save(KILLED_ENTITY_REWARD_CONFIG)
         ConfigManager.save(MINED_BLOCK_REWARD_CONFIG)
         return retrievedData
     }

@@ -28,7 +28,7 @@ private val Database.blocks get() = this.sequenceOf(Blocks)
 private val Database.entities get() = this.sequenceOf(Entities)
 private val Database.advancements get() = this.sequenceOf(Advancements)
 private val Database.minedBlockRewards get() = this.sequenceOf(MinedBlockRewards)
-private val Database.entityKilledRewards get() = this.sequenceOf(EntityKilledRewards)
+private val Database.killedEntityRewards get() = this.sequenceOf(KilledEntityRewards)
 private val Database.advancementRewards get() = this.sequenceOf(AdvancementRewards)
 private val Database.blackListedPlacedBlocks get() = this.sequenceOf(BlackListedPlacedBlocks)
 
@@ -48,13 +48,13 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
 
     private val cachePlayersMutex: Mutex
     private val cacheMinedBlockRewardsMutex: Mutex
-    private val cacheEntityKilledRewardsMutex: Mutex
+    private val cacheKilledEntityRewardsMutex: Mutex
     private val cacheAdvancementRewardsMutex: Mutex
     private val cacheBlackListedPlacedBlocksMutex: Mutex
 
     val cachePlayers: MutableList<Player>
     val cacheMinedBlockRewards: List<MinedBlockReward>
-    val cacheEntityKilledRewards: List<EntityKilledReward>
+    val cacheKilledEntityRewards: List<KilledEntityReward>
     val cacheAdvancementRewards: List<AdvancementReward>
     val cacheBlackListedPlacedBlocks: MutableList<BlackListedPlacedBlock>
 
@@ -78,9 +78,9 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
         }
     }
 
-    fun lockEntityKilledRewards(block: List<EntityKilledReward>.(List<EntityKilledReward>) -> Unit) {
+    fun lockKilledEntityRewards(block: List<KilledEntityReward>.(List<KilledEntityReward>) -> Unit) {
         LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
-            cacheEntityKilledRewardsMutex.withLock { cacheEntityKilledRewards.block(cacheEntityKilledRewards) }
+            cacheKilledEntityRewardsMutex.withLock { cacheKilledEntityRewards.block(cacheKilledEntityRewards) }
         }
     }
 
@@ -102,13 +102,13 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
 
         cachePlayersMutex = Mutex()
         cacheMinedBlockRewardsMutex = Mutex()
-        cacheEntityKilledRewardsMutex = Mutex()
+        cacheKilledEntityRewardsMutex = Mutex()
         cacheAdvancementRewardsMutex = Mutex()
         cacheBlackListedPlacedBlocksMutex = Mutex()
 
         cachePlayers = db.players.toMutableList()
         cacheMinedBlockRewards = db.minedBlockRewards.toList()
-        cacheEntityKilledRewards = db.entityKilledRewards.toList()
+        cacheKilledEntityRewards = db.killedEntityRewards.toList()
         cacheAdvancementRewards = db.advancementRewards.toList()
         cacheBlackListedPlacedBlocks = db.blackListedPlacedBlocks.toMutableList()
 
@@ -144,6 +144,7 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
         ServerLifecycleEvents.SERVER_STOPPED.register(this::onServerStopped)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun onServerStopped(minecraftServer: MinecraftServer) {
         TinyEconomyRenewedMod.LOGGER.info("Update cached data to the database")
         updateDatabase()
@@ -163,8 +164,8 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
             lockMinedBlockRewards {
                 cacheMinedBlockRewards.forEach(db.minedBlockRewards::update)
             }
-            lockEntityKilledRewards {
-                cacheEntityKilledRewards.forEach(db.entityKilledRewards::update)
+            lockKilledEntityRewards {
+                cacheKilledEntityRewards.forEach(db.killedEntityRewards::update)
             }
         }
         while (true) {
@@ -245,25 +246,25 @@ class DatabaseManager(private val retrievedData: TinyEconomyRenewedInitializer.R
                 entity = Entity { translationKey = entityTranslationKey }
                 db.entities.add(entity)
             }
-            val entityKilledReward = db.entityKilledRewards.find { it.entity.id eq entity.id }
-            val entityKilledRewardData = Configs.ENTITY_KILLED_REWARD_CONFIG.serializableData.list.first { it.translationKey == entityTranslationKey }
+            val killedEntityReward = db.killedEntityRewards.find { it.entity.id eq entity.id }
+            val killedEntityRewardData = Configs.KILLED_ENTITY_REWARD_CONFIG.serializableData.list.first { it.translationKey == entityTranslationKey }
 
-            if (entityKilledReward == null) {
-                db.entityKilledRewards.add(EntityKilledReward {
-                    this.currentPrice = entityKilledRewardData.currentPrice
-                    this.maximumEntityKilledPerMinute = entityKilledRewardData.maximumPerMinute
-                    this.cryptoCurrencyName = entityKilledRewardData.cryptoCurrencyName
-                    this.lastCryptoPrice = entityKilledRewardData.lastCryptoPrice
+            if (killedEntityReward == null) {
+                db.killedEntityRewards.add(KilledEntityReward {
+                    this.currentPrice = killedEntityRewardData.currentPrice
+                    this.maximumKilledEntityPerMinute = killedEntityRewardData.maximumPerMinute
+                    this.cryptoCurrencyName = killedEntityRewardData.cryptoCurrencyName
+                    this.lastCryptoPrice = killedEntityRewardData.lastCryptoPrice
                     this.entity = entity
                 })
             } else {
-                if (entityKilledReward.currentPrice != entityKilledRewardData.currentPrice) entityKilledReward.currentPrice = entityKilledRewardData.currentPrice
-                if (entityKilledReward.maximumEntityKilledPerMinute != entityKilledRewardData.maximumPerMinute) entityKilledReward.maximumEntityKilledPerMinute = entityKilledRewardData.maximumPerMinute
-                if (entityKilledReward.cryptoCurrencyName != entityKilledRewardData.cryptoCurrencyName) {
-                    entityKilledReward.cryptoCurrencyName = entityKilledRewardData.cryptoCurrencyName
-                    entityKilledReward.lastCryptoPrice = -1.0 // reset
+                if (killedEntityReward.currentPrice != killedEntityRewardData.currentPrice) killedEntityReward.currentPrice = killedEntityRewardData.currentPrice
+                if (killedEntityReward.maximumKilledEntityPerMinute != killedEntityRewardData.maximumPerMinute) killedEntityReward.maximumKilledEntityPerMinute = killedEntityRewardData.maximumPerMinute
+                if (killedEntityReward.cryptoCurrencyName != killedEntityRewardData.cryptoCurrencyName) {
+                    killedEntityReward.cryptoCurrencyName = killedEntityRewardData.cryptoCurrencyName
+                    killedEntityReward.lastCryptoPrice = -1.0 // reset
                 }
-                db.entityKilledRewards.update(entityKilledReward)
+                db.killedEntityRewards.update(killedEntityReward)
             }
         }
 

@@ -2,13 +2,19 @@
 
 package ch.skyfy.tinyeconomyrenewed.server.config
 
-import ch.skyfy.jsonconfiglib.Defaultable
 import ch.skyfy.jsonconfiglib.Validatable
 
 @kotlinx.serialization.Serializable
 data class ShopConfig(
-    val allowShopsToBeDestroyedByAnExplosion: MutableMap<ExplosionType, Boolean>,
-    val shopsCannotBeDestroyedByAnyExplosion: Boolean
+    val allowShopsToBeDestroyedByAnExplosion: MutableMap<ExplosionType, Boolean> = mutableMapOf(
+        ExplosionType.WITHER to false,
+        ExplosionType.END_CRYSTAL to false,
+        ExplosionType.CREEPER to false,
+        ExplosionType.FIREBALL to false,
+        ExplosionType.TNT to false,
+        ExplosionType.BAD_RESPAWN_POINT to false
+    ),
+    val shopsCannotBeDestroyedByAnyExplosion: Boolean = false
 ) : Validatable
 
 @kotlinx.serialization.Serializable
@@ -19,30 +25,4 @@ enum class ExplosionType(val id: String) {
     FIREBALL("entity.minecraft.fireball"),
     TNT("entity.minecraft.tnt"),
     BAD_RESPAWN_POINT("badRespawnPoint")
-}
-
-class DefaultShopConfig : Defaultable<ShopConfig> {
-    override fun getDefault(): ShopConfig {
-//        val map = HashMap<ExplosionType, Boolean>()
-//        map.putAll(arrayOf(
-//            Pair(ExplosionType.WITHER, false),
-//            Pair(ExplosionType.END_CRYSTAL, false),
-//            Pair(ExplosionType.CREEPER, false),
-//            Pair(ExplosionType.FIREBALL, false),
-//            Pair(ExplosionType.TNT, false),
-//            Pair(ExplosionType.BAD_RESPAWN_POINT, false),
-//        ))
-        return ShopConfig(
-            mutableMapOf(
-                ExplosionType.WITHER to false,
-                ExplosionType.END_CRYSTAL to false,
-                ExplosionType.CREEPER to false,
-                ExplosionType.FIREBALL to false,
-                ExplosionType.TNT to false,
-                ExplosionType.BAD_RESPAWN_POINT to false
-            ),
-            false
-        )
-    }
-
 }

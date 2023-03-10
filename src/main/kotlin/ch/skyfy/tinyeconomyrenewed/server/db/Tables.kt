@@ -14,11 +14,11 @@ fun MinedBlockReward.toMinedBlockRewardData(): ch.skyfy.tinyeconomyrenewed.serve
     )
 }
 
-fun EntityKilledReward.toEntityKilledRewardData(): ch.skyfy.tinyeconomyrenewed.server.config.EntityKilledRewardData {
-    return ch.skyfy.tinyeconomyrenewed.server.config.EntityKilledRewardData(
+fun KilledEntityReward.toKilledEntityRewardData(): ch.skyfy.tinyeconomyrenewed.server.config.KilledEntityRewardData {
+    return ch.skyfy.tinyeconomyrenewed.server.config.KilledEntityRewardData(
         translationKey = this.entity.translationKey,
         currentPrice = this.currentPrice,
-        maximumPerMinute = this.maximumEntityKilledPerMinute,
+        maximumPerMinute = this.maximumKilledEntityPerMinute,
         cryptoCurrencyName = this.cryptoCurrencyName,
         lastCryptoPrice = this.lastCryptoPrice
     )
@@ -76,12 +76,12 @@ interface MinedBlockReward : org.ktorm.entity.Entity<MinedBlockReward> {
 
 }
 
-interface EntityKilledReward : org.ktorm.entity.Entity<EntityKilledReward> {
-    companion object : org.ktorm.entity.Entity.Factory<EntityKilledReward>()
+interface KilledEntityReward : org.ktorm.entity.Entity<KilledEntityReward> {
+    companion object : org.ktorm.entity.Entity.Factory<KilledEntityReward>()
 
     val id: Int
     var currentPrice: Double
-    var maximumEntityKilledPerMinute: Double
+    var maximumKilledEntityPerMinute: Double
     var cryptoCurrencyName: String
     var lastCryptoPrice: Double
     var entity: Entity
@@ -169,14 +169,14 @@ open class MinedBlockRewards(alias: String?) : Table<MinedBlockReward>("mined_bl
     val block get() = blockId.referenceTable as Blocks
 }
 
-open class EntityKilledRewards(alias: String?) : Table<EntityKilledReward>("entity_killed_reward", alias) {
-    companion object : EntityKilledRewards(null)
+open class KilledEntityRewards(alias: String?) : Table<KilledEntityReward>("killed_entity_reward", alias) {
+    companion object : KilledEntityRewards(null)
 
-    override fun aliased(alias: String) = EntityKilledRewards(alias)
+    override fun aliased(alias: String) = KilledEntityRewards(alias)
 
     val id = int("id").primaryKey().bindTo { it.id }
     val currentPrice = double("current_price").bindTo { it.currentPrice }
-    val maximumMinedBlockPerMinute = double("maximum_entity_killed_per_minute").bindTo { it.maximumEntityKilledPerMinute }
+    val maximumKilledEntityPerMinute = double("maximum_killed_entity_per_minute").bindTo { it.maximumKilledEntityPerMinute }
     val cryptoCurrencyName = varchar("crypto_currency_name").bindTo { it.cryptoCurrencyName }
     val lastCryptoPrice = double("last_crypto_price").bindTo { it.lastCryptoPrice }
     val entityId = int("entity_id").references(Entities) { it.entity }

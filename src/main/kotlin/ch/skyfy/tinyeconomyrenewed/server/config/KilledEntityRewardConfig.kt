@@ -4,21 +4,12 @@ import ch.skyfy.jsonconfiglib.Validatable
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class EntityKilledRewardConfig(
-    val list: MutableList<EntityKilledRewardData> = mutableListOf()
+data class KilledEntityRewardConfig(
+    val list: MutableList<KilledEntityRewardData> = mutableListOf()
 ) : Validatable
 
-//@Serializable
-//data class EntityKilledReward(
-//    val translationKey: String,
-//    var currentPrice: Double,
-//    val maximumEntityKilledPerMinute: Double,
-//    var cryptoCurrencyName: String,
-//    var lastCryptoPrice: Double
-//) : Validatable
-
 @Serializable
-data class EntityKilledRewardData(
+data class KilledEntityRewardData(
     override val translationKey: String,
     override var currentPrice: Double,
     override val maximumPerMinute: Double,

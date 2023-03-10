@@ -139,7 +139,9 @@ tasks {
     }
 
     named<Javadoc>("javadoc") {
-        options.quiet() // Ignore javadoc error message
+        options {
+            (this as CoreJavadocOptions).addStringOption("Xdoclint:none", "-quiet")
+        }
     }
 
     named<KotlinCompile>("compileKotlin") {

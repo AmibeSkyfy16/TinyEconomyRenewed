@@ -32,7 +32,6 @@ class Game(val databaseManager: DatabaseManager, minecraftServer: MinecraftServe
 
     init {
         LossMoneyDyingFeature(economy)
-        EarnMoneyByKillingPlayers(economy)
         EarnMoneyFeature(databaseManager, economy)
         ShopFeature(databaseManager, economy, minecraftServer)
         VillagerTradeCostsMoneyFeature(databaseManager, economy)
@@ -63,6 +62,7 @@ class Game(val databaseManager: DatabaseManager, minecraftServer: MinecraftServe
 //        }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun onServerStopped(minecraftServer: MinecraftServer){
         saveConfig()
     }
@@ -74,8 +74,8 @@ class Game(val databaseManager: DatabaseManager, minecraftServer: MinecraftServe
         databaseManager.lockMinedBlockRewards {
             ConfigManager.save(Configs.MINED_BLOCK_REWARD_CONFIG)
         }
-        databaseManager.lockEntityKilledRewards {
-            ConfigManager.save(Configs.ENTITY_KILLED_REWARD_CONFIG)
+        databaseManager.lockKilledEntityRewards {
+            ConfigManager.save(Configs.KILLED_ENTITY_REWARD_CONFIG)
         }
     }
 

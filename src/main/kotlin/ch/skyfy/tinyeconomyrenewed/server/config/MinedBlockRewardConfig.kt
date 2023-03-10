@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MinedBlockRewardConfig(
 //    val map: MutableMap<String, Float>
-    val list: MutableList<MinedBlockRewardData>
+    val list: MutableList<MinedBlockRewardData> = mutableListOf()
 ) : Validatable
 
 //@Serializable
@@ -34,9 +34,4 @@ abstract class CryptoBasedPriceReward {
     abstract val maximumPerMinute: Double
     abstract var cryptoCurrencyName: String
     abstract var lastCryptoPrice: Double
-}
-
-class DefaultMinedBlockRewardConfig : Defaultable<MinedBlockRewardConfig> {
-    //    override fun getDefault() = MinedBlockRewardConfig(mutableMapOf())
-    override fun getDefault() = MinedBlockRewardConfig(mutableListOf())
 }

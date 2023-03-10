@@ -121,14 +121,14 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
 
         if (livingEntity.health <= 0) {
 //            val entityKilledReward = Configs.ENTITY_KILLED_REWARD_CONFIG.serializableData.list.first { it.translationKey == livingEntity.type.translationKey }
-            val entityKilledReward = databaseManager.cacheEntityKilledRewards.first { it.entity.translationKey == livingEntity.type.translationKey }
+            val killedEntityReward = databaseManager.cacheKilledEntityRewards.first { it.entity.translationKey == livingEntity.type.translationKey }
             economy.deposit(attacker as ServerPlayerEntity?, attacker.uuidAsString) {
                 getPrice(
                     attacker,
                     attacker.blockPos,
                     livingEntity.type.translationKey,
-                    entityKilledReward.maximumEntityKilledPerMinute,
-                    entityKilledReward.currentPrice,
+                    killedEntityReward.maximumKilledEntityPerMinute,
+                    killedEntityReward.currentPrice,
                     playersKillingAverage
                 )
             }
@@ -166,7 +166,7 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
             val diff = maximumNumberPerMinute - perMinuteForLast5Mn
             val percent = 100.0 * diff / maximumNumberPerMinute
             val price = currentPrice * (percent / 100)
-            println("price: $price")
+//            println("price: $price")
             return price
         }
 

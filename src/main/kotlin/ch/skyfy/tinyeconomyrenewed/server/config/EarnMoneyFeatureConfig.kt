@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class EarnMoneyFeatureConfig(
-    val minedBlockRewardNerfer: MinedBlockRewardNerfer = MinedBlockRewardNerfer(),
-    val entityKilledRewardNerfer: EntityKilledRewardNerfer = EntityKilledRewardNerfer(),
+//    val minedBlockRewardNerfer: MinedBlockRewardNerfer = MinedBlockRewardNerfer(),
+//    val killedEntityRewardNerfer: KilledEntityRewardNerfer = KilledEntityRewardNerfer(),
     val priceToEarnForFirstLoggingOfTheDay: Double = 500.0
 ) : Validatable
 
@@ -17,16 +17,16 @@ data class EarnMoneyFeatureConfig(
  * He is detected as afk and will not receive any more money
  *
  */
-@Serializable
-data class MinedBlockRewardNerfer(
-    val lastXXXSeconds: Double = 300.0,
-    val surfaceThatShouldNotBeExceeded: Double = 50.0,
-    val maximumBlockPerMinute: Double = 100.0
-) : Validatable
-
-@Serializable
-data class EntityKilledRewardNerfer(
-    val lastXXXSeconds: Double = 300.0,
-    val surfaceThatShouldNotBeExceeded: Double = 50.0,
-    val maximumEntityKilledPerMinute: Double = 50.0
-) : Validatable
+//@Serializable
+//data class MinedBlockRewardNerfer(
+//    val lastXXXSeconds: Double = 300.0,
+//    val surfaceThatShouldNotBeExceeded: Double = 50.0,
+//    val maximumBlockPerMinute: Double = 100.0
+//) : Validatable
+//
+//@Serializable
+//data class KilledEntityRewardNerfer(
+//    val lastXXXSeconds: Double = 300.0,
+//    val surfaceThatShouldNotBeExceeded: Double = 50.0,
+//    val maximumEntityKilledPerMinute: Double = 50.0
+//) : Validatable

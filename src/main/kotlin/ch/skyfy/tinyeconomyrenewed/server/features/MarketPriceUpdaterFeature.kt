@@ -3,7 +3,7 @@ package ch.skyfy.tinyeconomyrenewed.server.features
 import ch.skyfy.jsonconfiglib.ConfigManager
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
 import ch.skyfy.tinyeconomyrenewed.server.config.CryptoBasedPriceReward
-import ch.skyfy.tinyeconomyrenewed.server.config.EntityKilledRewardData
+import ch.skyfy.tinyeconomyrenewed.server.config.KilledEntityRewardData
 import ch.skyfy.tinyeconomyrenewed.server.config.MinedBlockRewardData
 import ch.skyfy.tinyeconomyrenewed.server.db.*
 import com.binance.connector.client.impl.WebsocketStreamClientImpl
@@ -52,8 +52,8 @@ class MarketPriceUpdaterFeature @OptIn(DelicateCoroutinesApi::class) constructor
             databaseManager.lockMinedBlockRewards {
                 ConfigManager.save(Configs.MINED_BLOCK_REWARD_CONFIG)
             }
-            databaseManager.lockEntityKilledRewards {
-                ConfigManager.save(Configs.ENTITY_KILLED_REWARD_CONFIG)
+            databaseManager.lockKilledEntityRewards {
+                ConfigManager.save(Configs.KILLED_ENTITY_REWARD_CONFIG)
             }
         }
 
@@ -69,9 +69,9 @@ class MarketPriceUpdaterFeature @OptIn(DelicateCoroutinesApi::class) constructor
             if (!map.containsKey(it.cryptoCurrencyName)) map[it.cryptoCurrencyName] = mutableListOf(it.toMinedBlockRewardData() as CryptoBasedPriceReward)
             else map[it.cryptoCurrencyName]!!.add(it.toMinedBlockRewardData() as CryptoBasedPriceReward)
         }
-        databaseManager.cacheEntityKilledRewards.forEach {
-            if (!map.containsKey(it.cryptoCurrencyName)) map[it.cryptoCurrencyName] = mutableListOf(it.toEntityKilledRewardData() as CryptoBasedPriceReward)
-            else map[it.cryptoCurrencyName]!!.add(it.toEntityKilledRewardData() as CryptoBasedPriceReward)
+        databaseManager.cacheKilledEntityRewards.forEach {
+            if (!map.containsKey(it.cryptoCurrencyName)) map[it.cryptoCurrencyName] = mutableListOf(it.toKilledEntityRewardData() as CryptoBasedPriceReward)
+            else map[it.cryptoCurrencyName]!!.add(it.toKilledEntityRewardData() as CryptoBasedPriceReward)
         }
         // TEST 1
 
@@ -115,7 +115,7 @@ class MarketPriceUpdaterFeature @OptIn(DelicateCoroutinesApi::class) constructor
 //                                        m.currentPrice = newPrice
 //                                    }
 //                                }
-                            } else if (cryptoBasedPriceReward is EntityKilledRewardData) {
+                            } else if (cryptoBasedPriceReward is KilledEntityRewardData) {
                                 cryptoBasedPriceReward.currentPrice = newPrice
 //                                databaseManager.lockEntityKilledRewards { cacheEntityKilledRewards ->
 //                                    cacheEntityKilledRewards.find { e -> e.entity.translationKey == cryptoBasedPriceReward.translationKey }?.let { e ->
@@ -142,9 +142,9 @@ class MarketPriceUpdaterFeature @OptIn(DelicateCoroutinesApi::class) constructor
                                     cryptoBasedPriceReward.lastCryptoPrice = cryptoPrice
                                 }
                             }
-                        } else if (cryptoBasedPriceReward is EntityKilledRewardData) {
-                            rewardData = Configs.ENTITY_KILLED_REWARD_CONFIG.serializableData.list.first { m -> m.translationKey == cryptoBasedPriceReward.translationKey }
-                            databaseManager.lockEntityKilledRewards { cacheEntityKilledRewards ->
+                        } else if (cryptoBasedPriceReward is KilledEntityRewardData) {
+                            rewardData = Configs.KILLED_ENTITY_REWARD_CONFIG.serializableData.list.first { m -> m.translationKey == cryptoBasedPriceReward.translationKey }
+                            databaseManager.lockKilledEntityRewards { cacheEntityKilledRewards ->
                                 cacheEntityKilledRewards.find { e -> e.entity.translationKey == cryptoBasedPriceReward.translationKey }?.let { e ->
                                     e.lastCryptoPrice = cryptoPrice
                                     e.currentPrice = cryptoBasedPriceReward.currentPrice

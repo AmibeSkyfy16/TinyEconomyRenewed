@@ -50,16 +50,16 @@ create table if not exists mined_block_reward
     constraint mined_block_reward_block_id_uindex unique (block_id)
 );
 
-create table if not exists entity_killed_reward
+create table if not exists killed_entity_reward
 (
     id int auto_increment primary key,
     entity_id int not null,
     current_price double not null,
-    maximum_entity_killed_per_minute double not null,
+    maximum_killed_entity_per_minute double not null,
     crypto_currency_name varchar(32) not null,
     last_crypto_price double not null,
-    constraint entity_killed_reward_entity__fk foreign key (entity_id) references entity (id),
-    constraint entity_killed_reward_entity_id_uindex unique (entity_id)
+    constraint killed_entity_reward_entity__fk foreign key (entity_id) references entity (id),
+    constraint killed_entity_reward_entity_id_uindex unique (entity_id)
 );
 
 create table if not exists advancement_reward
