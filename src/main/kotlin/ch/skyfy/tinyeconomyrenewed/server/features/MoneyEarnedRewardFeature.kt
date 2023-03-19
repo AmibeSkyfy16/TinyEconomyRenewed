@@ -2,6 +2,7 @@ package ch.skyfy.tinyeconomyrenewed.server.features
 
 import ch.skyfy.jsonconfiglib.updateMap
 import ch.skyfy.tinyeconomyrenewed.both.CustomSounds
+import ch.skyfy.tinyeconomyrenewed.server.TinyEconomyRenewedModServer
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
 import ch.skyfy.tinyeconomyrenewed.server.config.MoneyEarnReward
 import ch.skyfy.tinyeconomyrenewed.server.persisent.MoneyEarnedRewardDone
@@ -67,7 +68,6 @@ class MoneyEarnedRewardFeature {
     }
 
     fun rewardPlayer(player: ServerPlayerEntity?, uuid: String, amount: Double) {
-        // TODO not sure, but maybe produce an error
         fun computeAndSave(map: MutableMap<String, MutableList<Double>>, correctStep: Map.Entry<Double, MoneyEarnReward>) {
             map.compute(uuid) { _, listOfStepDone ->
                 if (listOfStepDone == null) return@compute mutableListOf(correctStep.key)
@@ -92,7 +92,10 @@ class MoneyEarnedRewardFeature {
                 if (result1 == null && result2 != null && !result2) return
                 if (result2 == null && result1 != null && !result1) return
 
-                player.world.playSound(null, player.blockPos, CustomSounds.DOGECOIN_EVENT, SoundCategory.MASTER, 1f, 1f)
+                // Only play the sound if player have the mod installed on client
+                if(TinyEconomyRenewedModServer.playersHavingTheModInstalled.contains(player.uuidAsString)) {
+                    player.world.playSound(null, player.blockPos, CustomSounds.DOGECOIN_EVENT, SoundCategory.MASTER, 1f, 1f)
+                }
 
                 player.sendMessage(Text.literal(""))
 

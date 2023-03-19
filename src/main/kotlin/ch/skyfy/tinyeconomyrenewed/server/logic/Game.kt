@@ -1,6 +1,7 @@
 package ch.skyfy.tinyeconomyrenewed.server.logic
 
 import ch.skyfy.jsonconfiglib.ConfigManager
+import ch.skyfy.tinyeconomyrenewed.api.TinyEconomyRenewedAPI
 import ch.skyfy.tinyeconomyrenewed.both.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.server.Economy
 import ch.skyfy.tinyeconomyrenewed.server.ScoreboardManager
@@ -14,6 +15,7 @@ import net.minecraft.network.ClientConnection
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.Identifier
+import java.util.*
 
 class Game(val databaseManager: DatabaseManager, minecraftServer: MinecraftServer) {
 
@@ -37,6 +39,7 @@ class Game(val databaseManager: DatabaseManager, minecraftServer: MinecraftServe
         VillagerTradeCostsMoneyFeature(databaseManager, economy)
         MarketPriceUpdaterFeature(databaseManager)
         registerEvents()
+        TinyEconomyRenewedAPI.economyOptional = Optional.of(economy)
     }
 
     private fun registerEvents() {

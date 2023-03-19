@@ -1,0 +1,4 @@
+                // It's a temporary code that I need for populate my Excel file
+                val sb = java.lang.StringBuilder()
+                retrievedData.advancements.forEach { sb.append("\t\t\t$['map']['${it.advancementId}']\t1.0\t1.0\r\n") }
+//                    println(sb)

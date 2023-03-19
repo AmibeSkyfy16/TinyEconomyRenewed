@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.event.EventFactory
 import net.minecraft.entity.Entity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.server.world.ServerWorld
+import net.minecraft.world.World
 import net.minecraft.world.World.ExplosionSourceType
 import net.minecraft.world.explosion.Explosion
 import net.minecraft.world.explosion.ExplosionBehavior
@@ -22,7 +23,7 @@ fun interface CreateExplosionCallback {
 
     fun createExplosion(
         explosion: Explosion,
-        serverWorld: ServerWorld,
+        serverWorld: World,
         entity: Entity?,
         damageSource: DamageSource?,
         behavior: ExplosionBehavior?,

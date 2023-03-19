@@ -46,17 +46,63 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
 
     private fun registerEvents() {
         PlayerJoinCallback.EVENT.register(::onPlayerJoined)
-        BlockPlacedCallback.EVENT.register(::onPlayerPlaceBlockEvent)
+        BlockPlacedCallback.EVENT.register(::onPlayerPlacedBlockEvent)
         PlayerBlockBreakEvents.BEFORE.register(this::onPlayerBlockBreakEvent)
         EntityDamageCallback.EVENT.register(this::onEntityDamaged)
         AdvancementCompletedCallback.EVENT.register(this::onAdvancementCompleted)
     }
 
-    private fun onPlayerJoined(@Suppress("UNUSED_PARAMETER") connection: ClientConnection, player: ServerPlayerEntity){
-        earnLoginImpl(player)
+    private fun onPlayerJoined(@Suppress("UNUSED_PARAMETER") connection: ClientConnection, player: ServerPlayerEntity) {
+        earnMoneyByLogin(player)
     }
 
-    private fun earnLoginImpl(player: ServerPlayerEntity){
+    @Suppress("UNUSED_PARAMETER")
+    private fun onPlayerPlacedBlockEvent(blockItem: BlockItem, itemPlacementContext: ItemPlacementContext, actionResult: ActionResult) {
+        if (actionResult != ActionResult.CONSUME) return
+        val b = itemPlacementContext.blockPos
+        databaseManager.cacheBlackListedPlacedBlocks
+        if (databaseManager.cacheBlackListedPlacedBlocks.none { it.x == b.x && it.y == b.y && it.z == b.z })
+//            databaseManager.modifyBlackListedPlacedBlocks {  }
+            databaseManager.cacheBlackListedPlacedBlocks.add(BlackListedPlacedBlock { x = b.x; y = b.y; z = b.z })
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun onPlayerBlockBreakEvent(world: World, player: PlayerEntity, pos: BlockPos, state: BlockState, blockEntity: BlockEntity?): Boolean {
+
+//        if (databaseManager.cacheBlackListedPlacedBlocks.any { it.x == pos.x && it.y == pos.y && it.z == pos.z }) return true
+//
+////        val minedBlockReward = Configs.MINED_BLOCK_REWARD_CONFIG.serializableData.list.first { it.translationKey == state.block.translationKey }
+//        val minedBlockReward = databaseManager.cacheMinedBlockRewards.first { it.block.translationKey == state.block.translationKey }
+//        economy.deposit(player as ServerPlayerEntity?, player.uuidAsString) {
+//            getPrice(
+//                player,
+//                pos,
+//                state.block.translationKey,
+//                minedBlockReward.maximumMinedBlockPerMinute,
+//                minedBlockReward.currentPrice,
+//                playersMiningAverage
+//            )
+//        }
+        earnMoneyByMiningBlock(player, pos, state)
+        return true
+    }
+
+    private fun onEntityDamaged(livingEntity: LivingEntity, damageSource: DamageSource, @Suppress("UNUSED_PARAMETER") amount: Float) {
+        val attacker = damageSource.attacker
+        if (attacker !is ServerPlayerEntity) return
+
+        if (livingEntity.health <= 0) {
+            if (livingEntity is ServerPlayerEntity) earnMoneyByKillingAnotherPlayer(attacker, livingEntity)
+            else earnMoneyByKillingEntity(attacker, livingEntity)
+        }
+    }
+
+    @Suppress("SameParameterValue")
+    private fun onAdvancementCompleted(spe: ServerPlayerEntity, advancement: Advancement, @Suppress("UNUSED_PARAMETER") criterionName: String) {
+        earnMoneyByCompletingAdvancement(spe, advancement)
+    }
+
+    private fun earnMoneyByLogin(player: ServerPlayerEntity) {
         fun earnLogin(playerInfo: PlayerInfo?, zonedDateTime: ZonedDateTime) {
             val amount = Configs.EARN_MONEY_FEATURE_CONFIG.serializableData.priceToEarnForFirstLoggingOfTheDay
             player.sendMessage(Text.literal("First login for today ! You've just earn $amount").setStyle(Style.EMPTY.withColor(Formatting.GREEN)))
@@ -74,21 +120,8 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
         }
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    private fun onPlayerPlaceBlockEvent(blockItem: BlockItem, itemPlacementContext: ItemPlacementContext, actionResult: ActionResult) {
-        if (actionResult != ActionResult.CONSUME) return
-        val b = itemPlacementContext.blockPos
-        databaseManager.cacheBlackListedPlacedBlocks
-        if (databaseManager.cacheBlackListedPlacedBlocks.none { it.x == b.x && it.y == b.y && it.z == b.z })
-//            databaseManager.modifyBlackListedPlacedBlocks {  }
-            databaseManager.cacheBlackListedPlacedBlocks.add(BlackListedPlacedBlock { x = b.x; y = b.y; z = b.z })
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    private fun onPlayerBlockBreakEvent(world: World, player: PlayerEntity, pos: BlockPos, state: BlockState, blockEntity: BlockEntity?): Boolean {
-        if (databaseManager.cacheBlackListedPlacedBlocks.any { it.x == pos.x && it.y == pos.y && it.z == pos.z }) return true
-
-//        val minedBlockReward = Configs.MINED_BLOCK_REWARD_CONFIG.serializableData.list.first { it.translationKey == state.block.translationKey }
+    private fun earnMoneyByMiningBlock(player: PlayerEntity, pos: BlockPos, state: BlockState) {
+        if (databaseManager.cacheBlackListedPlacedBlocks.any { it.x == pos.x && it.y == pos.y && it.z == pos.z }) return
         val minedBlockReward = databaseManager.cacheMinedBlockRewards.first { it.block.translationKey == state.block.translationKey }
         economy.deposit(player as ServerPlayerEntity?, player.uuidAsString) {
             getPrice(
@@ -100,44 +133,37 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
                 playersMiningAverage
             )
         }
-        return true
     }
 
-    private fun onEntityDamaged(livingEntity: LivingEntity, damageSource: DamageSource, @Suppress("UNUSED_PARAMETER") amount: Float) {
-        val attacker = damageSource.attacker
-        if (attacker !is ServerPlayerEntity) return
+    private fun earnMoneyByKillingEntity(attacker: ServerPlayerEntity, livingEntity: LivingEntity) {
+        val killedEntityReward = databaseManager.cacheKilledEntityRewards.first { it.entity.translationKey == livingEntity.type.translationKey }
+        economy.deposit(attacker as ServerPlayerEntity?, attacker.uuidAsString) {
+            getPrice(
+                attacker,
+                attacker.blockPos,
+                livingEntity.type.translationKey,
+                killedEntityReward.maximumKilledEntityPerMinute,
+                killedEntityReward.currentPrice,
+                playersKillingAverage
+            )
+        }
+    }
 
-        if(livingEntity is ServerPlayerEntity){
+    private fun earnMoneyByKillingAnotherPlayer(attacker: ServerPlayerEntity, livingEntity: LivingEntity) {
+        if (livingEntity is ServerPlayerEntity) {
             val serializableData = Configs.EARN_MONEY_BY_KILLING_PLAYERS_CONFIG.serializableData
             val price = serializableData.amount
-            if(serializableData.shouldKilledPlayerLostMoneyToo) {
+            if (serializableData.shouldKilledPlayerLostMoneyToo) {
                 economy.withdraw(livingEntity.uuidAsString, price)
                 livingEntity.sendMessage(Text.literal("You have lost $price cause you have been killed by ${attacker.name.string}").setStyle(Style.EMPTY.withColor(Formatting.GOLD)))
             }
             economy.deposit(attacker, attacker.uuidAsString) { price }
-
             attacker.sendMessage(Text.literal("You have earned $price cause you have killed ${livingEntity.name.string}").setStyle(Style.EMPTY.withColor(Formatting.GOLD)))
-        }
-
-        if (livingEntity.health <= 0) {
-//            val entityKilledReward = Configs.ENTITY_KILLED_REWARD_CONFIG.serializableData.list.first { it.translationKey == livingEntity.type.translationKey }
-            val killedEntityReward = databaseManager.cacheKilledEntityRewards.first { it.entity.translationKey == livingEntity.type.translationKey }
-            economy.deposit(attacker as ServerPlayerEntity?, attacker.uuidAsString) {
-                getPrice(
-                    attacker,
-                    attacker.blockPos,
-                    livingEntity.type.translationKey,
-                    killedEntityReward.maximumKilledEntityPerMinute,
-                    killedEntityReward.currentPrice,
-                    playersKillingAverage
-                )
-            }
         }
     }
 
-    @Suppress("SameParameterValue")
-    private fun onAdvancementCompleted(serverPlayerEntity: ServerPlayerEntity, advancement: Advancement, @Suppress("UNUSED_PARAMETER") criterionName: String) {
-        economy.deposit(serverPlayerEntity, serverPlayerEntity.uuidAsString) {
+    private fun earnMoneyByCompletingAdvancement(spe: ServerPlayerEntity, advancement: Advancement) {
+        economy.deposit(spe, spe.uuidAsString) {
             databaseManager.cacheAdvancementRewards.find { it.advancement.identifier == advancement.id.toString() }?.amount ?: 0.0
         }
     }
@@ -172,16 +198,6 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
 
         return 0.0
     }
-
-
-
-
-
-
-
-
-
-
 
 
 //    @Deprecated("use getPrice2")

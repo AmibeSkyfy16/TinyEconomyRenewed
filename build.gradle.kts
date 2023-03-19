@@ -37,6 +37,7 @@ repositories {
     maven("https://jitpack.io")
     maven("https://maven.nucleoid.xyz")
     maven("https://repo.repsy.io/mvn/amibeskyfy16/repo") // Use for my json5Config lib
+    maven("https://cursemaven.com/")
 }
 
 dependencies {
@@ -47,6 +48,9 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${properties["fabric_version"]}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
     modImplementation("net.silkmc:silk-game:${properties["silk_version"]}")
+
+//    include("curse.maven:project-835038:4427154")?.let { modRuntimeOnly(it) } // My mod MariaDBServerFabricMC-0.0.1+1.19.3 is required
+//    modLocalRuntime("curse.maven:project-835038:4427154")
 
     transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.1.2")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-core:3.6.0")!!)

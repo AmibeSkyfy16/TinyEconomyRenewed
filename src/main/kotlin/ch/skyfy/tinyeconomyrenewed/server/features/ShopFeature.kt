@@ -60,7 +60,7 @@ class ShopFeature(private val databaseManager: DatabaseManager, private val econ
     //    @Suppress("UNUSED_PARAMETER")
     private fun manageShopExplosion(
         explosion: Explosion,
-        serverWorld: ServerWorld,
+        serverWorld: World,
         entity: Entity?,
         damageSource: DamageSource?,
         behavior: ExplosionBehavior?,
@@ -80,7 +80,7 @@ class ShopFeature(private val databaseManager: DatabaseManager, private val econ
 
         // A player cannot destroy the shop of another one using a tnt
         if (entity is TntEntity) {
-            val causingEntity = entity.causingEntity
+            val causingEntity = entity.owner
             if (causingEntity != null) {
                 if (causingEntity is PlayerEntity)
                     return cancelShopToBeDestroyed(explosion, serverWorld, causingEntity.name.string)
@@ -106,7 +106,7 @@ class ShopFeature(private val databaseManager: DatabaseManager, private val econ
         return TypedActionResult.pass(true)
     }
 
-    private fun cancelShopToBeDestroyed(explosion: Explosion, serverWorld: ServerWorld, vendorName: String? = null) {
+    private fun cancelShopToBeDestroyed(explosion: Explosion, serverWorld: World, vendorName: String? = null) {
         val it = explosion.affectedBlocks.iterator()
         while (it.hasNext()) {
             val affectedBlock = it.next()
@@ -140,7 +140,7 @@ class ShopFeature(private val databaseManager: DatabaseManager, private val econ
 
         if (shop != null) {
             if (block is BarrelBlock || block is WallSignBlock) {
-                if (player.hasPermissionLevel(4)) return true
+                if (player.hasPermissionLevel(4) && player.isCreative) return true
                 if (shop.signData.vendorName != player.name.string) return false
             }
         }

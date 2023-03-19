@@ -1,9 +1,12 @@
 package ch.skyfy.tinyeconomyrenewed.server
 
+import ch.skyfy.tinyeconomyrenewed.both.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.server.commands.UpdateMoneyFromDatabase
 import ch.skyfy.tinyeconomyrenewed.server.logic.Game
 import net.fabricmc.api.DedicatedServerModInitializer
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
 
@@ -15,13 +18,28 @@ class TinyEconomyRenewedModServer : DedicatedServerModInitializer {
      */
     private val optGameRef: AtomicReference<Optional<Game>> = AtomicReference(Optional.empty())
 
-    init { TinyEconomyRenewedInitializer(optGameRef) }
+    companion object {
+        val playersHavingTheModInstalled: MutableList<String> = mutableListOf()
+    }
 
-    override fun onInitializeServer() {registerCommands()}
+    init {
+        TinyEconomyRenewedInitializer(optGameRef)
+    }
+
+    override fun onInitializeServer() {
+        registerCommands()
+        checkIfClientHasTheMod()
+    }
 
     private fun registerCommands() {
         CommandRegistrationCallback.EVENT.register { dispatcher, _, _ ->
             UpdateMoneyFromDatabase(optGameRef).register(dispatcher)
+        }
+    }
+
+    private fun checkIfClientHasTheMod() {
+        ServerPlayNetworking.registerGlobalReceiver(TinyEconomyRenewedMod.CLIENT_HAS_THE_MOD) { _, player, _, _, _ ->
+            playersHavingTheModInstalled.add(player.uuidAsString)
         }
     }
 
