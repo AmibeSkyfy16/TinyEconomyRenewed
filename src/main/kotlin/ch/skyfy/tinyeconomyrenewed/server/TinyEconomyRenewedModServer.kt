@@ -4,7 +4,6 @@ import ch.skyfy.tinyeconomyrenewed.both.TinyEconomyRenewedMod
 import ch.skyfy.tinyeconomyrenewed.server.commands.UpdateMoneyFromDatabase
 import ch.skyfy.tinyeconomyrenewed.server.logic.Game
 import net.fabricmc.api.DedicatedServerModInitializer
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import java.util.*
@@ -28,7 +27,7 @@ class TinyEconomyRenewedModServer : DedicatedServerModInitializer {
 
     override fun onInitializeServer() {
         registerCommands()
-        checkIfClientHasTheMod()
+        checkIfClientHasTheModInstalled()
     }
 
     private fun registerCommands() {
@@ -37,7 +36,7 @@ class TinyEconomyRenewedModServer : DedicatedServerModInitializer {
         }
     }
 
-    private fun checkIfClientHasTheMod() {
+    private fun checkIfClientHasTheModInstalled() {
         ServerPlayNetworking.registerGlobalReceiver(TinyEconomyRenewedMod.CLIENT_HAS_THE_MOD) { _, player, _, _, _ ->
             playersHavingTheModInstalled.add(player.uuidAsString)
         }
