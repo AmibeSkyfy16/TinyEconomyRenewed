@@ -46,8 +46,8 @@ class ScoreboardManager(private val databaseManager: DatabaseManager) {
      * @param uuid A [String] object that represent the uuid of the player that we have to update the money on his sideboard
      */
     fun updatePlayerMoney(uuid: String) {
-        val amount = databaseManager.cachePlayers.find { player: Player -> player.uuid == uuid }?.money ?: -1f
-        sideboards.find { it.uuid == uuid }?.updatableLine?.launchUpdate("Money: $amount".literal)
+        val amount = databaseManager.cachePlayers.find { player: Player -> player.uuid == uuid }?.money ?: -1.0
+        sideboards.find { it.uuid == uuid }?.updatableLine?.launchUpdate("Money: ${String.format("%.3f", amount)}".literal)
 
         // OLD CODE
         LEAVE_THE_MINECRAFT_THREAD_ALONE_SCOPE.launch {
@@ -62,7 +62,7 @@ class ScoreboardManager(private val databaseManager: DatabaseManager) {
         }
     }
 
-    fun updatePlayerMoney(uuid: String, amount: Double) = sideboards.find { it.uuid == uuid }?.updatableLine?.launchUpdate("Money: $amount".literal)
+    fun updatePlayerMoney(uuid: String, amount: Double) = sideboards.find { it.uuid == uuid }?.updatableLine?.launchUpdate("Money: ${String.format("%.3f", amount)}".literal)
 
     @OptIn(DelicateSilkApi::class)
     private fun initialize() {

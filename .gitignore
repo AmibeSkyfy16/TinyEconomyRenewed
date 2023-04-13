@@ -1,5 +1,10 @@
+/.idea/
+/.gradle/
+
+/build/
+
 /testServer/
 /testClient/
-/build/
-/.gradle/
-/.idea/
+
+/preconfiguration/doneclient.txt
+/preconfiguration/doneserver.txt
