@@ -13,8 +13,6 @@
 @file:Suppress("GradlePackageVersionRange")
 
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 val transitiveInclude: Configuration by configurations.creating
 
 plugins {

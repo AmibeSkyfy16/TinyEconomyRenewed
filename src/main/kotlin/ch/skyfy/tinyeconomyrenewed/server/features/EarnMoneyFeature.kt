@@ -10,6 +10,7 @@ import ch.skyfy.tinyeconomyrenewed.server.callbacks.PlayerJoinCallback
 import ch.skyfy.tinyeconomyrenewed.server.config.Configs
 import ch.skyfy.tinyeconomyrenewed.server.db.BlackListedPlacedBlock
 import ch.skyfy.tinyeconomyrenewed.server.db.DatabaseManager
+import ch.skyfy.tinyeconomyrenewed.server.logic.Game.Companion.PLAYER_JOIN_CALLBACK_SECOND
 import ch.skyfy.tinyeconomyrenewed.server.persisent.Persistents
 import ch.skyfy.tinyeconomyrenewed.server.persisent.PlayerInfo
 import ch.skyfy.tinyeconomyrenewed.server.persisent.PlayerInfosPersistent
@@ -45,7 +46,7 @@ class EarnMoneyFeature(private val databaseManager: DatabaseManager, private val
     init { registerEvents() }
 
     private fun registerEvents() {
-        PlayerJoinCallback.EVENT.register(::onPlayerJoined)
+        PlayerJoinCallback.EVENT.register(PLAYER_JOIN_CALLBACK_SECOND, ::onPlayerJoined)
         BlockPlacedCallback.EVENT.register(::onPlayerPlacedBlockEvent)
         PlayerBlockBreakEvents.BEFORE.register(this::onPlayerBlockBreakEvent)
         EntityDamageCallback.EVENT.register(this::onEntityDamaged)
