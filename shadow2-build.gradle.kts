@@ -12,13 +12,13 @@
 
 @file:Suppress("GradlePackageVersionRange")
 
-
-val transitiveInclude: Configuration by configurations.creating
+import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
     id("fabric-loom") version "1.1-SNAPSHOT"
     id("org.jetbrains.kotlin.jvm") version "1.8.20"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.20"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     idea
 }
 
@@ -50,34 +50,35 @@ dependencies {
 //    include("curse.maven:project-835038:4427154")?.let { modRuntimeOnly(it) } // My mod MariaDBServerFabricMC-0.0.1+1.19.3 is required
 //    modLocalRuntime("curse.maven:project-835038:4427154")
 
-    transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.1.2")!!)
-    transitiveInclude(implementation("org.ktorm:ktorm-core:3.6.0")!!)
-    transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.6.0")!!)
-//    transitiveInclude()
-    transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.2")!!)
-    transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.14")!!)
+//    transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.1.2")!!)
+//    transitiveInclude(implementation("org.ktorm:ktorm-core:3.6.0")!!)
+//    transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.6.0")!!)
+//    transitiveInclude(implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")!!)
+//    transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.2")!!)
+//    transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.14")!!)
+//    transitiveInclude(implementation("com.jayway.jsonpath:json-path:2.7.0")!!)
+//    transitiveInclude(implementation("io.github.binance:binance-connector-java:2.0.0rc2")!!)
 
-    transitiveInclude(implementation("com.jayway.jsonpath:json-path:2.7.0") {
-//        exclude("org.ow2.asm") // Fix a crash
+//    handleIncludes(project, transitiveInclude)
+
+    shadow(implementation("org.mariadb.jdbc:mariadb-java-client:3.1.2"){
+
     })
-
-    transitiveInclude(implementation("io.github.binance:binance-connector-java:2.0.0rc2")!!)
-
-//    transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json5-config-lib:1.0.22")!!)
-//    transitiveInclude(implementation("org.knowm.xchange:xchange-core:5.1.0")!!)
-//    transitiveInclude(implementation("org.knowm.xchange:xchange-binance:5.1.0")!!)
-//    transitiveInclude(implementation("org.knowm.xchange:xchange-stream-binance:5.1.0")!!)
-//    transitiveInclude(implementation("org.knowm.xchange:xchange-stream-gemini:5.1.0")!!)
-//    transitiveInclude(implementation("org.knowm.xchange:xchange-stream-gemini:5.1.0")!!)
-//    transitiveInclude(implementation("org.knowm.xchange:xchange-stream-bitfinex:5.1.0")!!)
-//    transitiveInclude(implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.11")!!)
-
-    handleIncludes(project, transitiveInclude)
-
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    shadow("org.ktorm:ktorm-core:3.6.0")
+    shadow("org.ktorm:ktorm-support-mysql:3.6.0")
+    shadow("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    shadow("net.lingala.zip4j:zip4j:2.11.2")
+    shadow("ch.skyfy.jsonconfiglib:json-config-lib:3.0.14")
+    shadow("com.jayway.jsonpath:json-path:2.7.0")
+    shadow("io.github.binance:binance-connector-java:2.0.0rc2")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.20")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+}
+
+configurations {
+    shadow.get()
+    modImplementation.get().extendsFrom(shadow.get())
 }
 
 tasks {
@@ -181,6 +182,31 @@ tasks {
         from("LICENSE") { rename { "${it}_${base.archivesName.get()}" } }
     }
 
+    shadowJar {
+        archiveFileName.set("${project.properties["archives_name"]}-${project.properties["mod_version"]}-shadowed.jar")
+
+        configurations = listOf(project.configurations.shadow.get())
+
+//        dependencies {
+//            exclude("net.fabricmc:.*")
+//
+//            include(dependency("ch.skyfy.tinyeconomyrenewed:.*"))
+//
+//            // We don't want to include the mappings in the jar do we?
+//            exclude("/mappings/*")
+//        }
+
+        relocate("org.mariadb.jdbc", "ch.skyfy.tinyeconomyrenewed.lib.jdbc")
+        relocate("org.ktorm", "ch.skyfy.tinyeconomyrenewed.lib.ktorm")
+        relocate("org.objectweb", "ch.skyfy.tinyeconomyrenewed.lib.objectweb")
+
+    }
+
+    remapJar{
+        dependsOn(shadowJar.get())
+        inputFile.set(shadowJar.get().archiveFile)
+    }
+
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
         kotlinOptions.jvmTarget = javaVersion.toString()
         kotlinOptions.freeCompilerArgs += "-Xskip-prerelease-check" // Required by others project like SilkMC. Also add this to intellij setting under Compiler -> Kotlin Compiler -> Additional ...
@@ -219,41 +245,3 @@ tasks {
 }
 
 fun copyFile(src: String, dest: String) = copy { from(src); into(dest) }
-
-fun DependencyHandlerScope.includeTransitive(
-    root: ResolvedDependency?,
-    dependencies: Set<ResolvedDependency>,
-    fabricLanguageKotlinDependency: ResolvedDependency,
-    checkedDependencies: MutableSet<ResolvedDependency> = HashSet()
-) {
-    dependencies.forEach {
-
-        if (it.name.contains("asm")) {
-            println("Skipping -> ${it.name}")
-            return@forEach
-        }
-
-        if (checkedDependencies.contains(it) || (it.moduleGroup == "org.jetbrains.kotlin" && it.moduleName.startsWith("kotlin-stdlib")) || (it.moduleGroup == "org.slf4j" && it.moduleName == "slf4j-api")) {
-            return@forEach
-        }
-
-        if (fabricLanguageKotlinDependency.children.any { kotlinDep -> kotlinDep.name == it.name }) {
-            println("Skipping -> ${it.name} (already in fabric-language-kotlin)")
-        } else {
-            include(it.name)
-            println("Including -> ${it.name} from ${root?.name}")
-        }
-        checkedDependencies += it
-
-        includeTransitive(root ?: it, it.children, fabricLanguageKotlinDependency, checkedDependencies)
-    }
-}
-
-// from : https://github.com/StckOverflw/TwitchControlsMinecraft/blob/4bf406893544c3edf52371fa6e7a6cc7ae80dc05/build.gradle.kts
-fun DependencyHandlerScope.handleIncludes(project: Project, configuration: Configuration) {
-    includeTransitive(
-        null,
-        configuration.resolvedConfiguration.firstLevelModuleDependencies,
-        project.configurations.getByName("modImplementation").resolvedConfiguration.firstLevelModuleDependencies.first { it.moduleGroup == "net.fabricmc" && it.moduleName == "fabric-language-kotlin" }
-    )
-}

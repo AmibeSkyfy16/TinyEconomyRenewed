@@ -9,7 +9,6 @@ import net.minecraft.registry.Registry
 import net.minecraft.util.Identifier
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import java.net.IDN
 import java.nio.file.Path
 
 class TinyEconomyRenewedMod : ModInitializer {
