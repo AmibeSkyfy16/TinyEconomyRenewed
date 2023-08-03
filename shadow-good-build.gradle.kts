@@ -16,9 +16,9 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
-    id("fabric-loom") version "1.1-SNAPSHOT"
-    id("org.jetbrains.kotlin.jvm") version "1.8.20"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.20"
+    id("fabric-loom") version "1.3-SNAPSHOT"
+    id("org.jetbrains.kotlin.jvm") version "1.8.22"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     idea
 }
@@ -62,16 +62,16 @@ dependencies {
 
 //    handleIncludes(project, transitiveInclude)
 
-    shadow(implementation("org.mariadb.jdbc:mariadb-java-client:3.1.2")!!)
+    shadow(implementation("org.mariadb.jdbc:mariadb-java-client:3.1.4")!!)
     shadow("org.ktorm:ktorm-core:3.6.0")
     shadow("org.ktorm:ktorm-support-mysql:3.6.0")
     shadow("net.lingala.zip4j:zip4j:2.11.2")
     shadow("ch.skyfy.jsonconfiglib:json-config-lib:3.0.14")
-    shadow("com.jayway.jsonpath:json-path:2.7.0")
-    shadow("io.github.binance:binance-connector-java:2.0.0rc2")
+    shadow("com.jayway.jsonpath:json-path:2.8.0")
+    shadow("io.github.binance:binance-connector-java:2.0.0")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.20")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.22")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 }
 
 configurations.implementation.get().extendsFrom(configurations.shadow.get())
@@ -163,7 +163,7 @@ tasks {
     }
 
     named<Wrapper>("wrapper") {
-        gradleVersion = "8.1"
+        gradleVersion = "8.2.1"
         distributionType = Wrapper.DistributionType.BIN
     }
 

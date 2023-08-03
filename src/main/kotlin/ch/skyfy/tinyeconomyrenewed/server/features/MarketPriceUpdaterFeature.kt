@@ -6,7 +6,7 @@ import ch.skyfy.tinyeconomyrenewed.server.config.CryptoBasedPriceReward
 import ch.skyfy.tinyeconomyrenewed.server.config.KilledEntityRewardData
 import ch.skyfy.tinyeconomyrenewed.server.config.MinedBlockRewardData
 import ch.skyfy.tinyeconomyrenewed.server.db.*
-import com.binance.connector.client.impl.WebsocketStreamClientImpl
+import com.binance.connector.client.impl.WebSocketStreamClientImpl
 import com.binance.connector.client.utils.WebSocketCallback
 import com.jayway.jsonpath.JsonPath
 import kotlinx.coroutines.*
@@ -34,7 +34,8 @@ class MarketPriceUpdaterFeature @OptIn(DelicateCoroutinesApi::class) constructor
     override val coroutineContext: CoroutineContext = newSingleThreadContext("MyOwnThread")
 ) : CoroutineScope {
 
-    private val wss: MutableList<WebsocketStreamClientImpl> = mutableListOf()
+
+    private val wss: MutableList<WebSocketStreamClientImpl> = mutableListOf()
 
     init {
 
@@ -87,7 +88,7 @@ class MarketPriceUpdaterFeature @OptIn(DelicateCoroutinesApi::class) constructor
 
 
         map.forEach { (key, list) ->
-            val ws = WebsocketStreamClientImpl()
+            val ws = WebSocketStreamClientImpl()
             wss.add(ws)
             launch {
                 ws.symbolTicker(key, WebSocketCallback { response ->
