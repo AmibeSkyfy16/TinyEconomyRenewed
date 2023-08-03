@@ -16,9 +16,9 @@
 val transitiveInclude: Configuration by configurations.creating
 
 plugins {
-    id("fabric-loom") version "1.1-SNAPSHOT"
-    id("org.jetbrains.kotlin.jvm") version "1.8.20"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.20"
+    id("fabric-loom") version "1.3-SNAPSHOT"
+    id("org.jetbrains.kotlin.jvm") version "1.8.22"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
     idea
 }
 
@@ -50,18 +50,18 @@ dependencies {
 //    include("curse.maven:project-835038:4427154")?.let { modRuntimeOnly(it) } // My mod MariaDBServerFabricMC-0.0.1+1.19.3 is required
 //    modLocalRuntime("curse.maven:project-835038:4427154")
 
-    transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.1.2")!!)
+    transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.1.4")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-core:3.6.0")!!)
     transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.6.0")!!)
 //    transitiveInclude()
     transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.2")!!)
     transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.14")!!)
 
-    transitiveInclude(implementation("com.jayway.jsonpath:json-path:2.7.0") {
+    transitiveInclude(implementation("com.jayway.jsonpath:json-path:2.8.0") {
 //        exclude("org.ow2.asm") // Fix a crash
     })
 
-    transitiveInclude(implementation("io.github.binance:binance-connector-java:2.0.0rc2")!!)
+    transitiveInclude(implementation("io.github.binance:binance-connector-java:2.0.0")!!)
 
 //    transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json5-config-lib:1.0.22")!!)
 //    transitiveInclude(implementation("org.knowm.xchange:xchange-core:5.1.0")!!)
@@ -74,10 +74,10 @@ dependencies {
 
     handleIncludes(project, transitiveInclude)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.20")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.22")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 }
 
 tasks {
@@ -167,7 +167,7 @@ tasks {
     }
 
     named<Wrapper>("wrapper") {
-        gradleVersion = "8.1"
+        gradleVersion = "8.2.1"
         distributionType = Wrapper.DistributionType.BIN
     }
 

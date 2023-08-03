@@ -284,12 +284,14 @@ class ShopFeature(private val databaseManager: DatabaseManager, private val econ
     }
 
     private fun getWallSignData(sign: SignBlockEntity): SignData? {
-        val vendorName = sign.getTextOnRow(0, false).string
+        val vendorName = sign.getText(true).getMessage(0, false).string
+//        val vendorName = sign.getTextOnRow(0, false).string
 
         // TODO this code, can potentially stuck the minecraft server thread
         databaseManager.cachePlayers.find { player: Player -> player.name == vendorName } ?: return null
 
-        val args = sign.getTextOnRow(2, false).string.split(" ")
+//        val args = sign.getTextOnRow(2, false).string.split(" ")
+        val args = sign.getText(true).getMessage(2, false).string.split(" ")
         if (args.count() != 3) return null
         return try {
             val itemAmount = args[0].toInt()
