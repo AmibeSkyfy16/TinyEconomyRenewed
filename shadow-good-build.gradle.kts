@@ -32,7 +32,6 @@ base {
 repositories {
     mavenCentral()
     mavenLocal()
-//    maven("https://maven.bymartrixx.me")
     maven("https://jitpack.io")
     maven("https://maven.nucleoid.xyz")
     maven("https://repo.repsy.io/mvn/amibeskyfy16/repo") // Use for my json5Config lib
@@ -43,30 +42,18 @@ dependencies {
     minecraft("com.mojang:minecraft:${properties["minecraft_version"]}")
     mappings("net.fabricmc:yarn:${properties["yarn_mappings"]}:v2")
 
+//    modRuntimeOnly("curse.maven:mariadbserverfabricmc-835038:4679966")
+
     modImplementation("net.fabricmc:fabric-loader:${properties["loader_version"]}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${properties["fabric_version"]}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
     modImplementation("net.silkmc:silk-game:${properties["silk_version"]}")
 
-//    include("curse.maven:project-835038:4427154")?.let { modRuntimeOnly(it) } // My mod MariaDBServerFabricMC-0.0.1+1.19.3 is required
-//    modLocalRuntime("curse.maven:project-835038:4427154")
-
-//    transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.1.2")!!)
-//    transitiveInclude(implementation("org.ktorm:ktorm-core:3.6.0")!!)
-//    transitiveInclude(implementation("org.ktorm:ktorm-support-mysql:3.6.0")!!)
-//    transitiveInclude(implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")!!)
-//    transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.2")!!)
-//    transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.14")!!)
-//    transitiveInclude(implementation("com.jayway.jsonpath:json-path:2.7.0")!!)
-//    transitiveInclude(implementation("io.github.binance:binance-connector-java:2.0.0rc2")!!)
-
-//    handleIncludes(project, transitiveInclude)
-
     shadow(implementation("org.mariadb.jdbc:mariadb-java-client:3.1.4")!!)
     shadow("org.ktorm:ktorm-core:3.6.0")
     shadow("org.ktorm:ktorm-support-mysql:3.6.0")
-    shadow("net.lingala.zip4j:zip4j:2.11.2")
-    shadow("ch.skyfy.jsonconfiglib:json-config-lib:3.0.14")
+    shadow("net.lingala.zip4j:zip4j:2.11.5")
+    shadow("ch.skyfy.jsonconfiglib:json-config-lib:3.0.15")
     shadow("com.jayway.jsonpath:json-path:2.8.0")
     shadow("io.github.binance:binance-connector-java:2.0.0")
 
@@ -154,12 +141,13 @@ tasks {
     }
 
     java {
-        toolchain {
-//            languageVersion.set(JavaLanguageVersion.of(javaVersion.toString()))
-//            vendor.set(JvmVendorSpec.BELLSOFT)
-        }
         withSourcesJar()
         withJavadocJar()
+
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(javaVersion.toString()))
+            vendor.set(JvmVendorSpec.BELLSOFT)
+        }
     }
 
     named<Wrapper>("wrapper") {
@@ -195,6 +183,7 @@ tasks {
         exclude("net/kyori/**")
         exclude("org/slf4j/**")
 
+        relocate("ch.skyfy.jsonconfiglib", "ch.skyfy.tinyeconomyrenewed.libs.jsonconfiglib")
         relocate("org.mariadb.jdbc", "ch.skyfy.tinyeconomyrenewed.libs.jdbc")
         relocate("org.ktorm", "ch.skyfy.tinyeconomyrenewed.libs.ktorm")
         relocate("org.objectweb", "ch.skyfy.tinyeconomyrenewed.libs.objectweb")

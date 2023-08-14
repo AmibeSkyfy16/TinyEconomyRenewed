@@ -69,6 +69,7 @@ class TinyEconomyRenewedInitializer(private val optGameRef: AtomicReference<Opti
         val delayedTask = TinyEconomyRenewedAPI.getPlayers().ifIsDone {
             println("DONE now")
         }
+
 //        TinyEconomyRenewedAPI.getPlayers().ifIsDoneNowOrOnCompleted { list, wasCompleted ->
 //            println("ifIsDoneNowOrOnCompleted")
 //        }
